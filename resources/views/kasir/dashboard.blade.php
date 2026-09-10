@@ -1,28 +1,62 @@
 @extends('layouts.master')
 
 @section('title')
-    Dashboard
+    Cashier POS Terminal
 @endsection
 
 @section('breadcrumb')
     @parent
-    <li class="active">Dashboard</li>
+    <li class="active">Cashier Terminal</li>
 @endsection
 
 @section('content')
-<!-- Small boxes (Stat box) -->
 <div class="row">
-    <div class="col-lg-12">
-        <div class="box">
-            <div class="box-body text-center">
-                <h1>WELCOME,</h1>
-                <h2>You are logged in as CASHIER</h2>
-                <br><br>
-                <a href="{{ route('transaksi.baru') }}" class="btn btn-success btn-lg">New Transaction</a>
-                <br><br><br>
+    <div class="col-md-8 col-md-offset-2 col-sm-12">
+        <div class="restaurant-hero-banner text-center" style="padding: 36px 24px;">
+            <div class="hero-live-clock" style="margin-bottom: 16px;">
+                <i class="fa fa-clock-o text-orange"></i> <span class="live-time-display">--:--:--</span>
+            </div>
+            <h2 style="font-size: 28px; font-weight: 800; color: #ffffff; margin: 0 0 10px 0;">
+                Restaurant Counter Terminal
+            </h2>
+            <p style="color: #cbd5e1; font-size: 15px; margin-bottom: 24px;">
+                Operator: <strong>{{ auth()->user()->name }}</strong> &nbsp;|&nbsp; Shift: <strong>{{ $shift_name }}</strong>
+            </p>
+
+            <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+                <a href="{{ route('transaksi.baru') }}" class="btn-hero-primary" style="font-size: 16px; padding: 14px 28px;">
+                    <i class="fa fa-bolt"></i> Start New Order / POS Register
+                </a>
+                <a href="{{ route('transaksi.index') }}" class="btn-hero-outline" style="font-size: 16px; padding: 14px 24px;">
+                    <i class="fa fa-shopping-basket"></i> Active Orders
+                </a>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 20px;">
+            <div class="col-sm-6">
+                <div class="kpi-card text-center">
+                    <div class="kpi-icon-wrapper kpi-icon-orange" style="margin: 0 auto 12px auto;">
+                        <i class="fa fa-dollar"></i>
+                    </div>
+                    <div class="kpi-card-body">
+                        <h3>{{ format_uang($today_sales ?? 0) }}</h3>
+                        <p>Your Sales Total Today</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="kpi-card text-center">
+                    <div class="kpi-icon-wrapper kpi-icon-blue" style="margin: 0 auto 12px auto;">
+                        <i class="fa fa-shopping-cart"></i>
+                    </div>
+                    <div class="kpi-card-body">
+                        <h3>{{ $today_orders ?? 0 }}</h3>
+                        <p>Completed Transactions</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div><!-- visit "codeastro" for more projects! -->
-<!-- /.row (main row) -->
+</div>
 @endsection

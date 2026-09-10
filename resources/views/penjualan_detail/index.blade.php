@@ -150,8 +150,6 @@ Sales Transactions
     let table, table2;
 
     $(function () {
-        $('body').addClass('sidebar-collapse');
-
         table = $('.table-penjualan').DataTable({
             responsive: true,
             processing: true,

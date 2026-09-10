@@ -138,8 +138,6 @@ Purchase
     let table, table2;
 
     $(function () {
-        $('body').addClass('sidebar-collapse');
-
         table = $('.table-pembelian').DataTable({
             responsive: true,
             processing: true,

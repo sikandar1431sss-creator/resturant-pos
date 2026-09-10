@@ -1,14 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{{ $setting->nama_perusahaan }} | @yield('title')</title>
+    <title>{{ $setting->nama_perusahaan ?? 'Restaurant POS' }} | @yield('title')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 
-    <link rel="icon" href="{{ url($setting->path_logo) }}" type="image/png">
+    <link rel="icon" href="{{ url($setting->path_logo ?? 'img/logo.png') }}" type="image/png">
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Bootstrap 3.3.7 -->
     <link rel="stylesheet" href="{{ asset('/AdminLTE-2/bower_components/bootstrap/dist/css/bootstrap.min.css') }}">
@@ -16,27 +20,17 @@
     <link rel="stylesheet" href="{{ asset('/AdminLTE-2/bower_components/font-awesome/css/font-awesome.min.css') }}">
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ asset('/AdminLTE-2/dist/css/AdminLTE.min.css') }}">
-    <!-- AdminLTE Skins. Choose a skin from the css/skins
-       folder instead of downloading all of them to reduce the load. -->
+    <!-- AdminLTE Skins -->
     <link rel="stylesheet" href="{{ asset('/AdminLTE-2/dist/css/skins/_all-skins.min.css') }}">
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('/AdminLTE-2/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css') }}">
-
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-  <![endif]-->
-
-    <!-- Google Font -->
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+    
+    <!-- Modern Restaurant UI Overhaul Stylesheet -->
+    <link rel="stylesheet" href="{{ asset('/css/restaurant-modern.css') }}">
 
     @stack('css')
 </head>
-<!-- visit "codeastro" for more projects! -->
-<body class="hold-transition skin-green sidebar-mini">
+<body class="hold-transition skin-black fixed">
     <div class="wrapper">
 
         @includeIf('layouts.header')
@@ -52,16 +46,14 @@
                 </h1>
                 <ol class="breadcrumb">
                     @section('breadcrumb')
-                        <li><a href="{{ url('/') }}"><i class="fa fa-dashboard"></i> Home</a></li>
+                        <li><a href="{{ url('/') }}"><i class="fa fa-cutlery"></i> Home</a></li>
                     @show
                 </ol>
             </section>
 
             <!-- Main content -->
             <section class="content">
-                
                 @yield('content')
-
             </section>
             <!-- /.content -->
         </div>
@@ -91,6 +83,39 @@
             $(selector).empty();
             $(selector).append(`<img src="${window.URL.createObjectURL(temporaryFile)}" width="${width}">`);
         }
+
+        // Live Real-Time Clock updater
+        function updateLiveClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            $('.live-time-display').text(timeStr);
+        }
+        setInterval(updateLiveClock, 1000);
+        updateLiveClock();
+
+        // Strict Button-Only Sidebar Toggle (No hover auto-open/close)
+        $(function() {
+            // Disable AdminLTE hover expansion plugin feature completely
+            if ($.AdminLTE && $.AdminLTE.pushMenu) {
+                $.AdminLTE.pushMenu.options = $.AdminLTE.pushMenu.options || {};
+                $.AdminLTE.pushMenu.options.expandOnHover = false;
+            }
+
+            // Restore user's manual preference if explicitly toggled
+            var savedSidebar = localStorage.getItem('app_sidebar_collapsed');
+            if (savedSidebar === 'true') {
+                $('body').addClass('sidebar-collapse');
+            } else {
+                $('body').removeClass('sidebar-collapse');
+            }
+
+            $(document).on('click', '[data-toggle="push-menu"]', function(e) {
+                setTimeout(function() {
+                    var isCollapsed = $('body').hasClass('sidebar-collapse');
+                    localStorage.setItem('app_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+                }, 150);
+            });
+        });
     </script>
     @stack('scripts')
 </body>
