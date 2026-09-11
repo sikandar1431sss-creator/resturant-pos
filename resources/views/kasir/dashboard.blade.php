@@ -25,10 +25,10 @@
 
             <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
                 <a href="{{ route('transaksi.baru') }}" class="btn-hero-primary" style="font-size: 16px; padding: 14px 28px;">
-                    <i class="fa fa-bolt"></i> Start New Order / POS Register
+                    <i class="fa fa-plus-circle"></i> Create New Invoice
                 </a>
-                <a href="{{ route('transaksi.index') }}" class="btn-hero-outline" style="font-size: 16px; padding: 14px 24px;">
-                    <i class="fa fa-shopping-basket"></i> Active Orders
+                <a href="{{ route('penjualan.index') }}" class="btn-hero-outline" style="font-size: 16px; padding: 14px 24px;">
+                    <i class="fa fa-list-alt"></i> Invoices List
                 </a>
             </div>
         </div>
@@ -40,7 +40,7 @@
                         <i class="fa fa-dollar"></i>
                     </div>
                     <div class="kpi-card-body">
-                        <h3>{{ format_uang($today_sales ?? 0) }}</h3>
+                        <h3>{{ format_currency($today_sales ?? 0) }}</h3>
                         <p>Your Sales Total Today</p>
                     </div>
                 </div>

@@ -96,6 +96,7 @@
                     $('.tampil-foto').html(`<img src="{{ url('/') }}${response.foto}" width="200">`);
                     $('.img-profil').attr('src', `{{ url('/') }}/${response.foto}`);
 
+                    showSuccessToast('Profile updated successfully!');
                     $('.alert').fadeIn();
                     setTimeout(() => {
                         $('.alert').fadeOut();
@@ -103,9 +104,9 @@
                 })
                 .fail(errors => {
                     if (errors.status == 422) {
-                        alert(errors.responseJSON); 
+                        showErrorToast(typeof errors.responseJSON === 'string' ? errors.responseJSON : 'Validation error'); 
                     } else {
-                        alert('Unable to save data');
+                        showErrorToast('Unable to save profile');
                     }
                     return;
                 });

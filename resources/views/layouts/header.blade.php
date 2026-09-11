@@ -29,7 +29,7 @@
                 <span>Live Service</span>
             </div>
             <a href="{{ route('transaksi.baru') }}" class="btn-quick-pos">
-                <i class="fa fa-bolt"></i> Fast POS Order
+                <i class="fa fa-plus-circle"></i> Create New Invoice
             </a>
         </div>
 

@@ -24,8 +24,8 @@ class ProdukController extends Controller
     public function data()
     {
         $produk = Produk::leftJoin('kategori', 'kategori.id_kategori', 'produk.id_kategori')
-            ->select('produk.*', 'nama_kategori')
-            // ->orderBy('kode_produk', 'asc')
+            ->select('produk.*', 'kategori.nama_kategori')
+            ->orderBy('produk.id_produk', 'desc')
             ->get();
 
         return datatables()
@@ -36,27 +36,31 @@ class ProdukController extends Controller
                     <input type="checkbox" name="id_produk[]" value="'. $produk->id_produk .'">
                 ';
             })
+            ->addColumn('foto_preview', function ($produk) {
+                $imgUrl = !empty($produk->foto) ? url($produk->foto) : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&auto=format&fit=crop&q=80';
+                return '<img src="'. $imgUrl .'" style="width: 44px; height: 44px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">';
+            })
             ->addColumn('kode_produk', function ($produk) {
                 return '<span class="label label-success">'. $produk->kode_produk .'</span>';
             })
             ->addColumn('harga_beli', function ($produk) {
-                return format_uang($produk->harga_beli);
+                return format_currency($produk->harga_beli);
             })
             ->addColumn('harga_jual', function ($produk) {
-                return format_uang($produk->harga_jual);
+                return format_currency($produk->harga_jual);
             })
             ->addColumn('stok', function ($produk) {
                 return format_uang($produk->stok);
             })
             ->addColumn('aksi', function ($produk) {
                 return '
-                <div class="btn-group">
-                    <button type="button" onclick="editForm(`'. route('produk.update', $produk->id_produk) .'`)" class="btn btn-xs btn-primary btn-flat"><i class="fa fa-pencil"></i></button>
-                    <button type="button" onclick="deleteData(`'. route('produk.destroy', $produk->id_produk) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
+                <div class="table-actions-group">
+                    <button type="button" onclick="editForm(`'. route('produk.update', $produk->id_produk) .'`)" class="btn-table-action btn-edit" title="Edit Menu Item"><i class="fa fa-pencil"></i></button>
+                    <button type="button" onclick="deleteData(`'. route('produk.destroy', $produk->id_produk) .'`)" class="btn-table-action btn-delete" title="Delete Menu Item"><i class="fa fa-trash"></i></button>
                 </div>
                 ';
             })
-            ->rawColumns(['aksi', 'kode_produk', 'select_all'])
+            ->rawColumns(['aksi', 'foto_preview', 'kode_produk', 'select_all'])
             ->make(true);
     }
 
@@ -78,10 +82,25 @@ class ProdukController extends Controller
      */
     public function store(Request $request)
     {
-        $produk = Produk::latest()->first() ?? new Produk();
-        $request['kode_produk'] = 'P'. tambah_nol_didepan((int)$produk->id_produk +1, 6);
+        $latest = Produk::latest('id_produk')->first();
+        $nextId = $latest ? (int)$latest->id_produk + 1 : 1;
+        $requestData = $request->all();
+        $requestData['kode_produk'] = 'P' . tambah_nol_didepan($nextId, 6);
 
-        $produk = Produk::create($request->all());
+        if ($request->hasFile('foto')) {
+            $file = $request->file('foto');
+            $uploadDir = public_path('img/produk');
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+            $nama = 'produk-' . date('YmdHis') . '-' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move($uploadDir, $nama);
+            $requestData['foto'] = "/img/produk/$nama";
+        } else {
+            unset($requestData['foto']);
+        }
+
+        Produk::create($requestData);
 
         return response()->json('Data saved successfully', 200);
     }
@@ -119,8 +138,29 @@ class ProdukController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $produk = Produk::find($id);
-        $produk->update($request->all());
+        $produk = Produk::findOrFail($id);
+        $requestData = $request->all();
+
+        if ($request->hasFile('foto')) {
+            $file = $request->file('foto');
+            $uploadDir = public_path('img/produk');
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            // Unlink old photo if exists
+            if (!empty($produk->foto) && file_exists(public_path($produk->foto))) {
+                @unlink(public_path($produk->foto));
+            }
+
+            $nama = 'produk-' . date('YmdHis') . '-' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move($uploadDir, $nama);
+            $requestData['foto'] = "/img/produk/$nama";
+        } else {
+            unset($requestData['foto']);
+        }
+
+        $produk->update($requestData);
 
         return response()->json('Data saved successfully', 200);
     }
@@ -134,16 +174,28 @@ class ProdukController extends Controller
     public function destroy($id)
     {
         $produk = Produk::find($id);
-        $produk->delete();
+        if ($produk) {
+            if (!empty($produk->foto) && file_exists(public_path($produk->foto))) {
+                @unlink(public_path($produk->foto));
+            }
+            $produk->delete();
+        }
 
         return response(null, 204);
     }
 
     public function deleteSelected(Request $request)
     {
-        foreach ($request->id_produk as $id) {
-            $produk = Produk::find($id);
-            $produk->delete();
+        if (!empty($request->id_produk) && is_array($request->id_produk)) {
+            foreach ($request->id_produk as $id) {
+                $produk = Produk::find($id);
+                if ($produk) {
+                    if (!empty($produk->foto) && file_exists(public_path($produk->foto))) {
+                        @unlink(public_path($produk->foto));
+                    }
+                    $produk->delete();
+                }
+            }
         }
 
         return response(null, 204);
@@ -152,9 +204,13 @@ class ProdukController extends Controller
     public function cetakBarcode(Request $request)
     {
         $dataproduk = array();
-        foreach ($request->id_produk as $id) {
-            $produk = Produk::find($id);
-            $dataproduk[] = $produk;
+        if (!empty($request->id_produk) && is_array($request->id_produk)) {
+            foreach ($request->id_produk as $id) {
+                $produk = Produk::find($id);
+                if ($produk) {
+                    $dataproduk[] = $produk;
+                }
+            }
         }
 
         $no  = 1;
@@ -163,3 +219,4 @@ class ProdukController extends Controller
         return $pdf->stream('product.pdf');
     }
 }
+

@@ -61,10 +61,11 @@
                 $.post($('#modal-form form').attr('action'), $('#modal-form form').serialize())
                     .done((response) => {
                         $('#modal-form').modal('hide');
+                        showSuccessToast('Supplier saved successfully');
                         table.ajax.reload();
                     })
                     .fail((errors) => {
-                        alert('Unable to save data');
+                        showErrorToast('Unable to save supplier data');
                         return;
                     });
             }
@@ -73,7 +74,7 @@
 
     function addForm(url) {
         $('#modal-form').modal('show');
-        $('#modal-form .modal-title').text('Add Supplier');
+        $('#modal-form .modal-title').text('Add Food Supplier');
 
         $('#modal-form form')[0].reset();
         $('#modal-form form').attr('action', url);
@@ -83,7 +84,7 @@
 
     function editForm(url) {
         $('#modal-form').modal('show');
-        $('#modal-form .modal-title').text('Edit Supplier');
+        $('#modal-form .modal-title').text('Edit Food Supplier');
 
         $('#modal-form form')[0].reset();
         $('#modal-form form').attr('action', url);
@@ -97,25 +98,25 @@
                 $('#modal-form [name=alamat]').val(response.alamat);
             })
             .fail((errors) => {
-                alert('Unable to display data');
+                showErrorToast('Unable to display supplier data');
                 return;
             });
     }
 
     function deleteData(url) {
-        if (confirm('Are you sure you want to delete selected data?')) {
+        showConfirmDialog('Delete Supplier?', 'Are you sure you want to delete this supplier?', 'Yes, delete', function() {
             $.post(url, {
                     '_token': $('[name=csrf-token]').attr('content'),
                     '_method': 'delete'
                 })
                 .done((response) => {
+                    showSuccessToast('Supplier deleted successfully');
                     table.ajax.reload();
                 })
                 .fail((errors) => {
-                    alert('Unable to delete data');
-                    return;
+                    showErrorToast('Unable to delete supplier');
                 });
-        }
+        });
     }
 </script>
 @endpush

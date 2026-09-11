@@ -14,21 +14,22 @@
     <div class="col-lg-12">
         <div class="box">
             <div class="box-header with-border">
-                <div class="btn-group">
-                    <button onclick="addForm('{{ route('produk.store') }}')" class="btn btn-success  btn-flat"><i class="fa fa-plus-circle"></i> Add New Product</button>
-                    <button onclick="deleteSelected('{{ route('produk.delete_selected') }}')" class="btn btn-danger  btn-flat"><i class="fa fa-trash"></i> Delete</button>
-                    <button onclick="cetakBarcode('{{ route('produk.cetak_barcode') }}')" class="btn btn-warning  btn-flat"><i class="fa fa-barcode"></i> Print Barcode</button>
+                <div class="box-header-actions" style="display: inline-flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <button onclick="addForm('{{ route('produk.store') }}')" class="btn btn-success btn-flat"><i class="fa fa-plus-circle"></i> Add New Product</button>
+                    <button onclick="deleteSelected('{{ route('produk.delete_selected') }}')" class="btn btn-danger btn-flat"><i class="fa fa-trash"></i> Delete</button>
+                    <button onclick="cetakBarcode('{{ route('produk.cetak_barcode') }}')" class="btn btn-warning btn-flat"><i class="fa fa-barcode"></i> Print Barcode</button>
                 </div>
             </div>
             <div class="box-body table-responsive">
                 <form action="" method="post" class="form-produk">
                     @csrf
-                    <table class="table table-stiped table-bordered table-hover">
+                    <table class="table table-striped table-bordered table-hover">
                         <thead>
                             <th width="5%">
                                 <input type="checkbox" name="select_all" id="select_all">
                             </th>
                             <th width="5%">#</th>
+                            <th width="8%">Photo</th>
                             <th>Code</th>
                             <th>Name</th>
                             <th>Category</th>
@@ -37,7 +38,7 @@
                             <th>Selling Price</th>
                             <th>Discount</th>
                             <th>Stock</th>
-                            <th width="15%"><i class="fa fa-cog"></i></th>
+                            <th width="12%"><i class="fa fa-cog"></i></th>
                         </thead>
                     </table>
                 </form>
@@ -65,6 +66,7 @@
             columns: [
                 {data: 'select_all', searchable: false, sortable: false},
                 {data: 'DT_RowIndex', searchable: false, sortable: false},
+                {data: 'foto_preview', searchable: false, sortable: false},
                 {data: 'kode_produk'},
                 {data: 'nama_produk'},
                 {data: 'nama_kategori'},
@@ -79,15 +81,23 @@
 
         $('#modal-form').validator().on('submit', function (e) {
             if (! e.preventDefault()) {
-                $.post($('#modal-form form').attr('action'), $('#modal-form form').serialize())
-                    .done((response) => {
-                        $('#modal-form').modal('hide');
-                        table.ajax.reload();
-                    })
-                    .fail((errors) => {
-                        alert('Unable to save data');
-                        return;
-                    });
+                $.ajax({
+                    url: $('#modal-form form').attr('action'),
+                    type: 'post',
+                    data: new FormData($('#modal-form form')[0]),
+                    async: false,
+                    processData: false,
+                    contentType: false
+                })
+                .done((response) => {
+                    $('#modal-form').modal('hide');
+                    showSuccessToast('Product saved successfully');
+                    table.ajax.reload();
+                })
+                .fail((errors) => {
+                    showErrorToast('Unable to save product. Please check required fields.');
+                    return;
+                });
             }
         });
 
@@ -98,22 +108,24 @@
 
     function addForm(url) {
         $('#modal-form').modal('show');
-        $('#modal-form .modal-title').text('Add Product');
+        $('#modal-form .modal-title').text('Add Product / Dish');
 
         $('#modal-form form')[0].reset();
         $('#modal-form form').attr('action', url);
         $('#modal-form [name=_method]').val('post');
         $('#modal-form [name=nama_produk]').focus();
+        $('#modal-form .tampil-foto-produk').empty();
     }
 
     function editForm(url) {
         $('#modal-form').modal('show');
-        $('#modal-form .modal-title').text('Edit Product');
+        $('#modal-form .modal-title').text('Edit Product / Dish');
 
         $('#modal-form form')[0].reset();
         $('#modal-form form').attr('action', url);
         $('#modal-form [name=_method]').val('put');
         $('#modal-form [name=nama_produk]').focus();
+        $('#modal-form .tampil-foto-produk').empty();
 
         $.get(url)
             .done((response) => {
@@ -124,53 +136,57 @@
                 $('#modal-form [name=harga_jual]').val(response.harga_jual);
                 $('#modal-form [name=diskon]').val(response.diskon);
                 $('#modal-form [name=stok]').val(response.stok);
+
+                if (response.foto) {
+                    $('#modal-form .tampil-foto-produk').html(`<img src="{{ url('/') }}${response.foto}" width="100" style="border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 6px;">`);
+                }
             })
             .fail((errors) => {
-                alert('Unable to display data');
+                showErrorToast('Unable to display product data');
                 return;
             });
     }
 
     function deleteData(url) {
-        if (confirm('Are you sure you want to delete selected data?')) {
+        showConfirmDialog('Delete Product?', 'Are you sure you want to delete this menu item?', 'Yes, delete', function() {
             $.post(url, {
                     '_token': $('[name=csrf-token]').attr('content'),
                     '_method': 'delete'
                 })
                 .done((response) => {
+                    showSuccessToast('Product deleted successfully');
                     table.ajax.reload();
                 })
                 .fail((errors) => {
-                    alert('Unable to delete data');
-                    return;
+                    showErrorToast('Unable to delete product');
                 });
-        }
+        });
     }
 
     function deleteSelected(url) {
         if ($('input:checked').length > 1) {
-            if (confirm('Yakin ingin menghapus data terpilih?')) {
+            showConfirmDialog('Delete Selected?', 'Are you sure you want to delete all selected items?', 'Yes, delete all', function() {
                 $.post(url, $('.form-produk').serialize())
                     .done((response) => {
+                        showSuccessToast('Selected items deleted');
                         table.ajax.reload();
                     })
                     .fail((errors) => {
-                        alert('Unable to delete data');
-                        return;
+                        showErrorToast('Unable to delete selected items');
                     });
-            }
+            });
         } else {
-            alert('Select the data to delete');
+            showWarningToast('Please select at least one item to delete');
             return;
         }
     }
 
     function cetakBarcode(url) {
         if ($('input:checked').length < 1) {
-            alert('Select the data to print');
+            showWarningToast('Select at least one product to print barcodes');
             return;
         } else if ($('input:checked').length < 3) {
-            alert('Select at least 3 data to print');
+            showWarningToast('Select at least 3 products to print barcode sheet');
             return;
         } else {
             $('.form-produk')

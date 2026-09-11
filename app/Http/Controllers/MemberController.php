@@ -36,9 +36,9 @@ class MemberController extends Controller
             })
             ->addColumn('aksi', function ($member) {
                 return '
-                <div class="btn-group">
-                    <button type="button" onclick="editForm(`'. route('member.update', $member->id_member) .'`)" class="btn btn-xs btn-primary btn-flat"><i class="fa fa-pencil"></i></button>
-                    <button type="button" onclick="deleteData(`'. route('member.destroy', $member->id_member) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
+                <div class="table-actions-group">
+                    <button type="button" onclick="editForm(`'. route('member.update', $member->id_member) .'`)" class="btn-table-action btn-edit" title="Edit Contact"><i class="fa fa-pencil"></i></button>
+                    <button type="button" onclick="deleteData(`'. route('member.destroy', $member->id_member) .'`)" class="btn-table-action btn-delete" title="Delete Contact"><i class="fa fa-trash"></i></button>
                 </div>
                 ';
             })

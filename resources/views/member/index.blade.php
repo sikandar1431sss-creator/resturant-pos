@@ -1,12 +1,12 @@
 @extends('layouts.master')
 
 @section('title')
-List of Members
+Contacts
 @endsection
 
 @section('breadcrumb')
     @parent
-    <li class="active">List of Members</li>
+    <li class="active">Contacts</li>
 @endsection
 
 @section('content')
@@ -14,8 +14,10 @@ List of Members
     <div class="col-lg-12">
         <div class="box">
             <div class="box-header with-border">
-                <button onclick="addForm('{{ route('member.store') }}')" class="btn btn-success btn-flat"><i class="fa fa-plus-circle"></i> Add New Member</button>
-                <button onclick="cetakMember('{{ route('member.cetak_member') }}')" class="btn btn-primary btn-flat"><i class="fa fa-id-card"></i> Download Membership Card</button>
+                <div class="box-header-actions" style="display: inline-flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <button onclick="addForm('{{ route('member.store') }}')" class="btn btn-success btn-flat"><i class="fa fa-plus-circle"></i> Add New Contact</button>
+                    <button onclick="cetakMember('{{ route('member.cetak_member') }}')" class="btn btn-primary btn-flat"><i class="fa fa-id-card"></i> Download Cards</button>
+                </div>
             </div>
             <div class="box-body table-responsive">
                 <form action="" method="post" class="form-member">
@@ -71,10 +73,11 @@ List of Members
                 $.post($('#modal-form form').attr('action'), $('#modal-form form').serialize())
                     .done((response) => {
                         $('#modal-form').modal('hide');
+                        showSuccessToast('Diner member saved successfully');
                         table.ajax.reload();
                     })
                     .fail((errors) => {
-                        alert('Unable to save data');
+                        showErrorToast('Unable to save member data');
                         return;
                     });
             }
@@ -87,7 +90,7 @@ List of Members
 
     function addForm(url) {
         $('#modal-form').modal('show');
-        $('#modal-form .modal-title').text('Add Member');
+        $('#modal-form .modal-title').text('Add Diner Member');
 
         $('#modal-form form')[0].reset();
         $('#modal-form form').attr('action', url);
@@ -97,7 +100,7 @@ List of Members
 
     function editForm(url) {
         $('#modal-form').modal('show');
-        $('#modal-form .modal-title').text('Edit Member');
+        $('#modal-form .modal-title').text('Edit Diner Member');
 
         $('#modal-form form')[0].reset();
         $('#modal-form form').attr('action', url);
@@ -111,30 +114,30 @@ List of Members
                 $('#modal-form [name=alamat]').val(response.alamat);
             })
             .fail((errors) => {
-                alert('Unable to display data');
+                showErrorToast('Unable to display member data');
                 return;
             });
     }
 
     function deleteData(url) {
-        if (confirm('Are you sure you want to delete selected data?')) {
+        showConfirmDialog('Delete Member?', 'Are you sure you want to delete this diner member?', 'Yes, delete', function() {
             $.post(url, {
                     '_token': $('[name=csrf-token]').attr('content'),
                     '_method': 'delete'
                 })
                 .done((response) => {
+                    showSuccessToast('Member deleted successfully');
                     table.ajax.reload();
                 })
                 .fail((errors) => {
-                    alert('Unable to delete data');
-                    return;
+                    showErrorToast('Unable to delete member');
                 });
-        }
+        });
     }
 
     function cetakMember(url) {
         if ($('input:checked').length < 1) {
-            alert('Select the data to print');
+            showWarningToast('Select at least one member to print cards');
             return;
         } else {
             $('.form-member')

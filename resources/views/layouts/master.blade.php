@@ -28,6 +28,9 @@
     <!-- Modern Restaurant UI Overhaul Stylesheet -->
     <link rel="stylesheet" href="{{ asset('/css/restaurant-modern.css') }}">
 
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
     @stack('css')
 </head>
 <body class="hold-transition skin-black fixed">
@@ -116,6 +119,76 @@
                 }, 150);
             });
         });
+    </script>
+
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Custom Styled SweetAlert Toast (Large & Prominent)
+        const SwalToast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3500,
+            timerProgressBar: true,
+            width: '420px',
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        // Global Alert Helper functions
+        function showSuccessToast(message = 'Action completed successfully!') {
+            SwalToast.fire({
+                icon: 'success',
+                title: message
+            });
+        }
+
+        function showErrorToast(message = 'Something went wrong!') {
+            SwalToast.fire({
+                icon: 'error',
+                title: message
+            });
+        }
+
+        function showWarningToast(message) {
+            SwalToast.fire({
+                icon: 'warning',
+                title: message
+            });
+        }
+
+        function showConfirmDialog(title, text, confirmBtnText, onConfirmCallback) {
+            Swal.fire({
+                title: title || 'Are you sure?',
+                text: text || "You won't be able to revert this!",
+                icon: 'warning',
+                width: '520px',
+                showCancelButton: true,
+                confirmButtonColor: '#f97316',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: confirmBtnText || 'Yes, proceed!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (typeof onConfirmCallback === 'function') {
+                        onConfirmCallback();
+                    }
+                }
+            });
+        }
+
+        @if (session()->has('success'))
+            showSuccessToast("{{ session('success') }}");
+        @endif
+        @if (session()->has('error'))
+            showErrorToast("{{ session('error') }}");
+        @endif
+        @if (session()->has('warning'))
+            showWarningToast("{{ session('warning') }}");
+        @endif
     </script>
     @stack('scripts')
 </body>

@@ -25,6 +25,9 @@ class SettingController extends Controller
         $setting->alamat = $request->alamat;
         $setting->diskon = $request->diskon;
         $setting->tipe_nota = $request->tipe_nota;
+        $setting->mata_uang = $request->mata_uang ?? 'PKR';
+        $setting->terms_title = $request->terms_title ?? 'شرائط و ضوابط';
+        $setting->terms_conditions = $request->terms_conditions;
 
         if ($request->hasFile('path_logo')) {
             $file = $request->file('path_logo');

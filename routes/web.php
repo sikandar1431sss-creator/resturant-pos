@@ -63,16 +63,23 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/pembelian_detail/loadform/{diskon}/{total}', [PembelianDetailController::class, 'loadForm'])->name('pembelian_detail.load_form');
         Route::resource('/pembelian_detail', PembelianDetailController::class)
             ->except('create', 'show', 'edit');
-
-        Route::get('/penjualan/data', [PenjualanController::class, 'data'])->name('penjualan.data');
-        Route::get('/penjualan', [PenjualanController::class, 'index'])->name('penjualan.index');
-        Route::get('/penjualan/{id}', [PenjualanController::class, 'show'])->name('penjualan.show');
-        Route::delete('/penjualan/{id}', [PenjualanController::class, 'destroy'])->name('penjualan.destroy');
     });
 
     Route::group(['middleware' => 'level:1,2'], function () {
+        Route::get('/penjualan/data', [PenjualanController::class, 'data'])->name('penjualan.data');
+        Route::get('/penjualan', [PenjualanController::class, 'index'])->name('penjualan.index');
+        Route::get('/penjualan/{id}', [PenjualanController::class, 'show'])->name('penjualan.show');
+        Route::post('/penjualan/{id}/settle', [PenjualanController::class, 'settlePayment'])->name('penjualan.settle');
+        Route::get('/penjualan/{id}/nota-kecil', [PenjualanController::class, 'notaKecilSingle'])->name('penjualan.nota_kecil');
+        Route::get('/penjualan/{id}/nota-besar', [PenjualanController::class, 'notaBesarSingle'])->name('penjualan.nota_besar');
+        Route::delete('/penjualan/{id}', [PenjualanController::class, 'destroy'])->name('penjualan.destroy');
+
         Route::get('/transaksi/baru', [PenjualanController::class, 'create'])->name('transaksi.baru');
         Route::post('/transaksi/simpan', [PenjualanController::class, 'store'])->name('transaksi.simpan');
+        Route::post('/transaksi/draft', [PenjualanController::class, 'saveDraft'])->name('transaksi.draft');
+        Route::get('/transaksi/draft-list', [PenjualanController::class, 'draftList'])->name('transaksi.draft_list');
+        Route::get('/transaksi/resume/{id}', [PenjualanController::class, 'resumeDraft'])->name('transaksi.resume_draft');
+        Route::delete('/transaksi/draft/{id}', [PenjualanController::class, 'deleteDraft'])->name('transaksi.delete_draft');
         Route::get('/transaksi/selesai', [PenjualanController::class, 'selesai'])->name('transaksi.selesai');
         Route::get('/transaksi/nota-kecil', [PenjualanController::class, 'notaKecil'])->name('transaksi.nota_kecil');
         Route::get('/transaksi/nota-besar', [PenjualanController::class, 'notaBesar'])->name('transaksi.nota_besar');

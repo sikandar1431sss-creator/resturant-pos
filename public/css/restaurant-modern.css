@@ -1029,6 +1029,32 @@ body .sidebar-menu > li.active > a i {
     color: var(--dark-900) !important;
 }
 
+.box-header-actions {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+}
+
+.box-header-actions .btn,
+.box-header .btn {
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    padding: 8px 16px !important;
+    font-size: 13.5px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.box-header-actions .btn:hover,
+.box-header .btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12) !important;
+}
+
 .btn-flat {
     border-radius: 8px !important;
 }
@@ -1070,3 +1096,229 @@ body .sidebar-menu > li.active > a i {
     font-size: 12px;
     padding: 14px 24px;
 }
+
+/* ==========================================================================
+   SWEETALERT2 MODERN EXECUTIVE THEME & LARGE PROPORTIONS
+   ========================================================================== */
+.swal2-popup {
+    font-family: var(--font-main) !important;
+    border-radius: 18px !important;
+}
+
+/* Large, Prominent Toast */
+.swal2-popup.swal2-toast {
+    width: 420px !important;
+    max-width: 90vw !important;
+    padding: 16px 20px !important;
+    border-radius: 14px !important;
+    box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.22), 0 6px 16px rgba(0, 0, 0, 0.08) !important;
+    background: #ffffff !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+}
+
+.swal2-popup.swal2-toast .swal2-title {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    line-height: 1.4 !important;
+    margin: 0 !important;
+}
+
+.swal2-popup.swal2-toast .swal2-icon {
+    transform: scale(1.15) !important;
+    margin: 0 14px 0 0 !important;
+}
+
+/* Large, Premium Modal / Confirm Dialog */
+.swal2-popup:not(.swal2-toast) {
+    width: 520px !important;
+    max-width: 92vw !important;
+    padding: 34px 30px !important;
+    border-radius: 22px !important;
+    box-shadow: 0 25px 60px -10px rgba(15, 23, 42, 0.3) !important;
+    border: 1px solid rgba(226, 232, 240, 0.6) !important;
+}
+
+.swal2-popup:not(.swal2-toast) .swal2-title {
+    font-size: 24px !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    margin: 0 0 10px 0 !important;
+    letter-spacing: -0.02em !important;
+}
+
+.swal2-popup:not(.swal2-toast) .swal2-html-container {
+    font-size: 16px !important;
+    color: #64748b !important;
+    line-height: 1.6 !important;
+    margin: 10px 0 24px 0 !important;
+    font-weight: 500 !important;
+}
+
+.swal2-popup:not(.swal2-toast) .swal2-icon {
+    transform: scale(1.2) !important;
+    margin: 12px auto 22px auto !important;
+    border-width: 3.5px !important;
+}
+
+.swal2-popup:not(.swal2-toast) .swal2-actions {
+    margin-top: 24px !important;
+    gap: 14px !important;
+    width: 100% !important;
+    justify-content: center !important;
+}
+
+.swal2-popup:not(.swal2-toast) .swal2-confirm {
+    padding: 13px 30px !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3) !important;
+    transition: all 0.2s ease !important;
+}
+
+.swal2-popup:not(.swal2-toast) .swal2-confirm:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4) !important;
+}
+
+.swal2-popup:not(.swal2-toast) .swal2-cancel {
+    padding: 13px 26px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    border-radius: 12px !important;
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    transition: all 0.2s ease !important;
+}
+
+.swal2-popup:not(.swal2-toast) .swal2-cancel:hover {
+    background: #e2e8f0 !important;
+    color: #1e293b !important;
+}
+
+/* ==========================================================================
+   GLOBAL DATA-TABLE ACTION BUTTONS (PROMINENT SIZE WITH CRISP SPACING)
+   ========================================================================== */
+.table-actions-group {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: nowrap !important;
+}
+
+.btn-table-action {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 14px !important;
+    border: 1px solid transparent !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+    padding: 0 !important;
+}
+
+.btn-table-action:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18) !important;
+}
+
+.btn-table-action:active {
+    transform: scale(0.95) !important;
+}
+
+.btn-table-action.btn-edit,
+.btn-table-action.btn-edit i,
+.btn-table-action.btn-edit .fa {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+    border-color: #2563eb !important;
+}
+.btn-table-action.btn-edit:hover,
+.btn-table-action.btn-edit:hover i,
+.btn-table-action.btn-edit:hover .fa,
+.btn-table-action.btn-edit:focus,
+.btn-table-action.btn-edit:focus i,
+.btn-table-action.btn-edit:focus .fa {
+    background-color: #1d4ed8 !important;
+    color: #ffffff !important;
+    border-color: #1d4ed8 !important;
+}
+
+.btn-table-action.btn-delete,
+.btn-table-action.btn-delete i,
+.btn-table-action.btn-delete .fa {
+    background-color: #ef4444 !important;
+    color: #ffffff !important;
+    border-color: #ef4444 !important;
+}
+.btn-table-action.btn-delete:hover,
+.btn-table-action.btn-delete:hover i,
+.btn-table-action.btn-delete:hover .fa,
+.btn-table-action.btn-delete:focus,
+.btn-table-action.btn-delete:focus i,
+.btn-table-action.btn-delete:focus .fa {
+    background-color: #dc2626 !important;
+    color: #ffffff !important;
+    border-color: #dc2626 !important;
+}
+
+.btn-table-action.btn-print,
+.btn-table-action.btn-print i,
+.btn-table-action.btn-print .fa {
+    background-color: #f1f5f9 !important;
+    color: #334155 !important;
+    border-color: #cbd5e1 !important;
+}
+.btn-table-action.btn-print:hover,
+.btn-table-action.btn-print:hover i,
+.btn-table-action.btn-print:hover .fa {
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+    border-color: #94a3b8 !important;
+}
+
+.btn-table-action.btn-view,
+.btn-table-action.btn-view i,
+.btn-table-action.btn-view .fa {
+    background-color: #0284c7 !important;
+    color: #ffffff !important;
+    border-color: #0284c7 !important;
+}
+.btn-table-action.btn-view:hover,
+.btn-table-action.btn-view:hover i,
+.btn-table-action.btn-view:hover .fa {
+    background-color: #0369a1 !important;
+    color: #ffffff !important;
+    border-color: #0369a1 !important;
+}
+
+.btn-table-action.btn-pay,
+.btn-table-action.btn-pay i,
+.btn-table-action.btn-pay .fa {
+    width: auto !important;
+    min-width: auto !important;
+    height: 35px !important;
+    padding: 0 13px !important;
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    gap: 6px !important;
+    background-color: #10b981 !important;
+    color: #ffffff !important;
+    border-color: #10b981 !important;
+}
+.btn-table-action.btn-pay:hover,
+.btn-table-action.btn-pay:hover i,
+.btn-table-action.btn-pay:hover .fa {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+    border-color: #059669 !important;
+}
+
+

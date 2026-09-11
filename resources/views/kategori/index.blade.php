@@ -58,10 +58,11 @@
                 $.post($('#modal-form form').attr('action'), $('#modal-form form').serialize())
                     .done((response) => {
                         $('#modal-form').modal('hide');
+                        showSuccessToast('Category saved successfully');
                         table.ajax.reload();
                     })
                     .fail((errors) => {
-                        alert('Unable to save data');
+                        showErrorToast('Unable to save category');
                         return;
                     });
             }
@@ -70,7 +71,7 @@
 
     function addForm(url) {
         $('#modal-form').modal('show');
-        $('#modal-form .modal-title').text('Add Categort');
+        $('#modal-form .modal-title').text('Add Category');
 
         $('#modal-form form')[0].reset();
         $('#modal-form form').attr('action', url);
@@ -92,25 +93,25 @@
                 $('#modal-form [name=nama_kategori]').val(response.nama_kategori);
             })
             .fail((errors) => {
-                alert('Unable to display data');
+                showErrorToast('Unable to display category data');
                 return;
             });
     }
 
     function deleteData(url) {
-        if (confirm('Are you sure you want to delete selected data?')) {
+        showConfirmDialog('Delete Category?', 'Are you sure you want to delete this category?', 'Yes, delete', function() {
             $.post(url, {
                     '_token': $('[name=csrf-token]').attr('content'),
                     '_method': 'delete'
                 })
                 .done((response) => {
+                    showSuccessToast('Category deleted successfully');
                     table.ajax.reload();
                 })
                 .fail((errors) => {
-                    alert('Cannot delete data');
-                    return;
+                    showErrorToast('Cannot delete category');
                 });
-        }
+        });
     }
 </script>
 @endpush

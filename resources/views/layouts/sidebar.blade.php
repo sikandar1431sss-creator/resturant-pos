@@ -8,29 +8,24 @@
                 </a>
             </li>
 
-            <li class="header">POS & ORDERS</li>
-            <li class="{{ request()->is('transaksi/baru*') ? 'active' : '' }}">
+            <li class="header">POS & INVOICES</li>
+            <li class="{{ request()->is('transaksi*') ? 'active' : '' }}">
                 <a href="{{ route('transaksi.baru') }}">
-                    <i class="fa fa-bolt" style="color: #f97316;"></i> <span>Fast POS Register</span>
+                    <i class="fa fa-plus-circle" style="color: #f97316;"></i> <span>Create New Invoice</span>
                 </a>
             </li>
-            <li class="{{ request()->is('transaksi') || (request()->is('transaksi/*') && !request()->is('transaksi/baru*')) ? 'active' : '' }}">
-                <a href="{{ route('transaksi.index') }}">
-                    <i class="fa fa-shopping-basket"></i> <span>Active Orders</span>
+            <li class="{{ request()->is('penjualan*') ? 'active' : '' }}">
+                <a href="{{ route('penjualan.index') }}">
+                    <i class="fa fa-list-alt"></i> <span>Invoices List</span>
                 </a>
             </li>
 
             @if (auth()->user()->level == 1)
-            <li class="{{ request()->is('penjualan*') ? 'active' : '' }}">
-                <a href="{{ route('penjualan.index') }}">
-                    <i class="fa fa-list-alt"></i> <span>Order History</span>
-                </a>
-            </li>
 
             <li class="header">MENU & DINING</li>
             <li class="{{ request()->is('produk*') ? 'active' : '' }}">
                 <a href="{{ route('produk.index') }}">
-                    <i class="fa fa-cutlery"></i> <span>Food Menu & Dishes</span>
+                    <i class="fa fa-cutlery"></i> <span>Menu</span>
                 </a>
             </li>
             <li class="{{ request()->is('kategori*') ? 'active' : '' }}">
@@ -42,7 +37,7 @@
             <li class="header">CUSTOMERS & SUPPLIERS</li>
             <li class="{{ request()->is('member*') ? 'active' : '' }}">
                 <a href="{{ route('member.index') }}">
-                    <i class="fa fa-id-card-o"></i> <span>Diners & VIP Members</span>
+                    <i class="fa fa-id-card-o"></i> <span>Contacts</span>
                 </a>
             </li>
             <li class="{{ request()->is('supplier*') ? 'active' : '' }}">

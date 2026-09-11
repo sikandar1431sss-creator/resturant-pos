@@ -170,12 +170,12 @@ Purchase
 
             if (jumlah < 1) {
                 $(this).val(1);
-                alert('The number cannot be less than 1');
+                showWarningToast('The quantity cannot be less than 1');
                 return;
             }
             if (jumlah > 10000) {
                 $(this).val(10000);
-                alert('The number cannot exceed 10000');
+                showWarningToast('The quantity cannot exceed 10,000');
                 return;
             }
 
@@ -190,7 +190,7 @@ Purchase
                     });
                 })
                 .fail(errors => {
-                    alert('Unable to save data');
+                    showErrorToast('Unable to save data');
                     return;
                 });
         });
@@ -230,25 +230,26 @@ Purchase
                 table.ajax.reload(() => loadForm($('#diskon').val()));
             })
             .fail(errors => {
-                alert('Unable to save data');
+                showErrorToast('Unable to save data');
                 return;
             });
     }
 
     function deleteData(url) {
-        if (confirm('Are you sure you want to delete selected data?')) {
+        showConfirmDialog('Delete Item?', 'Are you sure you want to delete this purchase item?', 'Yes, delete', function() {
             $.post(url, {
                     '_token': $('[name=csrf-token]').attr('content'),
                     '_method': 'delete'
                 })
                 .done((response) => {
                     table.ajax.reload(() => loadForm($('#diskon').val()));
+                    showSuccessToast('Item removed successfully');
                 })
                 .fail((errors) => {
-                    alert('Unable to delete data');
+                    showErrorToast('Unable to delete data');
                     return;
                 });
-        }
+        });
     }
 
     function loadForm(diskon = 0) {
@@ -257,14 +258,14 @@ Purchase
 
         $.get(`{{ url('/pembelian_detail/loadform') }}/${diskon}/${$('.total').text()}`)
             .done(response => {
-                $('#totalrp').val('$ '+ response.totalrp);
-                $('#bayarrp').val('$ '+ response.bayarrp);
+                $('#totalrp').val('{{ get_currency_symbol() }} '+ response.totalrp);
+                $('#bayarrp').val('{{ get_currency_symbol() }} '+ response.bayarrp);
                 $('#bayar').val(response.bayar);
-                $('.tampil-bayar').text('$ '+ response.bayarrp);
+                $('.tampil-bayar').text('{{ get_currency_symbol() }} '+ response.bayarrp);
                 $('.tampil-terbilang').text(response.terbilang);
             })
             .fail(errors => {
-                alert('Unable to display data');
+                showErrorToast('Unable to display data');
                 return;
             })
     }

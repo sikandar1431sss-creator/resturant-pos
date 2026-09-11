@@ -1,7 +1,48 @@
 <?php
+function get_setting($fresh = false) {
+    static $setting = null;
+    if ($setting === null || $fresh) {
+        try {
+            $setting = \App\Models\Setting::first();
+        } catch (\Throwable $e) {
+            $setting = null;
+        }
+    }
+    return $setting;
+}
+
+function get_currency_symbol() {
+    $setting = get_setting();
+    $curr = strtoupper($setting->mata_uang ?? 'PKR');
+    
+    switch ($curr) {
+        case 'PKR':
+            return 'RS';
+        case 'USD':
+            return '$';
+        case 'EUR':
+            return '€';
+        case 'GBP':
+            return '£';
+        case 'INR':
+            return '₹';
+        case 'AED':
+            return 'AED';
+        case 'SAR':
+            return 'SAR';
+        case 'IDR':
+            return 'Rp';
+        default:
+            return $curr ?: 'RS';
+    }
+}
+
+function format_currency($angka) {
+    return get_currency_symbol() . ' ' . format_uang($angka);
+}
 
 function format_uang ($angka) {
-    return number_format($angka, 0, ',', '.');
+    return number_format((float)($angka ?? 0), 0, ',', '.');
 }
 
 // function terbilang ($angka) {

@@ -27,7 +27,7 @@
         </div>
         <div class="col-md-4 col-sm-12 text-right hero-actions" style="margin-top: 10px;">
             <a href="{{ route('transaksi.baru') }}" class="btn-hero-primary">
-                <i class="fa fa-bolt"></i> New POS Order
+                <i class="fa fa-plus-circle"></i> Create New Invoice
             </a>
             <a href="{{ route('produk.index') }}" class="btn-hero-outline">
                 <i class="fa fa-plus-circle"></i> Add Dish
@@ -41,16 +41,16 @@
     <div class="quick-action-dock-title">Quick Actions & Terminal Shortcuts</div>
     <div class="quick-action-grid">
         <a href="{{ route('transaksi.baru') }}" class="quick-action-btn">
-            <i class="fa fa-bolt" style="color: #f97316;"></i>
-            <span>Fast POS</span>
+            <i class="fa fa-plus-circle" style="color: #f97316;"></i>
+            <span>Create New Invoice</span>
         </a>
-        <a href="{{ route('transaksi.index') }}" class="quick-action-btn">
-            <i class="fa fa-shopping-basket" style="color: #0284c7;"></i>
-            <span>Active Orders</span>
+        <a href="{{ route('penjualan.index') }}" class="quick-action-btn">
+            <i class="fa fa-list-alt" style="color: #0284c7;"></i>
+            <span>Invoices List</span>
         </a>
         <a href="{{ route('produk.index') }}" class="quick-action-btn">
             <i class="fa fa-cutlery" style="color: #10b981;"></i>
-            <span>Menu & Dishes</span>
+            <span>Menu</span>
         </a>
         <a href="{{ route('pengeluaran.index') }}" class="quick-action-btn">
             <i class="fa fa-credit-card" style="color: #ef4444;"></i>
@@ -81,7 +81,7 @@
                 </span>
             </div>
             <div class="kpi-card-body">
-                <h3>{{ format_uang($today_sales) }}</h3>
+                <h3>{{ format_currency($today_sales) }}</h3>
                 <p>Today's Sales Revenue</p>
             </div>
             <div class="kpi-card-footer">
@@ -103,7 +103,7 @@
                 </span>
             </div>
             <div class="kpi-card-body">
-                <h3>{{ format_uang($today_profit) }}</h3>
+                <h3>{{ format_currency($today_profit) }}</h3>
                 <p>Today's Net Profit</p>
             </div>
             <div class="kpi-card-footer">
@@ -263,7 +263,7 @@
                         </div>
                         <div class="dish-item-stats">
                             <div class="dish-item-qty">{{ $dish->total_qty }} orders</div>
-                            <div class="dish-item-price">{{ format_uang($dish->total_amount) }}</div>
+                            <div class="dish-item-price">{{ format_currency($dish->total_amount) }}</div>
                         </div>
                     </div>
                     @endforeach
@@ -281,7 +281,7 @@
                         </div>
                         <div class="dish-item-stats">
                             <div class="dish-item-qty">Stock: {{ $item->stok }}</div>
-                            <div class="dish-item-price">{{ format_uang($item->harga_jual) }}</div>
+                            <div class="dish-item-price">{{ format_currency($item->harga_jual) }}</div>
                         </div>
                     </div>
                     @endforeach
@@ -334,7 +334,7 @@
                                     <span style="font-weight: 600;">{{ $sale->member->nama ?? 'Walk-In Guest' }}</span>
                                 </td>
                                 <td>
-                                    <strong style="color: #0f172a;">{{ format_uang($sale->bayar) }}</strong>
+                                    <strong style="color: #0f172a;">{{ format_currency($sale->bayar) }}</strong>
                                 </td>
                                 <td>
                                     <span class="badge-order-status badge-completed">

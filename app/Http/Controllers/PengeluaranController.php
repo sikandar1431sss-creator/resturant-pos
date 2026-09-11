@@ -23,13 +23,13 @@ class PengeluaranController extends Controller
                 return tanggal_indonesia($pengeluaran->created_at, false);
             })
             ->addColumn('nominal', function ($pengeluaran) {
-                return format_uang($pengeluaran->nominal);
+                return format_currency($pengeluaran->nominal);
             })
             ->addColumn('aksi', function ($pengeluaran) {
                 return '
-                <div class="btn-group">
-                    <button type="button" onclick="editForm(`'. route('pengeluaran.update', $pengeluaran->id_pengeluaran) .'`)" class="btn btn-xs btn-primary btn-flat"><i class="fa fa-pencil"></i></button>
-                    <button type="button" onclick="deleteData(`'. route('pengeluaran.destroy', $pengeluaran->id_pengeluaran) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
+                <div class="table-actions-group">
+                    <button type="button" onclick="editForm(`'. route('pengeluaran.update', $pengeluaran->id_pengeluaran) .'`)" class="btn-table-action btn-edit" title="Edit Expense"><i class="fa fa-pencil"></i></button>
+                    <button type="button" onclick="deleteData(`'. route('pengeluaran.destroy', $pengeluaran->id_pengeluaran) .'`)" class="btn-table-action btn-delete" title="Delete Expense"><i class="fa fa-trash"></i></button>
                 </div>
                 ';
             })
