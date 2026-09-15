@@ -20,25 +20,38 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        if (auth()->check() && auth()->user()->hasRole('kitchen') && !auth()->user()->hasAnyRole(['admin', 'manager', 'cashier'])) {
+            return redirect()->route('kitchen.index');
+        }
+
+        $userScopedId = null;
+        if (auth()->check() && !auth()->user()->hasAnyRole(['admin', 'manager']) && auth()->user()->level != 1) {
+            $userScopedId = auth()->id();
+        }
+
         // 1. Profit Stat Cards for Standard Intervals
         $todayStart = date('Y-m-d 00:00:00');
         $todayEnd   = date('Y-m-d 23:59:59');
-        $today_card = $this->calculateMetrics($todayStart, $todayEnd);
+        $today_card = $this->calculateMetrics($todayStart, $todayEnd, $userScopedId);
 
         $monthStart = date('Y-m-01 00:00:00');
         $monthEnd   = date('Y-m-t 23:59:59');
-        $month_card = $this->calculateMetrics($monthStart, $monthEnd);
+        $month_card = $this->calculateMetrics($monthStart, $monthEnd, $userScopedId);
 
         $yearStart = date('Y-01-01 00:00:00');
         $yearEnd   = date('Y-12-31 23:59:59');
-        $year_card = $this->calculateMetrics($yearStart, $yearEnd);
+        $year_card = $this->calculateMetrics($yearStart, $yearEnd, $userScopedId);
 
         $alltimeStart = '1970-01-01 00:00:00';
         $alltimeEnd   = date('Y-m-d 23:59:59');
-        $alltime_card = $this->calculateMetrics($alltimeStart, $alltimeEnd);
+        $alltime_card = $this->calculateMetrics($alltimeStart, $alltimeEnd, $userScopedId);
 
         // 2. Operational & Balance Breakdown
-        $total_invoices_all = (int) Penjualan::where('total_item', '>', 0)->count();
+        $invQuery = Penjualan::where('total_item', '>', 0);
+        if ($userScopedId) {
+            $invQuery->where('id_user', $userScopedId);
+        }
+        $total_invoices_all = (int) $invQuery->count();
         $paid_invoices_all = (int) Penjualan::where('total_item', '>', 0)
             ->where(function ($q) {
                 $q->where('status_pembayaran', 'paid')
@@ -210,7 +223,13 @@ class DashboardController extends Controller
                 break;
         }
 
-        $metrics = $this->calculateMetrics($start, $end);
+        $userScopedId = null;
+        if (auth()->check() && !auth()->user()->hasAnyRole(['admin', 'manager']) && auth()->user()->level != 1) {
+            $userScopedId = auth()->id();
+        }
+
+        $metrics = $this->calculateMetrics($start, $end, $userScopedId);
+        $metrics['label'] = $label;
         $metrics['period_label'] = $label;
         $metrics['currency_symbol'] = get_currency_symbol();
 
@@ -230,36 +249,46 @@ class DashboardController extends Controller
     /**
      * Helper to calculate financial metrics between two timestamp boundaries.
      */
-    private function calculateMetrics($start, $end)
+    private function calculateMetrics($start, $end, $userId = null)
     {
         // 1. Invoices Count Breakdown (Only real non-empty sales)
-        $paid_invoices = (int) Penjualan::where('total_item', '>', 0)
+        $paidInvQuery = Penjualan::where('total_item', '>', 0)
             ->where(function ($q) {
                 $q->where('status_pembayaran', 'paid')
                   ->orWhereRaw('diterima >= bayar');
             })
-            ->whereBetween('created_at', [$start, $end])
-            ->count();
+            ->whereBetween('created_at', [$start, $end]);
 
-        $unpaid_invoices = (int) Penjualan::where('total_item', '>', 0)
+        $unpaidInvQuery = Penjualan::where('total_item', '>', 0)
             ->where(function ($q) {
                 $q->where('status_pembayaran', '!=', 'paid')
                   ->whereRaw('(diterima < bayar OR diterima IS NULL)');
             })
-            ->whereBetween('created_at', [$start, $end])
-            ->count();
+            ->whereBetween('created_at', [$start, $end]);
 
+        if ($userId) {
+            $paidInvQuery->where('id_user', $userId);
+            $unpaidInvQuery->where('id_user', $userId);
+        }
+
+        $paid_invoices = (int) $paidInvQuery->count();
+        $unpaid_invoices = (int) $unpaidInvQuery->count();
         $invoices = $paid_invoices + $unpaid_invoices;
 
         // 2. Sales Amounts (Paid Cash vs Unpaid Due vs Total Billed)
-        $paid_sales = (float) Penjualan::where('total_item', '>', 0)
-            ->whereBetween('created_at', [$start, $end])
-            ->sum(DB::raw('CASE WHEN status_pembayaran = "paid" THEN bayar ELSE COALESCE(diterima, 0) END'));
+        $paidSalesQuery = Penjualan::where('total_item', '>', 0)
+            ->whereBetween('created_at', [$start, $end]);
 
-        $unpaid_sales = (float) Penjualan::where('total_item', '>', 0)
-            ->whereBetween('created_at', [$start, $end])
-            ->sum(DB::raw('CASE WHEN status_pembayaran = "paid" THEN 0 ELSE (bayar - COALESCE(diterima, 0)) END'));
+        $unpaidSalesQuery = Penjualan::where('total_item', '>', 0)
+            ->whereBetween('created_at', [$start, $end]);
 
+        if ($userId) {
+            $paidSalesQuery->where('id_user', $userId);
+            $unpaidSalesQuery->where('id_user', $userId);
+        }
+
+        $paid_sales = (float) $paidSalesQuery->sum(DB::raw('CASE WHEN status_pembayaran = "paid" THEN bayar ELSE COALESCE(diterima, 0) END'));
+        $unpaid_sales = (float) $unpaidSalesQuery->sum(DB::raw('CASE WHEN status_pembayaran = "paid" THEN 0 ELSE (bayar - COALESCE(diterima, 0)) END'));
         $total_sales = $paid_sales + $unpaid_sales;
 
         // 3. Cost of Goods Sold (COGS) based on recipe/dish item cost

@@ -696,13 +696,21 @@ Create Invoice
                     <i class="fa fa-times-circle"></i> Cancel Edit
                 </a>
             @endif
+            @if(auth()->user()->can('kitchen.access') || auth()->user()->hasRole('admin') || auth()->user()->level == 1)
+            <a href="{{ route('kitchen.index') }}" target="_blank" class="btn btn-pos-pill-outline" style="color: #ea580c !important; border-color: #fdba74 !important; background: #fff7ed !important;" title="Open Live Kitchen Display System">
+                <i class="fa fa-cutlery"></i> Kitchen KDS
+            </a>
+            @endif
             <a href="{{ route('transaksi.baru') }}" class="btn btn-pos-pill-new">
                 <i class="fa fa-plus"></i> New
             </a>
+            @if(auth()->user()->can('pos.drafts') || auth()->user()->hasRole('admin') || auth()->user()->level == 1)
             <button type="button" class="btn btn-pos-pill-outline" onclick="showDraftListModal()">
                 <i class="fa fa-clock-o"></i> Draft List
             </button>
+            @endif
         </div>
+
     </div>
 
     <div class="row">

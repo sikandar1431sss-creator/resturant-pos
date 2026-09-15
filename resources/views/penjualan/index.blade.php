@@ -145,9 +145,11 @@
             </h3>
         </div>
         <div>
+            @if(auth()->user()->can('pos.create_order') || auth()->user()->can('pos.access') || auth()->user()->hasRole('admin') || auth()->user()->level == 1)
             <a href="{{ route('transaksi.baru') }}" class="btn btn-primary btn-flat" style="font-weight: 800; border-radius: 8px; padding: 9px 20px; font-size: 13.5px; box-shadow: 0 4px 12px rgba(37,99,235,0.25); display: inline-flex; align-items: center; gap: 8px;">
                 <i class="fa fa-plus-circle"></i> New Invoice
             </a>
+            @endif
         </div>
     </div>
 </div>

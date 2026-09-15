@@ -283,6 +283,10 @@ Order Completed & Invoice
                     <a href="{{ route('transaksi.nota_kecil') }}" target="_blank" class="btn-receipt-print btn-thermal">
                         <i class="fa fa-print"></i> Customer Receipt <span class="shortcut-hint">[P]</span>
                     </a>
+
+                    <a href="{{ route('kitchen.kot', $penjualan->id_penjualan ?? session('id_penjualan')) }}" target="_blank" class="btn-receipt-print" style="background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%); color: #ffffff; box-shadow: 0 4px 14px rgba(234, 88, 12, 0.35);">
+                        <i class="fa fa-cutlery"></i> Kitchen KOT <span class="shortcut-hint">[K]</span>
+                    </a>
                     
                     <a href="{{ route('transaksi.nota_besar') }}" target="_blank" class="btn-receipt-print btn-invoice-pdf">
                         <i class="fa fa-file-pdf-o"></i> PDF Invoice
@@ -310,10 +314,13 @@ Order Completed & Invoice
         window.open(url, '_blank');
     }
 
-    // Keyboard shortcuts: Press 'P' to print receipt in new tab, Press 'Enter' for next order
+    // Keyboard shortcuts:
+    // 'P' = Customer receipt, 'K' = Kitchen KOT ticket, 'Enter' = Next order
     $(document).on('keydown', function (e) {
         if (e.key === 'p' || e.key === 'P') {
             window.open('{{ route('transaksi.nota_kecil') }}', '_blank');
+        } else if (e.key === 'k' || e.key === 'K') {
+            window.open('{{ route('kitchen.kot', $penjualan->id_penjualan ?? session('id_penjualan')) }}', '_blank');
         } else if (e.key === 'Enter') {
             window.location.href = "{{ route('transaksi.baru') }}";
         }

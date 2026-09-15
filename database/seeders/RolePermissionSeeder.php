@@ -17,78 +17,57 @@ class RolePermissionSeeder extends Seeder
      */
     public function run()
     {
-        // Reset cached roles and permissions
+        // 1. Reset cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // 1. Define All Permissions
-        $permissions = [
-            // POS & Sales
-            'pos.access',
-            'pos.create_order',
-            'pos.print_kot',
-            'pos.print_bill',
-            'pos.drafts',
-            'pos.settle_payment',
-            'pos.cancel_order',
-            'pos.apply_discount',
-            
-            // Sales History
-            'sales.view',
-            'sales.delete',
+        // 2. Fetch all permissions defined in config/permissions.php
+        $groups = config('permissions.groups', []);
+        $allPermissionNames = [];
 
-            // Products & Categories
-            'categories.view',
-            'categories.manage',
-            'products.view',
-            'products.create',
-            'products.edit',
-            'products.delete',
-
-            // Purchases & Inventory
-            'purchases.view',
-            'purchases.manage',
-            'suppliers.manage',
-
-            // Expenses
-            'expenses.view',
-            'expenses.manage',
-
-            // Customers / Members
-            'members.manage',
-
-            // Reports
-            'reports.view',
-            'reports.export',
-
-            // Users & Settings
-            'users.manage',
-            'settings.manage',
-        ];
-
-        foreach ($permissions as $perm) {
-            Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
+        foreach ($groups as $groupKey => $group) {
+            if (isset($group['permissions']) && is_array($group['permissions'])) {
+                foreach ($group['permissions'] as $permKey => $permMeta) {
+                    $allPermissionNames[] = $permKey;
+                    Permission::firstOrCreate(['name' => $permKey, 'guard_name' => 'web']);
+                }
+            }
         }
 
-        // 2. Create Roles and Assign Permissions
+        // Backward compatibility permissions
+        $legacyPerms = ['sales.view'];
+        foreach ($legacyPerms as $legacy) {
+            Permission::firstOrCreate(['name' => $legacy, 'guard_name' => 'web']);
+        }
 
-        // --- Role: Admin (Super Administrator / Owner) ---
+        // 3. Create Core Fast-Food Roles and Sync Defaults
+
+        // --- ADMIN / OWNER (Full Access) ---
         $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $adminRole->syncPermissions(Permission::all());
 
-        // --- Role: Manager (Branch Manager / Floor Incharge) ---
+        // --- BRANCH MANAGER (Store Operations, Reports, Cashier Oversight) ---
         $managerRole = Role::firstOrCreate(['name' => 'manager', 'guard_name' => 'web']);
         $managerRole->syncPermissions([
             'pos.access',
             'pos.create_order',
-            'pos.print_kot',
-            'pos.print_bill',
-            'pos.drafts',
             'pos.settle_payment',
-            'pos.cancel_order',
             'pos.apply_discount',
-            'sales.view',
-            'categories.view',
+            'pos.drafts',
+            'pos.print_bill',
+            'pos.print_kot',
+            'pos.cancel_order',
+            'kitchen.access',
+            'kitchen.manage_orders',
+            'sales.view_all',
+            'sales.view_own',
+            'sales.edit',
             'products.view',
+            'products.create',
+            'products.edit',
+            'deals.view',
+            'deals.manage',
+            'categories.view',
+            'categories.manage',
             'purchases.view',
             'purchases.manage',
             'suppliers.manage',
@@ -96,41 +75,50 @@ class RolePermissionSeeder extends Seeder
             'expenses.manage',
             'members.manage',
             'reports.view',
+            'reports.export',
         ]);
 
-        // --- Role: Cashier / Staff (Counter Billing & Order Taking) ---
+        // --- CASHIER / COUNTER STAFF (Counter Billing & Own Shift Invoices) ---
         $cashierRole = Role::firstOrCreate(['name' => 'cashier', 'guard_name' => 'web']);
         $cashierRole->syncPermissions([
             'pos.access',
             'pos.create_order',
-            'pos.print_kot',
-            'pos.print_bill',
-            'pos.drafts',
             'pos.settle_payment',
-            'sales.view',
+            'pos.apply_discount',
+            'pos.drafts',
+            'pos.print_bill',
+            'pos.print_kot',
+            'kitchen.access',
+            'sales.view_own',
             'members.manage',
         ]);
 
-        // --- Role: Waiter (Optional for Dine-In Table Order Punching) ---
+        // --- KITCHEN CHEF (KDS Screen & Bump Timers) ---
+        $kitchenRole = Role::firstOrCreate(['name' => 'kitchen', 'guard_name' => 'web']);
+        $kitchenRole->syncPermissions([
+            'kitchen.access',
+            'kitchen.manage_orders',
+            'pos.print_kot',
+        ]);
+
+        // --- DINE-IN / FRONT WAITER (Order Taking, KOT & Billing) ---
         $waiterRole = Role::firstOrCreate(['name' => 'waiter', 'guard_name' => 'web']);
         $waiterRole->syncPermissions([
             'pos.access',
             'pos.create_order',
-            'pos.print_kot',
+            'pos.settle_payment',
+            'pos.apply_discount',
             'pos.drafts',
+            'pos.print_bill',
+            'pos.print_kot',
+            'sales.view_own',
+            'kitchen.access',
         ]);
 
-        // 3. Assign Default Roles to existing users
+        // 4. Assign Admin Role to Primary User
         $adminUser = User::where('email', 'admin@mail.com')->orWhere('level', 1)->first();
         if ($adminUser) {
             $adminUser->assignRole('admin');
-        }
-
-        $otherUsers = User::where('id', '!=', optional($adminUser)->id)->get();
-        foreach ($otherUsers as $user) {
-            if ($user->level == 2) {
-                $user->assignRole('cashier');
-            }
         }
     }
 }

@@ -18,10 +18,15 @@ class PenjualanController extends Controller
 
     public function data()
     {
-        $penjualan = Penjualan::with(['member', 'user'])
-            ->where('total_item', '>', 0)
-            ->orderBy('id_penjualan', 'desc')
-            ->get();
+        $query = Penjualan::with(['member', 'user'])
+            ->where('total_item', '>', 0);
+
+        // Strict Multi-Cashier Scoping: If user lacks 'sales.view_all' (and is not Admin/Manager), show only own transactions
+        if (auth()->check() && !auth()->user()->hasRole('admin') && !auth()->user()->can('sales.view_all') && auth()->user()->level != 1) {
+            $query->where('id_user', auth()->id());
+        }
+
+        $penjualan = $query->orderBy('id_penjualan', 'desc')->get();
 
         return datatables()
             ->of($penjualan)
@@ -37,7 +42,18 @@ class PenjualanController extends Controller
                     $table = !empty($penjualan->nomor_meja) ? $penjualan->nomor_meja : 'Dine-In';
                     $badge = '<span class="label label-primary" style="font-size:10px; border-radius:3px;">'. $table .'</span>';
                 }
-                return '<strong style="color:#ea580c; font-size:13px;">#INV-'. tambah_nol_didepan($penjualan->id_penjualan, 5) .'</strong><br>' . $badge;
+
+                $kStatus = strtolower($penjualan->kitchen_status ?? 'pending');
+                $kBadge = '<span class="label" style="background:#f59e0b; color:#fff; font-size:9.5px; border-radius:3px; margin-left:3px;"><i class="fa fa-cutlery"></i> Pending</span>';
+                if ($kStatus === 'cooking') {
+                    $kBadge = '<span class="label" style="background:#ea580c; color:#fff; font-size:9.5px; border-radius:3px; margin-left:3px;"><i class="fa fa-fire"></i> Cooking</span>';
+                } elseif ($kStatus === 'ready') {
+                    $kBadge = '<span class="label label-success" style="font-size:9.5px; border-radius:3px; margin-left:3px;"><i class="fa fa-check"></i> Ready</span>';
+                } elseif ($kStatus === 'served') {
+                    $kBadge = '<span class="label label-default" style="font-size:9.5px; border-radius:3px; margin-left:3px;"><i class="fa fa-check-circle"></i> Served</span>';
+                }
+
+                return '<strong style="color:#ea580c; font-size:13px;">#INV-'. tambah_nol_didepan($penjualan->id_penjualan, 5) .'</strong><br>' . $badge . ' ' . $kBadge;
             })
             ->addColumn('total_item', function ($penjualan) {
                 return '<span class="badge" style="background:#f1f5f9; color:#475569; font-weight:700;">' . format_uang($penjualan->total_item) . ' items</span>';
@@ -79,23 +95,62 @@ class PenjualanController extends Controller
                 return '<span class="text-muted">' . ($penjualan->user->name ?? 'Admin') . '</span>';
             })
             ->addColumn('aksi', function ($penjualan) {
+                $user = auth()->user();
+                $isAdmin = ($user && ($user->hasRole('admin') || $user->level == 1));
+
                 $isPaid = (strtolower($penjualan->status_pembayaran ?? '') === 'paid' || $penjualan->diterima >= $penjualan->bayar);
+                
+                // 1. Settle Payment (Pay Now)
                 $payBtn = '';
-                if (! $isPaid) {
+                if (! $isPaid && ($isAdmin || $user->can('pos.settle_payment'))) {
                     $payBtn = '<a href="javascript:void(0)" onclick="markAsPaid('. $penjualan->id_penjualan .', `'. '#INV-'. tambah_nol_didepan($penjualan->id_penjualan, 5) .'`, '. $penjualan->bayar .', `'. ($penjualan->member->nama ?? 'Walk-in') .'`)" class="btn-table-action btn-pay" title="Pay Now"><i class="fa fa-money"></i></a>';
                 }
-                $printUrl = route('penjualan.nota_kecil', $penjualan->id_penjualan);
-                $editUrl = route('penjualan.edit', $penjualan->id_penjualan);
+
+                // 2. Kitchen KOT Slip
+                $kotBtn = '';
+                if ($isAdmin || $user->can('pos.print_kot') || $user->can('kitchen.access')) {
+                    $kotUrl = route('kitchen.kot', $penjualan->id_penjualan);
+                    $kotBtn = '<a href="'. $kotUrl .'" target="_blank" class="btn-table-action" style="background:#fff7ed; color:#ea580c; border:1px solid #fdba74;" title="Print Kitchen KOT"><i class="fa fa-cutlery"></i></a>';
+                }
+
+                // 3. Print Customer Receipt
+                $printBtn = '';
+                if ($isAdmin || $user->can('pos.print_bill')) {
+                    $printUrl = route('penjualan.nota_kecil', $penjualan->id_penjualan);
+                    $printBtn = '<a href="'. $printUrl .'" target="_blank" class="btn-table-action btn-print" title="Print Customer Receipt"><i class="fa fa-print"></i></a>';
+                }
+
+                // 4. Edit Saved Invoice
+                $editBtn = '';
+                if ($isAdmin || $user->can('sales.edit')) {
+                    $editUrl = route('penjualan.edit', $penjualan->id_penjualan);
+                    $editBtn = '<a href="'. $editUrl .'" class="btn-table-action btn-edit" title="Edit Invoice"><i class="fa fa-edit"></i></a>';
+                }
+
+                // 5. View Order Details
+                $viewBtn = '';
+                if ($isAdmin || $user->can('sales.view_all') || $user->can('sales.view_own') || $user->can('sales.view') || $user->can('pos.access')) {
+                    $viewBtn = '<button onclick="showDetail(`'. route('penjualan.show', $penjualan->id_penjualan) .'`, '. $penjualan->id_penjualan .')" class="btn-table-action btn-view" title="View Order Items"><i class="fa fa-eye"></i></button>';
+                }
+
+                // 6. Delete Transaction
+                $deleteBtn = '';
+                if ($isAdmin || $user->can('sales.delete')) {
+                    $deleteBtn = '<button onclick="deleteData(`'. route('penjualan.destroy', $penjualan->id_penjualan) .'`)" class="btn-table-action btn-delete" title="Delete Transaction"><i class="fa fa-trash"></i></button>';
+                }
+
                 return '
                 <div class="table-actions-group">
                     ' . $payBtn . '
-                    <a href="'. $printUrl .'" target="_blank" class="btn-table-action btn-print" title="Print Receipt in New Tab"><i class="fa fa-print"></i></a>
-                    <a href="'. $editUrl .'" class="btn-table-action btn-edit" title="Edit Invoice"><i class="fa fa-edit"></i></a>
-                    <button onclick="showDetail(`'. route('penjualan.show', $penjualan->id_penjualan) .'`, '. $penjualan->id_penjualan .')" class="btn-table-action btn-view" title="View Order Items"><i class="fa fa-eye"></i></button>
-                    <button onclick="deleteData(`'. route('penjualan.destroy', $penjualan->id_penjualan) .'`)" class="btn-table-action btn-delete" title="Delete Transaction"><i class="fa fa-trash"></i></button>
+                    ' . $kotBtn . '
+                    ' . $printBtn . '
+                    ' . $editBtn . '
+                    ' . $viewBtn . '
+                    ' . $deleteBtn . '
                 </div>
                 ';
             })
+
             ->rawColumns(['aksi', 'invoice', 'kode_member', 'total_item', 'bayar', 'metode_pembayaran', 'status_pembayaran', 'tanggal', 'diskon', 'kasir'])
             ->make(true);
     }
@@ -229,6 +284,10 @@ class PenjualanController extends Controller
 
     public function edit($id)
     {
+        if (auth()->check() && !auth()->user()->hasRole('admin') && !auth()->user()->can('sales.edit') && auth()->user()->level != 1) {
+            return redirect()->route('penjualan.index')->with('error', 'You do not have permission to edit saved invoices.');
+        }
+
         $penjualan = Penjualan::findOrFail($id);
 
         // Revert previous stock deduction so changes in POS adjust cleanly on save
@@ -439,11 +498,16 @@ class PenjualanController extends Controller
 
     public function draftList()
     {
-        $drafts = Penjualan::with(['member', 'user'])
+        $query = Penjualan::with(['member', 'user'])
             ->where('diterima', 0)
-            ->where('total_item', '>', 0)
-            ->orderBy('id_penjualan', 'desc')
-            ->get();
+            ->where('total_item', '>', 0);
+
+        // Strict Multi-Cashier Scoping for draft parked invoices
+        if (auth()->check() && !auth()->user()->hasRole('admin') && !auth()->user()->can('sales.view_all') && auth()->user()->level != 1) {
+            $query->where('id_user', auth()->id());
+        }
+
+        $drafts = $query->orderBy('id_penjualan', 'desc')->get();
 
         $data = [];
         foreach ($drafts as $d) {
@@ -519,6 +583,10 @@ class PenjualanController extends Controller
     }
     public function destroy($id)
     {
+        if (auth()->check() && !auth()->user()->hasRole('admin') && !auth()->user()->can('sales.delete') && auth()->user()->level != 1) {
+            return response()->json(['status' => 'error', 'message' => 'Permission denied: Cannot delete sales invoices.'], 403);
+        }
+
         $penjualan = Penjualan::find($id);
         if ($penjualan) {
             $this->revertStockForInvoice($penjualan);

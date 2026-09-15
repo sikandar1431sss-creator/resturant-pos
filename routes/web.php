@@ -12,6 +12,8 @@ use App\Http\Controllers\{
     PembelianDetailController,
     PenjualanController,
     PenjualanDetailController,
+    KitchenController,
+    RoleController,
     SettingController,
     SupplierController,
     UserController,
@@ -35,7 +37,7 @@ Route::group(['middleware' => 'auth'], function () {
     // ==========================================
     // 1. ADMIN & MANAGER (Inventory, Menu, Deals, Expenses)
     // ==========================================
-    Route::group(['middleware' => ['role_or_permission:admin|manager|categories.view']], function () {
+    Route::group(['middleware' => ['role_or_permission:admin|manager|categories.view|products.view|purchases.view|expenses.view']], function () {
         // Deals & Combos
         Route::get('/deal/data', [DealController::class, 'data'])->name('deal.data');
         Route::resource('/deal', DealController::class);
@@ -75,9 +77,9 @@ Route::group(['middleware' => 'auth'], function () {
     });
 
     // ==========================================
-    // 2. CASHIER & POS (Fast Food Touch Screen Terminal)
+    // 2. CASHIER, WAITER & POS (Fast Food Touch Screen Terminal & Invoices)
     // ==========================================
-    Route::group(['middleware' => ['role_or_permission:admin|cashier|manager|pos.access']], function () {
+    Route::group(['middleware' => ['role_or_permission:admin|cashier|manager|waiter|pos.access|sales.view_all|sales.view_own']], function () {
         // Customer Invoices
         Route::get('/penjualan/data', [PenjualanController::class, 'data'])->name('penjualan.data');
         Route::get('/penjualan', [PenjualanController::class, 'index'])->name('penjualan.index');
@@ -110,16 +112,43 @@ Route::group(['middleware' => 'auth'], function () {
     });
 
     // ==========================================
-    // 3. ADMIN ONLY (Reports, Staff Users, Settings)
+    // 3. KITCHEN DISPLAY SYSTEM (KDS) & KOT
     // ==========================================
-    Route::group(['middleware' => ['role_or_permission:admin|reports.view']], function () {
+    Route::group(['middleware' => ['role_or_permission:admin|kitchen.access']], function () {
+        Route::get('/kitchen', [KitchenController::class, 'index'])->name('kitchen.index');
+        Route::get('/kitchen/data', [KitchenController::class, 'data'])->name('kitchen.data');
+        Route::post('/kitchen/{id}/status', [KitchenController::class, 'updateStatus'])->name('kitchen.update_status');
+    });
+
+    Route::group(['middleware' => ['role_or_permission:admin|pos.print_kot|kitchen.access|pos.access']], function () {
+        Route::get('/kitchen/kot/{id}', [KitchenController::class, 'kot'])->name('kitchen.kot');
+    });
+
+    // ==========================================
+    // 4. ANALYTICS & REPORTS
+    // ==========================================
+    Route::group(['middleware' => ['role_or_permission:admin|manager|reports.view']], function () {
         Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
         Route::get('/laporan/data/{awal}/{akhir}', [LaporanController::class, 'data'])->name('laporan.data');
         Route::get('/laporan/pdf/{awal}/{akhir}', [LaporanController::class, 'exportPDF'])->name('laporan.export_pdf');
+    });
 
+    // ==========================================
+    // 5. STAFF USERS, ROLES & PERMISSIONS, SETTINGS
+    // ==========================================
+    Route::group(['middleware' => ['role_or_permission:admin|manager|users.manage']], function () {
+        // Staff Users
         Route::get('/user/data', [UserController::class, 'data'])->name('user.data');
         Route::resource('/user', UserController::class);
 
+        // Roles & Permissions (RBAC)
+        Route::get('/role/data', [RoleController::class, 'data'])->name('role.data');
+        Route::get('/role/{id}/permissions', [RoleController::class, 'permissions'])->name('role.permissions');
+        Route::post('/role/{id}/permissions', [RoleController::class, 'updatePermissions'])->name('role.permissions.update');
+        Route::resource('/role', RoleController::class);
+    });
+
+    Route::group(['middleware' => ['role_or_permission:admin|settings.manage']], function () {
         Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
         Route::get('/setting/first', [SettingController::class, 'show'])->name('setting.show');
         Route::post('/setting', [SettingController::class, 'update'])->name('setting.update');

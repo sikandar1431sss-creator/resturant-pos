@@ -11,116 +11,244 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Bootstrap 3.3.7 -->
     <link rel="stylesheet" href="{{ asset('AdminLTE-2/bower_components/bootstrap/dist/css/bootstrap.min.css') }}">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{{ asset('AdminLTE-2/bower_components/font-awesome/css/font-awesome.min.css') }}">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="{{ asset('AdminLTE-2/dist/css/AdminLTE.min.css') }}">
-    
-    <!-- Restaurant Modern CSS -->
-    <link rel="stylesheet" href="{{ asset('css/restaurant-modern.css') }}">
 
     <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
         body.login-page {
-            background: radial-gradient(circle at 20% 20%, #1e293b 0%, #0f172a 100%) !important;
             min-height: 100vh;
+            margin: 0;
+            padding: 20px 10px;
+            background: url('{{ asset('img/login-bg.jpg') }}') no-repeat center center fixed !important;
+            background-size: cover !important;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Plus Jakarta Sans', sans-serif !important;
-            padding: 20px;
-        }
-        .login-box {
-            width: 440px;
-            margin: 0 auto;
-        }
-        .login-box-body {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 32px 30px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .login-logo {
-            margin-bottom: 20px;
-        }
-        .login-logo h3 {
-            font-size: 22px;
-            font-weight: 800;
-            color: #0f172a;
-            margin: 10px 0 2px 0;
-            letter-spacing: -0.02em;
-        }
-        .login-logo p {
-            font-size: 13px;
-            color: #64748b;
-            margin: 0;
-        }
-        .form-control-icon-wrapper {
             position: relative;
-            margin-bottom: 16px;
         }
-        .form-control-icon-wrapper input {
-            height: 46px;
-            border-radius: 10px;
-            padding-left: 42px;
-            border: 1px solid #cbd5e1;
-            font-size: 13.5px;
-        }
-        .form-control-icon-wrapper i {
+
+        /* Subtle ambient vignette overlay */
+        body.login-page::before {
+            content: '';
             position: absolute;
-            left: 14px;
-            top: 14px;
-            color: #94a3b8;
-            font-size: 16px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.08);
+            pointer-events: none;
         }
-        .btn-restaurant-login {
-            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+
+        .login-card-container {
+            width: 440px;
+            max-width: 94vw;
+            position: relative;
+            z-index: 2;
+            margin: 10px auto;
+        }
+
+        .login-card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 34px 34px 28px 34px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35), 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        /* Centered Boxed Logo */
+        .logo-box-wrapper {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .logo-frame-box {
+            width: 76px;
+            height: 76px;
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .logo-frame-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 13.5px;
+            font-weight: 500;
+            margin: 10px 0 24px 0;
+        }
+
+        /* Form Controls */
+        .form-group-custom {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .form-label-custom {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .input-custom-wrapper {
+            position: relative;
+        }
+
+        .input-custom {
+            width: 100%;
+            height: 46px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            padding: 0 14px;
+            font-size: 14px;
+            color: #0f172a;
+            background: #ffffff;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .input-custom:focus {
+            border-color: #16a34a;
+            box-shadow: 0 0 0 3.5px rgba(22, 163, 74, 0.15);
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 13px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 15px;
+            padding: 0;
+            outline: none;
+            transition: color 0.15s ease;
+        }
+
+        .password-toggle-btn:hover {
+            color: #334155;
+        }
+
+        /* Green Submit Button matching the reference screenshot */
+        .btn-green-submit {
+            width: 100%;
+            height: 48px;
+            background: #1b8a53 !important;
             color: #ffffff !important;
             border: none !important;
-            height: 46px;
-            border-radius: 10px !important;
+            border-radius: 9px !important;
+            font-size: 16px !important;
             font-weight: 700 !important;
-            font-size: 14px !important;
-            width: 100%;
-            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px rgba(27, 138, 83, 0.35);
             transition: all 0.2s ease;
+            margin-top: 22px;
         }
-        .btn-restaurant-login:hover {
+
+        .btn-green-submit:hover {
+            background: #157343 !important;
             transform: translateY(-1px);
-            box-shadow: 0 6px 18px rgba(249, 115, 22, 0.45);
+            box-shadow: 0 6px 18px rgba(27, 138, 83, 0.45);
+            color: #ffffff !important;
         }
-        .quick-demo-pill {
+
+        .btn-green-submit:active {
+            transform: scale(0.99);
+        }
+
+        /* Quick Demo Credentials Panel */
+        .quick-credentials-panel {
             background: #f8fafc;
-            border: 1px dashed #cbd5e1;
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-top: 20px;
-            font-size: 12px;
-            color: #64748b;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px 12px;
+            margin-top: 22px;
         }
-        .quick-demo-btn {
-            display: inline-block;
+
+        .quick-cred-heading {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .quick-role-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+
+        .quick-role-chip {
             background: #ffffff;
             border: 1px solid #cbd5e1;
-            padding: 3px 8px;
-            border-radius: 6px;
-            color: #0f172a;
+            border-radius: 7px;
+            padding: 7px 8px;
+            font-size: 11.5px;
             font-weight: 600;
+            color: #1e293b;
             cursor: pointer;
-            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             transition: all 0.15s ease;
+            user-select: none;
         }
-        .quick-demo-btn:hover {
-            border-color: #f97316;
-            color: #f97316;
+
+        .quick-role-chip:hover {
+            border-color: #16a34a;
+            color: #16a34a;
+            background: #f0fdf4;
+            transform: translateY(-1px);
+        }
+
+        .quick-role-chip.active-chip {
+            border-color: #16a34a;
+            background: #dcfce7;
+            color: #15803d;
+            font-weight: 700;
+        }
+
+        .pwd-hint-banner {
+            font-size: 11px;
+            color: #64748b;
+            text-align: center;
+            margin-top: 8px;
         }
     </style>
 </head>
-<body class="hold-transition login-page">
+<body class="login-page">
     
     @yield('login')
 
@@ -128,10 +256,7 @@
     <script src="{{ asset('AdminLTE-2/bower_components/jquery/dist/jquery.min.js') }}"></script>
     <!-- Bootstrap 3.3.7 -->
     <script src="{{ asset('AdminLTE-2/bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
-    <!-- Validator -->
-    <script src="{{ asset('js/validator.min.js') }}"></script>
-    <script>
-        $('.form-login').validator();
-    </script>
+
+    @stack('scripts')
 </body>
 </html>
