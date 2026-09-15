@@ -7,6 +7,7 @@ use App\Models\Pembelian;
 use App\Models\PembelianDetail;
 use App\Models\Produk;
 use App\Models\Supplier;
+use App\Models\Setting;
 
 class PembelianController extends Controller
 {
@@ -16,7 +17,7 @@ class PembelianController extends Controller
 
         return view('pembelian.index', compact('supplier'));
     }
-    // visit "codeastro" for more projects!
+
     public function data()
     {
         $pembelian = Pembelian::orderBy('id_pembelian', 'desc')->get();
@@ -33,25 +34,99 @@ class PembelianController extends Controller
             ->addColumn('bayar', function ($pembelian) {
                 return format_currency($pembelian->bayar);
             })
+            ->addColumn('status', function ($pembelian) {
+                $net_total = $pembelian->total_harga - ($pembelian->diskon / 100 * $pembelian->total_harga);
+                $due = max(0, $net_total - $pembelian->bayar);
+                if ($due <= 0) {
+                    return '<span class="label label-success" style="font-size:11px; padding:3px 8px; border-radius:4px; font-weight:700;">Paid</span>';
+                } else {
+                    return '<span class="label label-danger" style="font-size:11px; padding:3px 8px; border-radius:4px; font-weight:700;">Due: ' . format_currency($due) . '</span>';
+                }
+            })
             ->addColumn('tanggal', function ($pembelian) {
                 return tanggal_indonesia($pembelian->created_at, false);
             })
             ->addColumn('supplier', function ($pembelian) {
-                return $pembelian->supplier->nama;
+                return $pembelian->supplier->nama ?? 'N/A';
             })
             ->editColumn('diskon', function ($pembelian) {
                 return $pembelian->diskon . '%';
             })
             ->addColumn('aksi', function ($pembelian) {
+                $net_total = $pembelian->total_harga - ($pembelian->diskon / 100 * $pembelian->total_harga);
+                $due = max(0, $net_total - $pembelian->bayar);
+                
+                $payBtn = '';
+                if ($due > 0) {
+                    $payBtn = '<button onclick="openPayDueModal('. $pembelian->id_pembelian .', '. $due .', `'. ($pembelian->supplier->nama ?? 'Supplier') .'`, '. $net_total .', '. $pembelian->bayar .')" class="btn-table-action btn-pay" title="Pay Remaining Due"><i class="fa fa-money"></i></button>';
+                }
+
+                $printUrl = route('pembelian.nota_kecil', $pembelian->id_pembelian);
+                $editUrl = route('pembelian.edit', $pembelian->id_pembelian);
                 return '
                 <div class="table-actions-group">
-                    <button onclick="showDetail(`'. route('pembelian.show', $pembelian->id_pembelian) .'`)" class="btn-table-action btn-view" title="View Detail"><i class="fa fa-eye"></i></button>
+                    ' . $payBtn . '
+                    <a href="'. $printUrl .'" target="_blank" class="btn-table-action btn-print" title="Print Thermal Slip"><i class="fa fa-print"></i></a>
+                    <a href="'. $editUrl .'" class="btn-table-action btn-edit" title="Edit Purchase"><i class="fa fa-pencil"></i></a>
+                    <button onclick="showDetail(`'. route('pembelian.show', $pembelian->id_pembelian) .'`, '. $pembelian->id_pembelian .')" class="btn-table-action btn-view" title="View Detail"><i class="fa fa-eye"></i></button>
                     <button onclick="deleteData(`'. route('pembelian.destroy', $pembelian->id_pembelian) .'`)" class="btn-table-action btn-delete" title="Delete Purchase"><i class="fa fa-trash"></i></button>
                 </div>
                 ';
             })
-            ->rawColumns(['aksi'])
+            ->rawColumns(['aksi', 'status'])
             ->make(true);
+    }
+
+    public function settlePayment(Request $request, $id)
+    {
+        $pembelian = Pembelian::findOrFail($id);
+        $net_total = $pembelian->total_harga - ($pembelian->diskon / 100 * $pembelian->total_harga);
+        $currentDue = max(0, $net_total - $pembelian->bayar);
+
+        $amount = (float) ($request->amount_paid ?? $request->amount ?? $currentDue);
+
+        if ($amount <= 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Payment amount must be greater than 0.'
+            ], 422);
+        }
+
+        if ($amount > $currentDue) {
+            $amount = $currentDue;
+        }
+
+        $pembelian->bayar += $amount;
+        $pembelian->update();
+
+        $newDue = max(0, $net_total - $pembelian->bayar);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Payment of ' . format_currency($amount) . ' successfully paid to supplier!' . ($newDue <= 0 ? ' (Fully Settled)' : ' (Remaining Due: ' . format_currency($newDue) . ')'),
+            'new_bayar' => $pembelian->bayar,
+            'bayar_rp' => format_currency($pembelian->bayar),
+            'due' => $newDue,
+            'due_rp' => format_currency($newDue)
+        ]);
+    }
+
+    public function notaKecil($id)
+    {
+        $setting = Setting::first();
+        $pembelian = Pembelian::with('supplier')->findOrFail($id);
+        $detail = PembelianDetail::with('produk')->where('id_pembelian', $id)->get();
+
+        return view('pembelian.nota_kecil', compact('setting', 'pembelian', 'detail'));
+    }
+
+    public function edit($id)
+    {
+        $pembelian = Pembelian::findOrFail($id);
+        session(['id_pembelian' => $pembelian->id_pembelian]);
+        session(['id_supplier' => $pembelian->id_supplier]);
+
+        return redirect()->route('pembelian_detail.index');
     }
 
     public function create($id)

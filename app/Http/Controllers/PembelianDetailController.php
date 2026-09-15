@@ -83,13 +83,17 @@ class PembelianDetailController extends Controller
 
         return response()->json('Data saved successfully', 200);
     }
-    // visit "codeastro" for more projects!
     public function update(Request $request, $id)
     {
         $detail = PembelianDetail::find($id);
-        $detail->jumlah = $request->jumlah;
-        $detail->subtotal = $detail->harga_beli * $request->jumlah;
-        $detail->update();
+        if ($detail) {
+            $jumlah = max(1, (int) $request->jumlah);
+            $harga_beli = (float) $detail->harga_beli;
+            $detail->jumlah = $jumlah;
+            $detail->subtotal = $harga_beli * $jumlah;
+            $detail->update();
+        }
+        return response()->json('Updated', 200);
     }
 
     public function destroy($id)

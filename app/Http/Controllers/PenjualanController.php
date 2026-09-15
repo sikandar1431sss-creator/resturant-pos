@@ -82,14 +82,16 @@ class PenjualanController extends Controller
                 $isPaid = (strtolower($penjualan->status_pembayaran ?? '') === 'paid' || $penjualan->diterima >= $penjualan->bayar);
                 $payBtn = '';
                 if (! $isPaid) {
-                    $payBtn = '<button onclick="markAsPaid('. $penjualan->id_penjualan .', `'. '#INV-'. tambah_nol_didepan($penjualan->id_penjualan, 5) .'`, '. $penjualan->bayar .', `'. ($penjualan->member->nama ?? 'Walk-in') .'`)" class="btn-table-action btn-pay" title="Pay Now"><i class="fa fa-credit-card"></i> Pay</button>';
+                    $payBtn = '<a href="javascript:void(0)" onclick="markAsPaid('. $penjualan->id_penjualan .', `'. '#INV-'. tambah_nol_didepan($penjualan->id_penjualan, 5) .'`, '. $penjualan->bayar .', `'. ($penjualan->member->nama ?? 'Walk-in') .'`)" class="btn-table-action btn-pay" title="Pay Now"><i class="fa fa-money"></i></a>';
                 }
                 $printUrl = route('penjualan.nota_kecil', $penjualan->id_penjualan);
+                $editUrl = route('penjualan.edit', $penjualan->id_penjualan);
                 return '
                 <div class="table-actions-group">
                     ' . $payBtn . '
                     <a href="'. $printUrl .'" target="_blank" class="btn-table-action btn-print" title="Print Receipt in New Tab"><i class="fa fa-print"></i></a>
-                    <button onclick="showDetail(`'. route('penjualan.show', $penjualan->id_penjualan) .'`)" class="btn-table-action btn-view" title="View Order Items"><i class="fa fa-eye"></i></button>
+                    <a href="'. $editUrl .'" class="btn-table-action btn-edit" title="Edit Invoice"><i class="fa fa-edit"></i></a>
+                    <button onclick="showDetail(`'. route('penjualan.show', $penjualan->id_penjualan) .'`, '. $penjualan->id_penjualan .')" class="btn-table-action btn-view" title="View Order Items"><i class="fa fa-eye"></i></button>
                     <button onclick="deleteData(`'. route('penjualan.destroy', $penjualan->id_penjualan) .'`)" class="btn-table-action btn-delete" title="Delete Transaction"><i class="fa fa-trash"></i></button>
                 </div>
                 ';
@@ -98,8 +100,115 @@ class PenjualanController extends Controller
             ->make(true);
     }
 
+    public function revertStockForInvoice($penjualan)
+    {
+        $detail = PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->get();
+        foreach ($detail as $item) {
+            $produk = Produk::with(['recipes.rawMaterial', 'deal.items.produk.recipes.rawMaterial'])->find($item->id_produk);
+            if ($produk) {
+                if ($produk->deal && $produk->deal->items->isNotEmpty()) {
+                    // Deal combo: revert stock for each dish in the deal
+                    foreach ($produk->deal->items as $dealDish) {
+                        $subDish = $dealDish->produk;
+                        if ($subDish) {
+                            $totalDishQty = $dealDish->jumlah * $item->jumlah;
+                            if ($subDish->recipes && $subDish->recipes->isNotEmpty()) {
+                                foreach ($subDish->recipes as $recipe) {
+                                    if ($recipe->rawMaterial) {
+                                        $deductQty = $recipe->jumlah * $totalDishQty;
+                                        $recipe->rawMaterial->stok += $deductQty;
+                                        $recipe->rawMaterial->update();
+                                    }
+                                }
+                            } else {
+                                $subDish->stok += $totalDishQty;
+                                $subDish->update();
+                            }
+                        }
+                    }
+                } elseif ($produk->recipes && $produk->recipes->isNotEmpty()) {
+                    foreach ($produk->recipes as $recipe) {
+                        if ($recipe->rawMaterial) {
+                            $deductQty = $recipe->jumlah * $item->jumlah;
+                            $recipe->rawMaterial->stok += $deductQty;
+                            $recipe->rawMaterial->update();
+                        }
+                    }
+                } else {
+                    $produk->stok += $item->jumlah;
+                    $produk->update();
+                }
+            }
+        }
+    }
+
+    public function deductStockForInvoice($penjualan)
+    {
+        $detail = PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->get();
+        foreach ($detail as $item) {
+            $produk = Produk::with(['recipes.rawMaterial', 'deal.items.produk.recipes.rawMaterial'])->find($item->id_produk);
+            if ($produk) {
+                if ($produk->deal && $produk->deal->items->isNotEmpty()) {
+                    // Deal combo: deduct stock for each dish in the deal
+                    foreach ($produk->deal->items as $dealDish) {
+                        $subDish = $dealDish->produk;
+                        if ($subDish) {
+                            $totalDishQty = $dealDish->jumlah * $item->jumlah;
+                            if ($subDish->recipes && $subDish->recipes->isNotEmpty()) {
+                                foreach ($subDish->recipes as $recipe) {
+                                    if ($recipe->rawMaterial) {
+                                        $deductQty = $recipe->jumlah * $totalDishQty;
+                                        $recipe->rawMaterial->stok = max(0, $recipe->rawMaterial->stok - $deductQty);
+                                        $recipe->rawMaterial->update();
+                                    }
+                                }
+                            } else {
+                                $subDish->stok = max(0, $subDish->stok - $totalDishQty);
+                                $subDish->update();
+                            }
+                        }
+                    }
+                } elseif ($produk->recipes && $produk->recipes->isNotEmpty()) {
+                    foreach ($produk->recipes as $recipe) {
+                        if ($recipe->rawMaterial) {
+                            $deductQty = $recipe->jumlah * $item->jumlah;
+                            $recipe->rawMaterial->stok = max(0, $recipe->rawMaterial->stok - $deductQty);
+                            $recipe->rawMaterial->update();
+                        }
+                    }
+                } else {
+                    $produk->stok = max(0, $produk->stok - $item->jumlah);
+                    $produk->update();
+                }
+            }
+        }
+    }
+
     public function create()
     {
+        // If coming from an abandoned edit session, re-deduct stock
+        if (session('is_editing') && session('id_penjualan')) {
+            $existing = Penjualan::find(session('id_penjualan'));
+            if ($existing) {
+                $this->deductStockForInvoice($existing);
+            }
+            session()->forget(['is_editing', 'editing_invoice']);
+        }
+
+        // Reuse active empty transaction if it has 0 items
+        $currentId = session('id_penjualan');
+        if ($currentId) {
+            $existingEmpty = Penjualan::find($currentId);
+            if ($existingEmpty && $existingEmpty->total_item == 0 && PenjualanDetail::where('id_penjualan', $currentId)->count() == 0) {
+                return redirect()->route('transaksi.index');
+            }
+        }
+
+        // Clean up orphan empty transactions with 0 items
+        Penjualan::where('total_item', 0)
+            ->whereDoesntHave('detail')
+            ->delete();
+
         $penjualan = new Penjualan();
         $penjualan->id_member = null;
         $penjualan->nomor_meja = 'Table 1';
@@ -116,6 +225,100 @@ class PenjualanController extends Controller
 
         session(['id_penjualan' => $penjualan->id_penjualan]);
         return redirect()->route('transaksi.index');
+    }
+
+    public function edit($id)
+    {
+        $penjualan = Penjualan::findOrFail($id);
+
+        // Revert previous stock deduction so changes in POS adjust cleanly on save
+        $this->revertStockForInvoice($penjualan);
+
+        session([
+            'id_penjualan' => $penjualan->id_penjualan,
+            'is_editing' => true,
+            'editing_invoice' => '#INV-' . tambah_nol_didepan($penjualan->id_penjualan, 5)
+        ]);
+
+        return redirect()->route('transaksi.index');
+    }
+
+    public function cancelEdit()
+    {
+        $id = session('id_penjualan');
+        if ($id && session('is_editing')) {
+            $penjualan = Penjualan::find($id);
+            if ($penjualan) {
+                $this->deductStockForInvoice($penjualan);
+            }
+        }
+        session()->forget(['id_penjualan', 'is_editing', 'editing_invoice']);
+        return redirect()->route('transaksi.baru');
+    }
+
+    public function getInfo($id)
+    {
+        $penjualan = Penjualan::with(['member', 'user'])->findOrFail($id);
+        $members = \App\Models\Member::orderBy('nama')->get();
+
+        return response()->json([
+            'id_penjualan' => $penjualan->id_penjualan,
+            'invoice' => '#INV-' . tambah_nol_didepan($penjualan->id_penjualan, 5),
+            'id_member' => $penjualan->id_member,
+            'nomor_meja' => $penjualan->nomor_meja ?: 'Table 1',
+            'tipe_order' => $penjualan->tipe_order ?: 'Dine-In',
+            'total_item' => $penjualan->total_item,
+            'total_harga' => $penjualan->total_harga,
+            'total_harga_rp' => format_currency($penjualan->total_harga),
+            'diskon' => $penjualan->diskon,
+            'bayar' => $penjualan->bayar,
+            'bayar_rp' => format_currency($penjualan->bayar),
+            'diterima' => $penjualan->diterima,
+            'status_pembayaran' => $penjualan->status_pembayaran ?: 'unpaid',
+            'metode_pembayaran' => $penjualan->metode_pembayaran ?: 'cash',
+            'catatan' => $penjualan->catatan,
+            'created_at' => date('d M Y, h:i A', strtotime($penjualan->created_at)),
+            'members' => $members,
+            'edit_pos_url' => route('penjualan.edit', $penjualan->id_penjualan),
+            'print_url' => route('penjualan.nota_kecil', $penjualan->id_penjualan),
+        ]);
+    }
+
+    public function updateInfo(Request $request, $id)
+    {
+        $penjualan = Penjualan::findOrFail($id);
+
+        $penjualan->nomor_meja = $request->nomor_meja ?? $penjualan->nomor_meja;
+        $penjualan->tipe_order = $request->tipe_order ?? $penjualan->tipe_order;
+        $penjualan->id_member = !empty($request->id_member) ? $request->id_member : null;
+        $penjualan->metode_pembayaran = $request->metode_pembayaran ?? $penjualan->metode_pembayaran;
+        $penjualan->catatan = $request->catatan ?? $penjualan->catatan;
+
+        if ($request->has('diskon')) {
+            $diskon = (float) $request->diskon;
+            $penjualan->diskon = $diskon;
+            $penjualan->bayar = max(0, $penjualan->total_harga - ($diskon / 100 * $penjualan->total_harga));
+        }
+
+        if ($request->has('status_pembayaran')) {
+            $penjualan->status_pembayaran = $request->status_pembayaran;
+            if ($request->status_pembayaran === 'paid') {
+                $penjualan->diterima = $penjualan->bayar;
+            } else {
+                $penjualan->diterima = 0;
+            }
+        }
+
+        $penjualan->update();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Invoice #INV-' . tambah_nol_didepan($penjualan->id_penjualan, 5) . ' details updated successfully!',
+            'invoice' => '#INV-' . tambah_nol_didepan($penjualan->id_penjualan, 5),
+            'bayar' => $penjualan->bayar,
+            'bayar_rp' => format_currency($penjualan->bayar),
+            'status_pembayaran' => $penjualan->status_pembayaran,
+        ]);
     }
 
     public function store(Request $request)
@@ -147,18 +350,18 @@ class PenjualanController extends Controller
         foreach ($detail as $item) {
             $item->diskon = $diskon;
             $item->update();
-
-            $produk = Produk::find($item->id_produk);
-            if ($produk) {
-                $produk->stok = max(0, $produk->stok - $item->jumlah);
-                $produk->update();
-            }
         }
+
+        $this->deductStockForInvoice($penjualan);
+
+        $isEditing = session('is_editing') ?? false;
+        session()->forget(['is_editing', 'editing_invoice']);
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'status' => 'success',
-                'message' => 'Invoice has been saved successfully.',
+                'is_editing' => $isEditing,
+                'message' => $isEditing ? 'Invoice #INV-' . tambah_nol_didepan($penjualan->id_penjualan, 5) . ' updated successfully.' : 'Order saved successfully.',
                 'id_penjualan' => $penjualan->id_penjualan,
                 'invoice' => '#INV-' . tambah_nol_didepan($penjualan->id_penjualan, 5),
                 'status_pembayaran' => $status,
@@ -314,22 +517,12 @@ class PenjualanController extends Controller
             ->rawColumns(['kode_produk'])
             ->make(true);
     }
-    // visit "codeastro" for more projects!
     public function destroy($id)
     {
         $penjualan = Penjualan::find($id);
         if ($penjualan) {
-            $detail = PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->get();
-            foreach ($detail as $item) {
-                $produk = Produk::find($item->id_produk);
-                if ($produk) {
-                    $produk->stok += $item->jumlah;
-                    $produk->update();
-                }
-
-                $item->delete();
-            }
-
+            $this->revertStockForInvoice($penjualan);
+            PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->delete();
             $penjualan->delete();
         }
 

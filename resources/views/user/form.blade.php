@@ -26,6 +26,18 @@
                         </div>
                     </div>
                     <div class="form-group row">
+                        <label for="role" class="col-lg-3 col-lg-offset-1 control-label">Assigned Role <span class="text-danger">*</span></label>
+                        <div class="col-lg-6">
+                            <select name="role" id="role" class="form-control" required>
+                                <option value="cashier">Cashier / Staff (Counter Billing & KOT)</option>
+                                <option value="manager">Manager (POS, Expenses, Daily Z-Report, Live Orders)</option>
+                                <option value="admin">Admin / Owner (Full Access, Menu, Prices, Reports)</option>
+                                <option value="waiter">Waiter (Dine-in Order Punching Only)</option>
+                            </select>
+                            <span class="help-block with-errors"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
                         <label for="password" class="col-lg-3 col-lg-offset-1 control-label">Password</label>
                         <div class="col-lg-6">
                             <input type="password" name="password" id="password" class="form-control" 

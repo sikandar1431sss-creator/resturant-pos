@@ -119,10 +119,11 @@ body .main-header .logo {
 body .main-header .navbar {
     background: #ffffff !important;
     min-height: 55px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 16px 0 6px !important;
+    height: 55px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 8px 0 4px !important;
     margin-left: 230px;
     border-bottom: 1px solid var(--gray-200) !important;
 }
@@ -136,7 +137,7 @@ body .main-header .navbar .sidebar-toggle,
     width: 36px !important;
     height: 36px !important;
     padding: 0 !important;
-    margin: 9px 10px 9px 4px !important;
+    margin: 0 0 0 4px !important;
     border-radius: 8px !important;
     color: #334155 !important;
     background: #f8fafc !important;
@@ -144,6 +145,25 @@ body .main-header .navbar .sidebar-toggle,
     font-size: 15px !important;
     cursor: pointer !important;
     transition: all 0.2s ease !important;
+}
+
+.main-header .navbar-custom-menu {
+    margin-left: auto !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.main-header .navbar-custom-menu .navbar-nav {
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.main-header .navbar-custom-menu .navbar-nav > li {
+    display: flex !important;
+    align-items: center !important;
 }
 
 .main-header .sidebar-toggle:before,
@@ -1302,20 +1322,16 @@ body .sidebar-menu > li.active > a i {
 .btn-table-action.btn-pay,
 .btn-table-action.btn-pay i,
 .btn-table-action.btn-pay .fa {
-    width: auto !important;
-    min-width: auto !important;
-    height: 35px !important;
-    padding: 0 13px !important;
-    font-size: 12.5px !important;
-    font-weight: 700 !important;
-    gap: 6px !important;
     background-color: #10b981 !important;
     color: #ffffff !important;
     border-color: #10b981 !important;
 }
 .btn-table-action.btn-pay:hover,
 .btn-table-action.btn-pay:hover i,
-.btn-table-action.btn-pay:hover .fa {
+.btn-table-action.btn-pay:hover .fa,
+.btn-table-action.btn-pay:focus,
+.btn-table-action.btn-pay:focus i,
+.btn-table-action.btn-pay:focus .fa {
     background-color: #059669 !important;
     color: #ffffff !important;
     border-color: #059669 !important;

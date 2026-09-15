@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-Point of Sale (POS)
+Create Invoice
 @endsection
 
 @push('css')
@@ -674,22 +674,34 @@ Point of Sale (POS)
     <!-- Top POS Header -->
     <div class="pos-top-bar">
         <div>
-            <h1 class="pos-heading-title">Point of Sale (POS)</h1>
-            <div class="pos-heading-sub">Dashboard &bull; Pos</div>
+            <h1 class="pos-heading-title">
+                Create Invoice
+                @if($isEditMode)
+                    <span class="badge" style="background: #2563eb; color: #fff; font-size: 12px; font-weight: 800; padding: 5px 12px; border-radius: 6px; margin-left: 8px; vertical-align: middle; box-shadow: 0 2px 6px rgba(37,99,235,0.35);">
+                        <i class="fa fa-edit"></i> EDITING #INV-{{ tambah_nol_didepan($penjualan->id_penjualan, 5) }}
+                    </span>
+                @endif
+            </h1>
+            <div class="pos-heading-sub">
+                @if($isEditMode)
+                    <span style="color: #2563eb; font-weight: 700;">Edit Mode Active</span> &bull; Modify items, table, customer or discounts and click Save &amp; Update
+                @else
+                    Dashboard &bull; Create Invoice
+                @endif
+            </div>
         </div>
         <div class="pos-top-actions">
+            @if($isEditMode)
+                <a href="{{ route('transaksi.cancel_edit') }}" class="btn btn-pos-pill-outline" style="color: #ef4444 !important; border-color: #fca5a5 !important; background: #fff5f5 !important;" title="Cancel editing without saving changes">
+                    <i class="fa fa-times-circle"></i> Cancel Edit
+                </a>
+            @endif
             <a href="{{ route('transaksi.baru') }}" class="btn btn-pos-pill-new">
                 <i class="fa fa-plus"></i> New
             </a>
-            <button type="button" class="btn btn-pos-pill-outline" onclick="showQrMenuModal()">
-                <i class="fa fa-qrcode"></i> QR Menu Orders
-            </button>
             <button type="button" class="btn btn-pos-pill-outline" onclick="showDraftListModal()">
-                Draft List
+                <i class="fa fa-clock-o"></i> Draft List
             </button>
-            <a href="{{ route('penjualan.index') }}" class="btn btn-pos-pill-outline">
-                <i class="fa fa-list-alt"></i> Invoices List
-            </a>
         </div>
     </div>
 
@@ -704,24 +716,26 @@ Point of Sale (POS)
                         <input type="text" id="foodSearchInput" class="pos-search-input" placeholder="Search in products">
                     </div>
                     <select id="catSelectFilter" class="pos-select-filter">
-                        <option value="all">All Category</option>
+                        <option value="all">All Categories</option>
+                        <option value="deals">🎁 Deals</option>
                         @foreach($kategori as $cat)
-                        <option value="{{ $cat->id_kategori }}">{{ $cat->nama_kategori }}</option>
-                        @endforeach
-                    </select>
-                    <select id="brandSelectFilter" class="pos-select-filter">
-                        <option value="all">Select Brand</option>
-                        @foreach($brands as $brand)
-                        <option value="{{ strtolower($brand) }}">{{ $brand }}</option>
+                            @if($cat->nama_kategori !== 'Deals' && $cat->nama_kategori !== 'Deals & Combos')
+                            <option value="{{ $cat->id_kategori }}">{{ $cat->nama_kategori }}</option>
+                            @endif
                         @endforeach
                     </select>
                 </div>
 
                 <!-- Category Pills Bar -->
                 <div class="pos-cat-scroll">
-                    <span class="pos-pill-tab active" data-category="all">Show All</span>
+                    <span class="pos-pill-tab active" data-category="all">All Items</span>
+                    <span class="pos-pill-tab" data-category="deals" style="background: #fffbeb; border-color: #fde68a; color: #b45309; font-weight: 800;">
+                        <i class="fa fa-gift text-warning"></i> Deals
+                    </span>
                     @foreach($kategori as $cat)
-                    <span class="pos-pill-tab" data-category="{{ $cat->id_kategori }}">{{ $cat->nama_kategori }}</span>
+                        @if($cat->nama_kategori !== 'Deals' && $cat->nama_kategori !== 'Deals & Combos')
+                        <span class="pos-pill-tab" data-category="{{ $cat->id_kategori }}">{{ $cat->nama_kategori }}</span>
+                        @endif
                     @endforeach
                 </div>
 
@@ -757,10 +771,16 @@ Point of Sale (POS)
                     <div class="pos-item-card" 
                          data-id="{{ $item->id_produk }}" 
                          data-code="{{ $item->kode_produk }}" 
-                         data-category="{{ $item->id_kategori }}" 
+                         data-category="{{ $item->id_kategori ?? '' }}" 
                          data-brand="{{ strtolower($item->merk ?? '') }}"
                          data-name="{{ strtolower($item->nama_produk) }}"
+                         data-is-deal="{{ (($item->merk ?? '') === 'Deal Combo' || ($item->kategori->nama_kategori ?? '') === 'Deals' || ($item->kategori->nama_kategori ?? '') === 'Deals & Combos') ? '1' : '0' }}"
                          onclick="addItemToCart('{{ $item->id_produk }}')">
+                        @if(($item->merk ?? '') === 'Deal Combo' || ($item->kategori->nama_kategori ?? '') === 'Deals' || ($item->kategori->nama_kategori ?? '') === 'Deals & Combos')
+                            <span class="badge" style="position: absolute; top: 6px; left: 6px; z-index: 2; background: #f59e0b; color: #fff; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
+                                <i class="fa fa-gift"></i> DEAL
+                            </span>
+                        @endif
                         <div class="pos-item-img-container">
                             <img src="{{ $imgUrl }}" alt="{{ $item->nama_produk }}" class="pos-item-img">
                         </div>
@@ -772,7 +792,7 @@ Point of Sale (POS)
                     </div>
                     @empty
                     <div class="text-center" style="grid-column: 1 / -1; padding: 50px 20px; color: #94a3b8;">
-                        <i class="fa fa-cutlery" style="font-size: 36px; margin-bottom: 10px; color: #cbd5e1;"></i>
+                        <i class="fa fa-th-large" style="font-size: 36px; margin-bottom: 10px; color: #cbd5e1;"></i>
                         <h4 style="font-weight: 700; color: #475569;">No Menu Dishes Found</h4>
                         <a href="{{ route('produk.index') }}" class="btn btn-sm btn-primary btn-flat" style="border-radius: 8px;">Add Dishes in Menu</a>
                     </div>
@@ -847,7 +867,11 @@ Point of Sale (POS)
 
                     <!-- 6. Big Bright Orange Place Order Button (At the very bottom) -->
                     <button type="button" class="btn-place-order" onclick="placeOrderSubmit()">
-                        Place Order
+                        @if($isEditMode)
+                            <i class="fa fa-check-circle"></i> Save &amp; Update Invoice
+                        @else
+                            Place Order
+                        @endif
                     </button>
 
                 </div>
@@ -856,16 +880,16 @@ Point of Sale (POS)
                 <form action="{{ route('transaksi.simpan') }}" class="form-penjualan hide" method="post" id="posMainForm">
                     @csrf
                     <input type="hidden" name="id_penjualan" value="{{ $id_penjualan }}">
-                    <input type="hidden" name="total" id="form_total" value="0">
-                    <input type="hidden" name="total_item" id="form_total_item" value="0">
-                    <input type="hidden" name="bayar" id="form_bayar" value="0">
-                    <input type="hidden" name="diskon" id="form_diskon" value="{{ $diskon }}">
-                    <input type="hidden" name="diterima" id="form_diterima" value="0">
-                    <input type="hidden" name="status_pembayaran" id="form_status_pembayaran" value="unpaid">
-                    <input type="hidden" name="metode_pembayaran" id="form_metode_pembayaran" value="cash">
+                    <input type="hidden" name="total" id="form_total" value="{{ $penjualan->total_harga ?? 0 }}">
+                    <input type="hidden" name="total_item" id="form_total_item" value="{{ $penjualan->total_item ?? 0 }}">
+                    <input type="hidden" name="bayar" id="form_bayar" value="{{ $penjualan->bayar ?? 0 }}">
+                    <input type="hidden" name="diskon" id="form_diskon" value="{{ $penjualan->diskon ?? $diskon }}">
+                    <input type="hidden" name="diterima" id="form_diterima" value="{{ $penjualan->diterima ?? 0 }}">
+                    <input type="hidden" name="status_pembayaran" id="form_status_pembayaran" value="{{ $penjualan->status_pembayaran ?? 'unpaid' }}">
+                    <input type="hidden" name="metode_pembayaran" id="form_metode_pembayaran" value="{{ $penjualan->metode_pembayaran ?? 'cash' }}">
                     <input type="hidden" name="id_member" id="form_id_member" value="{{ $memberSelected->id_member ?? '' }}">
-                    <input type="hidden" name="nomor_meja" id="form_nomor_meja" value="Table 1">
-                    <input type="hidden" name="tipe_order" id="form_tipe_order" value="Dine-In">
+                    <input type="hidden" name="nomor_meja" id="form_nomor_meja" value="{{ $penjualan->nomor_meja ?? 'Table 1' }}">
+                    <input type="hidden" name="tipe_order" id="form_tipe_order" value="{{ $penjualan->tipe_order ?? 'Dine-In' }}">
                 </form>
 
             </div>
@@ -885,21 +909,21 @@ Point of Sale (POS)
                 <div class="form-group">
                     <label style="font-size: 12px; font-weight: 700; color: #334155;">Order Dining Type:</label>
                     <select id="modalDiningSelect" class="form-control" style="border-radius: 8px; font-weight: 700;" onchange="handleModalDiningChange(this.value)">
-                        <option value="Dine-In" selected>Dine-In</option>
-                        <option value="Takeaway">Takeaway</option>
-                        <option value="Delivery">Delivery</option>
+                        <option value="Dine-In" {{ ($penjualan->tipe_order ?? 'Dine-In') === 'Dine-In' ? 'selected' : '' }}>Dine-In</option>
+                        <option value="Takeaway" {{ ($penjualan->tipe_order ?? '') === 'Takeaway' ? 'selected' : '' }}>Takeaway</option>
+                        <option value="Delivery" {{ ($penjualan->tipe_order ?? '') === 'Delivery' ? 'selected' : '' }}>Delivery</option>
                     </select>
                 </div>
 
                 <div class="form-group" id="modalTableFormGroup">
                     <label style="font-size: 12px; font-weight: 700; color: #334155;">Table Selection:</label>
                     <select id="modalTableSelect" class="form-control" style="border-radius: 8px; font-weight: 700;">
-                        <option value="Table 1" selected>Table 1</option>
-                        <option value="Table 2">Table 2</option>
-                        <option value="Table 3">Table 3</option>
-                        <option value="Table 4">Table 4</option>
-                        <option value="Table 5">Table 5</option>
-                        <option value="VIP Table">VIP Table</option>
+                        <option value="Table 1" {{ ($penjualan->nomor_meja ?? 'Table 1') === 'Table 1' ? 'selected' : '' }}>Table 1</option>
+                        <option value="Table 2" {{ ($penjualan->nomor_meja ?? '') === 'Table 2' ? 'selected' : '' }}>Table 2</option>
+                        <option value="Table 3" {{ ($penjualan->nomor_meja ?? '') === 'Table 3' ? 'selected' : '' }}>Table 3</option>
+                        <option value="Table 4" {{ ($penjualan->nomor_meja ?? '') === 'Table 4' ? 'selected' : '' }}>Table 4</option>
+                        <option value="Table 5" {{ ($penjualan->nomor_meja ?? '') === 'Table 5' ? 'selected' : '' }}>Table 5</option>
+                        <option value="VIP Table" {{ ($penjualan->nomor_meja ?? '') === 'VIP Table' ? 'selected' : '' }}>VIP Table</option>
                     </select>
                 </div>
 
@@ -913,7 +937,7 @@ Point of Sale (POS)
 
                 <div class="form-group">
                     <label style="font-size: 12px; font-weight: 700; color: #334155;">Extra Discount ({{ get_currency_symbol() }}):</label>
-                    <input type="number" id="modalExtraDiscountInput" class="form-control" placeholder="0" min="0" value="0" style="border-radius: 8px; font-weight: 700;" oninput="applyModalExtraDiscount(this.value)">
+                    <input type="number" id="modalExtraDiscountInput" class="form-control" placeholder="0" min="0" value="{{ $penjualan->diskon ?? 0 }}" style="border-radius: 8px; font-weight: 700;" oninput="applyModalExtraDiscount(this.value)">
                 </div>
             </div>
             <div class="modal-footer" style="background: #f8fafc; border-radius: 0 0 12px 12px;">
@@ -989,12 +1013,20 @@ Point of Sale (POS)
 @push('scripts')
 <script>
     let CURRENCY_SYMBOL = '{{ get_currency_symbol() }}';
+    let IS_EDIT_MODE = {{ $isEditMode ? 'true' : 'false' }};
     let currentCartData = { items: [], total: 0, total_item: 0, product_discount: 0 };
-    let extraDiscount = 0;
-    let selectedPaymentMethod = 'cash';
+    let extraDiscount = {{ (float)($penjualan->diskon ?? 0) }};
+    let selectedPaymentMethod = '{{ strtolower($penjualan->metode_pembayaran ?? "cash") }}';
 
     $(function () {
         loadCart();
+
+        // Initialize edit values
+        setPaymentMethod(selectedPaymentMethod);
+        $('#modalDiningSelect').val('{{ $penjualan->tipe_order ?? "Dine-In" }}');
+        handleModalDiningChange('{{ $penjualan->tipe_order ?? "Dine-In" }}');
+        $('#modalTableSelect').val('{{ $penjualan->nomor_meja ?? "Table 1" }}');
+        $('#modalExtraDiscountInput').val(extraDiscount);
 
         // Search in products
         $('#foodSearchInput').on('keyup', function () {
@@ -1006,11 +1038,6 @@ Point of Sale (POS)
             let cat = $(this).val();
             $('.pos-pill-tab').removeClass('active');
             $(`.pos-pill-tab[data-category="${cat}"]`).addClass('active');
-            filterMenuGrid();
-        });
-
-        // Brand dropdown filter
-        $('#brandSelectFilter').on('change', function () {
             filterMenuGrid();
         });
 
@@ -1048,30 +1075,48 @@ Point of Sale (POS)
 
     function applyModalExtraDiscount(val) {
         extraDiscount = Math.max(0, parseFloat(val) || 0);
+        $('#form_diskon').val(extraDiscount);
         renderCartUI(currentCartData);
     }
 
     function filterMenuGrid() {
-        let keyword = $('#foodSearchInput').val().toLowerCase();
-        let selectedCat = $('#catSelectFilter').val();
-        let selectedBrand = $('#brandSelectFilter').val();
+        let keyword = ($('#foodSearchInput').val() || '').toLowerCase().trim();
+        let selectedCat = ($('#catSelectFilter').val() || 'all').toString();
 
+        let visibleCount = 0;
         $('#posProductGrid .pos-item-card').each(function () {
-            let name = $(this).data('name') || '';
+            let name = ($(this).data('name') || '').toString().toLowerCase();
             let code = ($(this).data('code') || '').toString().toLowerCase();
-            let cat = $(this).data('category').toString();
-            let brand = ($(this).data('brand') || '').toLowerCase();
+            let cat = ($(this).data('category') || '').toString();
+            let brand = ($(this).data('brand') || '').toString().toLowerCase();
+            let isDeal = ($(this).data('is-deal') || '0').toString();
 
-            let matchKeyword = (name.indexOf(keyword) > -1 || code.indexOf(keyword) > -1);
-            let matchCat = (selectedCat === 'all' || cat === selectedCat);
-            let matchBrand = (selectedBrand === 'all' || brand === selectedBrand);
+            let matchKeyword = (keyword === '' || name.indexOf(keyword) > -1 || code.indexOf(keyword) > -1);
+            let matchCat = false;
+            if (selectedCat === 'all') {
+                matchCat = true;
+            } else if (selectedCat === 'deals') {
+                matchCat = (isDeal === '1' || brand === 'deal combo');
+            } else {
+                matchCat = (cat === selectedCat);
+            }
 
-            if (matchKeyword && matchCat && matchBrand) {
+            if (matchKeyword && matchCat) {
                 $(this).show();
+                visibleCount++;
             } else {
                 $(this).hide();
             }
         });
+
+        if (visibleCount === 0 && $('#posProductGrid .pos-item-card').length > 0) {
+            if ($('#noFilterResultsMsg').length === 0) {
+                $('#posProductGrid').append('<div id="noFilterResultsMsg" class="text-center" style="grid-column: 1 / -1; padding: 40px 20px; color: #94a3b8;"><i class="fa fa-search" style="font-size: 32px; margin-bottom: 8px; color: #cbd5e1; display: block;"></i><h4 style="font-weight: 700; color: #475569;">No items found in this category</h4><p style="font-size: 12.5px;">Try selecting "All Items" or searching for a different keyword.</p></div>');
+            }
+            $('#noFilterResultsMsg').show();
+        } else {
+            $('#noFilterResultsMsg').hide();
+        }
     }
 
     function loadCart() {
@@ -1141,9 +1186,9 @@ Point of Sale (POS)
         container.html(html);
 
         // Update Summary Calculations
-        let memberDiscPercent = parseFloat('{{ $diskon }}') || 0;
+        let memberDiscPercent = extraDiscount;
         let couponDiscountAmount = (memberDiscPercent / 100) * data.total;
-        let totalDiscount = extraDiscount + couponDiscountAmount + (data.product_discount || 0);
+        let totalDiscount = couponDiscountAmount + (data.product_discount || 0);
         let finalGrandTotal = Math.max(0, data.total - totalDiscount);
 
         $('#lblSubtotal').text(CURRENCY_SYMBOL + ' ' + (data.total_rp || data.total.toLocaleString()));
@@ -1237,8 +1282,8 @@ Point of Sale (POS)
             'total_item': $('#form_total_item').val(),
             'bayar': payable,
             'diskon': $('#form_diskon').val(),
-            'diterima': 0, // Saved as Unpaid initially
-            'status_pembayaran': 'unpaid',
+            'diterima': $('#form_diterima').val() || 0,
+            'status_pembayaran': $('#form_status_pembayaran').val() || 'unpaid',
             'metode_pembayaran': selectedPaymentMethod,
             'id_member': $('#form_id_member').val(),
             'nomor_meja': $('#modalTableSelect').val() || 'Table 1',
@@ -1247,28 +1292,36 @@ Point of Sale (POS)
 
         $.post('{{ route('transaksi.simpan') }}', data)
             .done(response => {
+                let isEdit = (response.is_editing || IS_EDIT_MODE);
+                let swalTitle = isEdit ? 'Invoice Updated Successfully!' : 'Order Placed Successfully!';
+                let swalHtml = isEdit ?
+                    `<strong>${response.invoice}</strong> has been updated successfully.` :
+                    `<strong>${response.invoice}</strong> saved as <span class="label label-danger" style="font-size:12px;">UNPAID</span>.<br>Customer will pay before or after meal.`;
+                let nextBtnText = isEdit ? 'Go to Invoices' : 'Next Order';
+                let nextUrl = isEdit ? "{{ route('penjualan.index') }}" : "{{ route('transaksi.baru') }}";
+
                 Swal.fire({
-                    title: 'Order Placed Successfully!',
-                    html: `<strong>${response.invoice}</strong> saved as <span class="label label-danger" style="font-size:12px;">UNPAID</span>.<br>Customer will pay before or after meal.`,
+                    title: swalTitle,
+                    html: swalHtml,
                     icon: 'success',
                     showCancelButton: true,
                     confirmButtonColor: '#ff521d',
                     cancelButtonColor: '#0f172a',
                     confirmButtonText: 'Print Receipt (New Tab)',
-                    cancelButtonText: 'Next Order'
+                    cancelButtonText: nextBtnText
                 }).then((result) => {
                     if (result.isConfirmed) {
                         window.open(response.print_url, '_blank');
                         setTimeout(() => {
-                            window.location.href = "{{ route('transaksi.baru') }}";
+                            window.location.href = nextUrl;
                         }, 800);
                     } else {
-                        window.location.href = "{{ route('transaksi.baru') }}";
+                        window.location.href = nextUrl;
                     }
                 });
             })
             .fail(errors => {
-                showErrorToast('Failed to place order');
+                showErrorToast('Failed to save order');
             });
     }
 

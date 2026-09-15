@@ -17,7 +17,6 @@
                 <div class="box-header-actions" style="display: inline-flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                     <button onclick="addForm('{{ route('produk.store') }}')" class="btn btn-success btn-flat"><i class="fa fa-plus-circle"></i> Add New Product</button>
                     <button onclick="deleteSelected('{{ route('produk.delete_selected') }}')" class="btn btn-danger btn-flat"><i class="fa fa-trash"></i> Delete</button>
-                    <button onclick="cetakBarcode('{{ route('produk.cetak_barcode') }}')" class="btn btn-warning btn-flat"><i class="fa fa-barcode"></i> Print Barcode</button>
                 </div>
             </div>
             <div class="box-body table-responsive">
@@ -34,7 +33,7 @@
                             <th>Name</th>
                             <th>Category</th>
                             <th>Brand</th>
-                            <th>Purchase Price</th>
+                            <th>Cost Price</th>
                             <th>Selling Price</th>
                             <th>Discount</th>
                             <th>Stock</th>

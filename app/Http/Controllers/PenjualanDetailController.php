@@ -27,8 +27,10 @@ class PenjualanDetailController extends Controller
                 return redirect()->route('transaksi.baru');
             }
             $memberSelected = $penjualan->member ?? new Member();
+            $isEditMode = session('is_editing', false) || ($penjualan->total_item > 0 && session()->has('is_editing'));
+            $invoiceDiskon = $penjualan->diskon > 0 ? $penjualan->diskon : $diskon;
 
-            return view('penjualan_detail.index', compact('produk', 'kategori', 'brands', 'member', 'diskon', 'id_penjualan', 'penjualan', 'memberSelected'));
+            return view('penjualan_detail.index', compact('produk', 'kategori', 'brands', 'member', 'diskon', 'invoiceDiskon', 'id_penjualan', 'penjualan', 'memberSelected', 'isEditMode'));
         } else {
             return redirect()->route('transaksi.baru');
         }

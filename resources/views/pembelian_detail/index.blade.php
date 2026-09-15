@@ -124,7 +124,8 @@ Purchase
             </div>
 
             <div class="box-footer">
-                <button type="submit" class="btn btn-primary btn-sm btn-flat pull-right btn-simpan"><i class="fa fa-floppy-o"></i> Save Transaction</button>
+                <button type="submit" class="btn btn-primary btn-sm btn-flat pull-right btn-simpan" style="border-radius: 6px; font-weight: 600;"><i class="fa fa-floppy-o"></i> Save Transaction</button>
+                <a href="{{ route('pembelian.nota_kecil', $id_pembelian) }}" target="_blank" class="btn btn-default btn-sm btn-flat pull-right" style="margin-right: 8px; border-radius: 6px; font-weight: 600;"><i class="fa fa-print"></i> Print Thermal Slip</a>
             </div>
         </div>
     </div>

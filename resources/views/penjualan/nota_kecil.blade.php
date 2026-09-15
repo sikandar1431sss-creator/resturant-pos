@@ -22,7 +22,7 @@
         body {
             background-color: #f1f5f9;
             padding: 20px 10px;
-            font-size: 11pt;
+            font-size: 10pt;
             line-height: 1.35;
         }
 
@@ -31,7 +31,7 @@
             max-width: 100%;
             margin: 0 auto;
             background: #ffffff;
-            padding: 14px 12px;
+            padding: 12px 10px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             border-radius: 4px;
         }
@@ -42,23 +42,15 @@
         .bold { font-weight: 700; }
         .bolder { font-weight: 900; }
 
-        /* Logo Box */
+        /* Clean Logo Display */
         .logo-wrapper {
             text-align: center;
-            margin-bottom: 8px;
-        }
-
-        .logo-box {
-            display: inline-block;
-            border: 1px solid #000000;
-            padding: 4px;
-            border-radius: 4px;
-            background: #ffffff;
+            margin-bottom: 6px;
         }
 
         .invoice-logo {
-            max-width: 75px;
-            max-height: 75px;
+            max-width: 90px;
+            max-height: 55px;
             object-fit: contain;
             display: block;
             margin: 0 auto;
@@ -67,47 +59,48 @@
         /* Company Header */
         .company-header {
             text-align: center;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .company-title {
-            font-size: 14pt;
+            font-size: 13.5pt;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.03em;
             line-height: 1.2;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
         .company-info {
-            font-size: 9.5pt;
+            font-size: 8.5pt;
             font-weight: 600;
             line-height: 1.3;
+            color: #111;
         }
 
         /* Dashed Line Divider */
         .divider-dashed {
-            border-top: 1.5px dashed #000000;
-            margin: 6px 0;
+            border-top: 1px dashed #000000;
+            margin: 5px 0;
             width: 100%;
         }
 
         .divider-solid {
-            border-top: 1.5px solid #000000;
+            border-top: 1px solid #000000;
             margin: 4px 0;
         }
 
         .divider-double {
-            border-top: 3px double #000000;
+            border-top: 2.5px double #000000;
             margin: 4px 0;
         }
 
         /* Invoice Main Title */
         .invoice-heading-title {
             text-align: center;
-            font-size: 13pt;
+            font-size: 11.5pt;
             font-weight: 900;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
             padding: 2px 0;
         }
@@ -115,7 +108,7 @@
         /* Metadata Grid */
         .meta-grid-table {
             width: 100%;
-            font-size: 9pt;
+            font-size: 8.5pt;
             border-collapse: collapse;
         }
 
@@ -128,25 +121,26 @@
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 9.5pt;
+            font-size: 9pt;
             margin: 2px 0;
         }
 
         .items-table th {
-            padding: 4px 0;
-            font-size: 9pt;
+            padding: 3px 0;
+            font-size: 8.5pt;
             font-weight: 800;
             text-transform: uppercase;
-            border-bottom: 1.5px dashed #000000;
+            border-top: 1px dashed #000000;
+            border-bottom: 1px dashed #000000;
         }
 
         .items-table td {
-            padding: 3px 0;
+            padding: 2.5px 0;
             vertical-align: top;
         }
 
         .item-row td {
-            font-size: 9.5pt;
+            font-size: 9pt;
         }
 
         /* Summary Section */
@@ -154,7 +148,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            font-size: 9.5pt;
+            font-size: 9pt;
             margin: 4px 0;
         }
 
@@ -162,12 +156,13 @@
             width: 32%;
             font-weight: 700;
             padding-top: 2px;
+            font-size: 8.5pt;
         }
 
         .summary-right-table {
             width: 68%;
             border-collapse: collapse;
-            font-size: 9.5pt;
+            font-size: 9pt;
         }
 
         .summary-right-table td {
@@ -175,10 +170,10 @@
         }
 
         .grand-total-row td {
-            font-size: 11.5pt;
+            font-size: 11pt;
             font-weight: 900;
-            border-top: 1.5px solid #000000;
-            border-bottom: 3px double #000000;
+            border-top: 1px solid #000000;
+            border-bottom: 2.5px double #000000;
             padding: 3px 0;
         }
 
@@ -191,10 +186,10 @@
         }
 
         .urdu-heading {
-            font-size: 13pt;
+            font-size: 11pt;
             font-weight: 700;
             text-align: center;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Urdu Typesetting', Tahoma, sans-serif;
         }
 
@@ -205,10 +200,19 @@
         }
 
         .urdu-list li {
-            font-size: 9.5pt;
+            font-size: 8.5pt;
             line-height: 1.7;
             margin-bottom: 2px;
             font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Urdu Typesetting', Tahoma, sans-serif;
+        }
+
+        .footer-thanks {
+            text-align: center;
+            font-size: 8pt;
+            font-weight: 700;
+            margin-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         /* Floating Print Button */
@@ -219,7 +223,7 @@
             background: #10b981;
             color: #ffffff;
             border: none;
-            padding: 10px 18px;
+            padding: 9px 16px;
             border-radius: 8px;
             font-size: 13px;
             font-weight: 800;
@@ -268,18 +272,24 @@
     <button class="btn-print-floating" onclick="window.print()">🖨️ Print Receipt</button>
 
     <div class="receipt-container">
-        <!-- 1. Top Logo Box -->
-        <div class="logo-wrapper">
-            <div class="logo-box">
-                <img src="{{ !empty($setting->path_logo) ? url($setting->path_logo) : url('img/logo.png') }}" alt="Logo" class="invoice-logo">
+        <!-- 1. Top Logo (Clean, borderless) -->
+        @if(isset($setting->show_logo_receipt) ? $setting->show_logo_receipt : true)
+            @if(!empty($setting->path_logo))
+            <div class="logo-wrapper">
+                <img src="{{ url($setting->path_logo) }}" alt="Logo" class="invoice-logo">
             </div>
-        </div>
+            @endif
+        @endif
 
         <!-- 2. Company / Business Header -->
         <div class="company-header">
-            <div class="company-title">{{ strtoupper($setting->nama_perusahaan ?? 'TAJ ELECTRIC CENTER') }}</div>
-            <div class="company-info"><strong>Phone:</strong> {{ $setting->telepon ?? '03193712392' }}</div>
-            <div class="company-info">{{ strtoupper($setting->alamat ?? 'CINEMA ROAD KHANEWAL') }}</div>
+            <div class="company-title">{{ strtoupper($setting->nama_perusahaan ?? 'RESTAURANT POS') }}</div>
+            @if(!empty($setting->telepon))
+            <div class="company-info"><strong>Phone:</strong> {{ $setting->telepon }}</div>
+            @endif
+            @if(!empty($setting->alamat))
+            <div class="company-info">{{ strtoupper($setting->alamat) }}</div>
+            @endif
         </div>
 
         <div class="divider-dashed"></div>
@@ -291,7 +301,7 @@
         <table class="meta-grid-table">
             <tr>
                 <td width="50%">
-                    <strong>Invoice:</strong> INV-{{ tambah_nol_didepan($penjualan->id_penjualan, 4) }}
+                    <strong>Inv #:</strong> #INV-{{ tambah_nol_didepan($penjualan->id_penjualan, 4) }}
                 </td>
                 <td width="50%" class="text-right">
                     <strong>Date:</strong> {{ date('d-m-Y', strtotime($penjualan->created_at ?? now())) }}
@@ -302,31 +312,36 @@
                     <strong>Time:</strong> {{ date('h:i A', strtotime($penjualan->created_at ?? now())) }}
                 </td>
                 <td class="text-right">
-                    <strong>Customer:</strong> {{ !empty($penjualan->member->nama) ? $penjualan->member->nama : 'Walk In Customer' }}
+                    <strong>Customer:</strong> {{ !empty($penjualan->member->nama) ? $penjualan->member->nama : 'Walk-in' }}
                 </td>
             </tr>
             @if(!empty($penjualan->tipe_order) || !empty($penjualan->nomor_meja))
             <tr>
                 <td>
-                    <strong>Order Type:</strong> {{ $penjualan->tipe_order ?? 'Dine-In' }}
+                    <strong>Type:</strong> {{ $penjualan->tipe_order ?? 'Dine-In' }}
                 </td>
                 <td class="text-right">
                     <strong>Table:</strong> {{ $penjualan->nomor_meja ?? 'Table 1' }}
                 </td>
             </tr>
             @endif
+            @if(!empty($penjualan->user->name))
+            <tr>
+                <td colspan="2">
+                    <strong>Cashier:</strong> {{ $penjualan->user->name }}
+                </td>
+            </tr>
+            @endif
         </table>
-
-        <div class="divider-dashed"></div>
 
         <!-- 5. Items Table -->
         <table class="items-table">
             <thead>
                 <tr>
-                    <th class="text-left" width="42%">Product</th>
-                    <th class="text-center" width="16%">Qty</th>
+                    <th class="text-left" width="44%">Item</th>
+                    <th class="text-center" width="14%">Qty</th>
                     <th class="text-right" width="20%">Price</th>
-                    <th class="text-right" width="22%">Amount</th>
+                    <th class="text-right" width="22%">Total</th>
                 </tr>
             </thead>
             <tbody>
@@ -378,13 +393,13 @@
                 </tr>
                 @if(!empty($penjualan->metode_pembayaran))
                 <tr>
-                    <td class="text-left">Payment Method</td>
+                    <td class="text-left">Payment</td>
                     <td class="text-right" style="text-transform: uppercase;">
                         @php
                             $pm = strtolower($penjualan->metode_pembayaran);
                         @endphp
                         @if($pm === 'card')
-                            Debit Card
+                            Card
                         @elseif($pm === 'online' || $pm === 'e-wallet')
                             E-Wallet
                         @else
@@ -396,25 +411,30 @@
             </table>
         </div>
 
-        <div class="divider-dashed"></div>
+        <!-- 7. Urdu Terms & Conditions (Only if enabled in settings) -->
+        @if(isset($setting->show_sale_terms) ? $setting->show_sale_terms : true)
+            @php
+                $saleTerms = !empty($setting->terms_conditions) 
+                    ? $setting->terms_conditions 
+                    : "خریدہ ہوا مال واپس یا تبدیل نہیں ہوگاـ\nوارنٹی صرف کمپنی / مینوفیکچرر کی شرائط کے مطابق ہوگیـ\nبل کے بغیر کسی قسم کی شکایت قبول نہیں کی جائے گیـ";
+                $saleLines = explode("\n", str_replace("\r", "", $saleTerms));
+            @endphp
+            @if(count($saleLines) > 0)
+            <div class="divider-dashed"></div>
+            <div class="urdu-section" dir="rtl">
+                <div class="urdu-heading">{{ !empty($setting->terms_title) ? $setting->terms_title : 'شرائط و ضوابط' }}</div>
+                <ul class="urdu-list">
+                    @foreach($saleLines as $tLine)
+                        @if(trim($tLine) !== '')
+                        <li>{{ trim($tLine) }}</li>
+                        @endif
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+        @endif
 
-        <!-- 7. Urdu Terms & Conditions (شرائط و ضوابط) -->
-        <div class="urdu-section" dir="rtl">
-            <div class="urdu-heading">{{ !empty($setting->terms_title) ? $setting->terms_title : 'شرائط و ضوابط' }}</div>
-            <ul class="urdu-list">
-                @php
-                    $rawTerms = !empty($setting->terms_conditions) 
-                        ? $setting->terms_conditions 
-                        : "خریدہ ہوا مال واپس یا تبدیل نہیں ہوگاـ\nوارنٹی صرف کمپنی / مینوفیکچرر کی شرائط کے مطابق ہوگیـ\nبل کے بغیر کسی قسم کی شکایت قبول نہیں کی جائے گیـ\nہمارے ساتھ تعاون کا شکریہـ";
-                    $termsLines = explode("\n", str_replace("\r", "", $rawTerms));
-                @endphp
-                @foreach($termsLines as $tLine)
-                    @if(trim($tLine) !== '')
-                    <li>{{ trim($tLine) }}</li>
-                    @endif
-                @endforeach
-            </ul>
-        </div>
+        <div class="footer-thanks">*** THANK YOU FOR VISITING ***</div>
     </div>
 
     <script>

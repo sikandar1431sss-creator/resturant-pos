@@ -22,6 +22,7 @@
                         <th width="5%">#</th>
                         <th>Name</th>
                         <th>Email</th>
+                        <th>Assigned Role</th>
                         <th width="15%"><i class="fa fa-cog"></i></th>
                     </thead>
                 </table>
@@ -50,6 +51,7 @@
                 {data: 'DT_RowIndex', searchable: false, sortable: false},
                 {data: 'name'},
                 {data: 'email'},
+                {data: 'role_badge'},
                 {data: 'aksi', searchable: false, sortable: false},
             ]
         });
@@ -97,6 +99,7 @@
             .done((response) => {
                 $('#modal-form [name=name]').val(response.name);
                 $('#modal-form [name=email]').val(response.email);
+                $('#modal-form [name=role]').val(response.role || 'cashier');
             })
             .fail((errors) => {
                 showErrorToast('Unable to display user data');

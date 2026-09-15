@@ -15,11 +15,22 @@ class UserController extends Controller
 
     public function data()
     {
-        $user = User::isNotAdmin()->orderBy('id', 'desc')->get();
+        $user = User::with('roles')->orderBy('id', 'desc')->get();
 
         return datatables()
             ->of($user)
             ->addIndexColumn()
+            ->addColumn('role_badge', function ($user) {
+                $role = $user->roles->first()->name ?? ($user->level == 1 ? 'admin' : 'cashier');
+                if ($role == 'admin') {
+                    return '<span class="badge" style="background:#dc2626;color:#fff;padding:4px 8px;border-radius:4px;font-weight:700;">Admin / Owner</span>';
+                } elseif ($role == 'manager') {
+                    return '<span class="badge" style="background:#ea580c;color:#fff;padding:4px 8px;border-radius:4px;font-weight:700;">Manager</span>';
+                } elseif ($role == 'waiter') {
+                    return '<span class="badge" style="background:#0284c7;color:#fff;padding:4px 8px;border-radius:4px;font-weight:700;">Waiter</span>';
+                }
+                return '<span class="badge" style="background:#16a34a;color:#fff;padding:4px 8px;border-radius:4px;font-weight:700;">Cashier / Staff</span>';
+            })
             ->addColumn('aksi', function ($user) {
                 return '
                 <div class="table-actions-group">
@@ -28,7 +39,7 @@ class UserController extends Controller
                 </div>
                 ';
             })
-            ->rawColumns(['aksi'])
+            ->rawColumns(['role_badge', 'aksi'])
             ->make(true);
     }
 
@@ -50,13 +61,18 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        $roleName = $request->role ?? 'cashier';
+        $level = ($roleName === 'admin') ? 1 : 2;
+
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = bcrypt($request->password);
-        $user->level = 2;
+        $user->level = $level;
         $user->foto = '/img/user.png';
         $user->save();
+
+        $user->assignRole($roleName);
 
         return response()->json('Data saved successfully', 200);
     }
@@ -69,7 +85,8 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::find($id);
+        $user = User::with('roles')->findOrFail($id);
+        $user->role = $user->roles->first()->name ?? ($user->level == 1 ? 'admin' : 'cashier');
 
         return response()->json($user);
     }
@@ -94,11 +111,19 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $user = User::find($id);
+        $user = User::findOrFail($id);
         $user->name = $request->name;
         $user->email = $request->email;
-        if ($request->has('password') && $request->password != "") 
+
+        if ($request->has('role')) {
+            $roleName = $request->role;
+            $user->level = ($roleName === 'admin') ? 1 : 2;
+            $user->syncRoles([$roleName]);
+        }
+
+        if ($request->has('password') && $request->password != "") {
             $user->password = bcrypt($request->password);
+        }
         $user->update();
 
         return response()->json('Data saved successfully', 200);

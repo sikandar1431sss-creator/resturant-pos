@@ -42,7 +42,7 @@ function format_currency($angka) {
 }
 
 function format_uang ($angka) {
-    return number_format((float)($angka ?? 0), 0, ',', '.');
+    return number_format((float)($angka ?? 0), 0, '.', ',');
 }
 
 // function terbilang ($angka) {

@@ -305,37 +305,101 @@
                         </div>
                     </div>
 
-                    <!-- TAB 3: INVOICES & RECEIPTS (WITH TERMS & CONDITIONS URDU KHANA) -->
+                    <!-- TAB 3: INVOICES & RECEIPTS (SALE & PURCHASE THERMAL & A4 SETTINGS) -->
                     <div class="settings-tab-pane" id="tab-invoice">
-                        <div class="form-group-field">
-                            <label class="form-field-label" for="tipe_nota">Default Invoice Print Type</label>
-                            <select name="tipe_nota" id="tipe_nota" class="form-field-input" style="max-width: 320px;" required>
-                                <option value="1">Small Thermal Slip (80mm / 78mm)</option>
-                                <option value="2">Full A4 PDF Invoice</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group-field">
-                            <label class="form-field-label" for="terms_title">
-                                Terms &amp; Conditions Title (شرائط و ضوابط کا عنوان)
-                            </label>
-                            <input type="text" name="terms_title" id="terms_title" class="form-field-input urdu-field-title" value="شرائط و ضوابط" placeholder="شرائط و ضوابط">
-                        </div>
-
-                        <!-- TERMS AND CONDITIONS KHANA -->
-                        <div class="form-group-field">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                <label class="form-field-label" for="terms_conditions" style="margin: 0;">
-                                    Terms &amp; Conditions Lines (اردو شرائط و ضوابط کی تفصیل)
-                                </label>
-                                <button type="button" class="btn-insert-urdu-magic" onclick="fillDefaultUrduTerms()">
-                                    <i class="fa fa-magic"></i> Insert Default Urdu Lines
-                                </button>
+                        <!-- 1. Print & Logo Preferences -->
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px 18px; margin-bottom: 22px;">
+                            <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                <i class="fa fa-print" style="color: #0284c7;"></i> General Print Preferences
                             </div>
-                            <textarea name="terms_conditions" id="terms_conditions" class="urdu-field-textarea" rows="6" placeholder="ہر لائن رسید پر الگ نکتہ کے طور پر پرنٹ ہوگی۔"></textarea>
-                            <small class="text-muted" style="font-size: 11.5px; margin-top: 4px; display: block; color: #64748b;">
-                                <i class="fa fa-info-circle text-primary"></i> <strong>Note:</strong> Har new line (Enter) thermal receipt aur A4 invoice par alag line ke tor par print ho gi.
-                            </small>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group-field" style="margin-bottom: 10px;">
+                                        <label class="form-field-label" for="tipe_nota">Default Invoice Print Format</label>
+                                        <select name="tipe_nota" id="tipe_nota" class="form-field-input" required>
+                                            <option value="1">Small Thermal Slip (80mm / 78mm POS)</option>
+                                            <option value="2">Full A4 PDF Invoice</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group-field" style="margin-bottom: 10px;">
+                                        <label class="form-field-label">Receipt Logo Visibility</label>
+                                        <label style="display: flex; align-items: center; gap: 8px; margin-top: 8px; cursor: pointer; font-weight: 500; font-size: 13.5px; color: #334155;">
+                                            <input type="checkbox" name="show_logo_receipt" id="show_logo_receipt" value="1" style="width: 18px; height: 18px; cursor: pointer;">
+                                            <span>Show Store Logo at Top of Receipts</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. SALE INVOICE URDU SETTINGS -->
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 18px; margin-bottom: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
+                                <div style="font-size: 14.5px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fa fa-shopping-cart" style="color: #10b981;"></i> Sale Invoice (سیل رسید) Urdu Terms
+                                </div>
+                                <label style="display: flex; align-items: center; gap: 8px; margin: 0; cursor: pointer; font-weight: 600; font-size: 13px; color: #0f172a;">
+                                    <input type="checkbox" name="show_sale_terms" id="show_sale_terms" value="1" style="width: 18px; height: 18px; cursor: pointer;">
+                                    <span>Show Urdu Terms on Sale Invoices</span>
+                                </label>
+                            </div>
+
+                            <div id="saleTermsContainer">
+                                <div class="form-group-field">
+                                    <label class="form-field-label" for="terms_title">
+                                        Sale Terms Title (سیل شرائط و ضوابط کا عنوان)
+                                    </label>
+                                    <input type="text" name="terms_title" id="terms_title" class="form-field-input urdu-field-title" value="شرائط و ضوابط" placeholder="شرائط و ضوابط">
+                                </div>
+
+                                <div class="form-group-field" style="margin-bottom: 0;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                        <label class="form-field-label" for="terms_conditions" style="margin: 0;">
+                                            Sale Terms Lines (سیل رسید پر شرائط کی تفصیل)
+                                        </label>
+                                        <button type="button" class="btn-insert-urdu-magic" onclick="fillDefaultUrduTerms()">
+                                            <i class="fa fa-magic"></i> Default Sale Lines
+                                        </button>
+                                    </div>
+                                    <textarea name="terms_conditions" id="terms_conditions" class="urdu-field-textarea" rows="4" placeholder="ہر لائن رسید پر الگ نکتہ کے طور پر پرنٹ ہوگی۔"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. PURCHASE INVOICE URDU SETTINGS -->
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 18px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
+                                <div style="font-size: 14.5px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fa fa-truck" style="color: #f59e0b;"></i> Purchase Receipt (خریداری رسید) Urdu Notes
+                                </div>
+                                <label style="display: flex; align-items: center; gap: 8px; margin: 0; cursor: pointer; font-weight: 600; font-size: 13px; color: #0f172a;">
+                                    <input type="checkbox" name="show_purchase_terms" id="show_purchase_terms" value="1" style="width: 18px; height: 18px; cursor: pointer;">
+                                    <span>Show Urdu Notes on Purchase Receipts</span>
+                                </label>
+                            </div>
+
+                            <div id="purchaseTermsContainer">
+                                <div class="form-group-field">
+                                    <label class="form-field-label" for="purchase_terms_title">
+                                        Purchase Receipt Title (خریداری رسید کا عنوان)
+                                    </label>
+                                    <input type="text" name="purchase_terms_title" id="purchase_terms_title" class="form-field-input urdu-field-title" value="خریداری رسید / سٹاک انوائس" placeholder="خریداری رسید / سٹاک انوائس">
+                                </div>
+
+                                <div class="form-group-field" style="margin-bottom: 0;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                        <label class="form-field-label" for="purchase_terms_conditions" style="margin: 0;">
+                                            Purchase Note Lines (پرچیز رسید پر نوٹ کی تفصیل)
+                                        </label>
+                                        <button type="button" class="btn-insert-urdu-magic" onclick="fillDefaultPurchaseUrduTerms()">
+                                            <i class="fa fa-magic"></i> Default Purchase Lines
+                                        </button>
+                                    </div>
+                                    <textarea name="purchase_terms_conditions" id="purchase_terms_conditions" class="urdu-field-textarea" rows="3" placeholder="ہر لائن رسید پر الگ نکتہ کے طور پر پرنٹ ہوگی۔"></textarea>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -407,11 +471,12 @@
 @push('scripts')
 <script>
     const DEFAULT_URDU_TERMS = "خریدہ ہوا مال واپس یا تبدیل نہیں ہوگاـ\nوارنٹی صرف کمپنی / مینوفیکچرر کی شرائط کے مطابق ہوگیـ\nبل کے بغیر کسی قسم کی شکایت قبول نہیں کی جائے گیـ\nادھار رقم مقررہ تاریخ تک ادا کرنا ضروری ہےـ";
+    const DEFAULT_PURCHASE_URDU_TERMS = "یہ پرچیز رسید سٹاک میں اندراج کی تصدیق ہےـ\nتمام آئٹمز کی مقدار اور قیمت چیک کر لی گئی ہےـ";
 
     $(function () {
         showData();
 
-        // Left Sidebar Navigation Click Handler (Exact match with screenshot)
+        // Left Sidebar Navigation Click Handler
         $('.settings-nav-item').on('click', function (e) {
             e.preventDefault();
             $('.settings-nav-item').removeClass('active');
@@ -420,6 +485,24 @@
             let targetTab = $(this).data('tab');
             $('.settings-tab-pane').removeClass('active');
             $('#' + targetTab).addClass('active');
+        });
+
+        // Toggle Sale Terms visibility animation
+        $('#show_sale_terms').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#saleTermsContainer').slideDown(150);
+            } else {
+                $('#saleTermsContainer').slideUp(150);
+            }
+        });
+
+        // Toggle Purchase Terms visibility animation
+        $('#show_purchase_terms').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#purchaseTermsContainer').slideDown(150);
+            } else {
+                $('#purchaseTermsContainer').slideUp(150);
+            }
         });
 
         // Form Submit Handler
@@ -437,7 +520,7 @@
                     showData();
                     Swal.fire({
                         title: 'Saved!',
-                        text: 'Settings and Terms & Conditions updated successfully.',
+                        text: 'Settings and Invoice preferences updated successfully.',
                         icon: 'success',
                         confirmButtonColor: '#0284c7'
                     });
@@ -452,7 +535,13 @@
     function fillDefaultUrduTerms() {
         $('#terms_title').val('شرائط و ضوابط');
         $('#terms_conditions').val(DEFAULT_URDU_TERMS);
-        showSuccessToast('Default Urdu terms inserted');
+        showSuccessToast('Default Sale Urdu terms inserted');
+    }
+
+    function fillDefaultPurchaseUrduTerms() {
+        $('#purchase_terms_title').val('خریداری رسید / سٹاک انوائس');
+        $('#purchase_terms_conditions').val(DEFAULT_PURCHASE_URDU_TERMS);
+        showSuccessToast('Default Purchase Urdu notes inserted');
     }
 
     function showData() {
@@ -464,8 +553,30 @@
                 $('[name=diskon]').val(response.diskon);
                 $('[name=tipe_nota]').val(response.tipe_nota);
                 $('[name=mata_uang]').val(response.mata_uang || 'PKR');
+
+                // Checkboxes
+                $('#show_logo_receipt').prop('checked', response.show_logo_receipt == 1);
+                
+                $('#show_sale_terms').prop('checked', response.show_sale_terms == 1);
+                if (response.show_sale_terms == 1) {
+                    $('#saleTermsContainer').show();
+                } else {
+                    $('#saleTermsContainer').hide();
+                }
+
+                $('#show_purchase_terms').prop('checked', response.show_purchase_terms == 1);
+                if (response.show_purchase_terms == 1) {
+                    $('#purchaseTermsContainer').show();
+                } else {
+                    $('#purchaseTermsContainer').hide();
+                }
+
+                // Values
                 $('[name=terms_title]').val(response.terms_title || 'شرائط و ضوابط');
-                $('[name=terms_conditions]').val(response.terms_conditions || DEFAULT_URDU_TERMS);
+                $('[name=terms_conditions]').val(response.terms_conditions !== null ? response.terms_conditions : DEFAULT_URDU_TERMS);
+                
+                $('[name=purchase_terms_title]').val(response.purchase_terms_title || 'خریداری رسید / سٹاک انوائس');
+                $('[name=purchase_terms_conditions]').val(response.purchase_terms_conditions !== null ? response.purchase_terms_conditions : DEFAULT_PURCHASE_URDU_TERMS);
                 
                 $('title').text(response.nama_perusahaan + ' | Settings');
                 

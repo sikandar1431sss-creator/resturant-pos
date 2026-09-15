@@ -26,7 +26,7 @@
     <link rel="stylesheet" href="{{ asset('/AdminLTE-2/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css') }}">
     
     <!-- Modern Restaurant UI Overhaul Stylesheet -->
-    <link rel="stylesheet" href="{{ asset('/css/restaurant-modern.css') }}">
+    <link rel="stylesheet" href="{{ asset('/css/restaurant-modern.css') }}?v={{ time() }}">
 
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
@@ -49,7 +49,7 @@
                 </h1>
                 <ol class="breadcrumb">
                     @section('breadcrumb')
-                        <li><a href="{{ url('/') }}"><i class="fa fa-cutlery"></i> Home</a></li>
+                        <li><a href="{{ url('/') }}"><i class="fa fa-home"></i> Home</a></li>
                     @show
                 </ol>
             </section>

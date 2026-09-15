@@ -8,24 +8,28 @@
                 </a>
             </li>
 
-            <li class="header">POS & INVOICES</li>
+            <li class="header">FAST FOOD POS & BILLING</li>
             <li class="{{ request()->is('transaksi*') ? 'active' : '' }}">
                 <a href="{{ route('transaksi.baru') }}">
-                    <i class="fa fa-plus-circle" style="color: #f97316;"></i> <span>Create New Invoice</span>
+                    <i class="fa fa-shopping-cart" style="color: #10b981;"></i> <span>Create Invoice</span>
                 </a>
             </li>
             <li class="{{ request()->is('penjualan*') ? 'active' : '' }}">
                 <a href="{{ route('penjualan.index') }}">
-                    <i class="fa fa-list-alt"></i> <span>Invoices List</span>
+                    <i class="fa fa-list-alt" style="color: #0284c7;"></i> <span>Invoices</span>
                 </a>
             </li>
 
-            @if (auth()->user()->level == 1)
-
-            <li class="header">MENU & DINING</li>
+            @if(auth()->user()->hasAnyRole(['admin', 'manager']) || auth()->user()->level == 1)
+            <li class="header">MENU & DEALS</li>
+            <li class="{{ request()->is('deal*') ? 'active' : '' }}">
+                <a href="{{ route('deal.index') }}">
+                    <i class="fa fa-gift" style="color: #f59e0b;"></i> <span>Deals</span>
+                </a>
+            </li>
             <li class="{{ request()->is('produk*') ? 'active' : '' }}">
                 <a href="{{ route('produk.index') }}">
-                    <i class="fa fa-cutlery"></i> <span>Menu</span>
+                    <i class="fa fa-th-large"></i> <span>Menu Items</span>
                 </a>
             </li>
             <li class="{{ request()->is('kategori*') ? 'active' : '' }}">
@@ -34,41 +38,43 @@
                 </a>
             </li>
 
-            <li class="header">CUSTOMERS & SUPPLIERS</li>
-            <li class="{{ request()->is('member*') ? 'active' : '' }}">
-                <a href="{{ route('member.index') }}">
-                    <i class="fa fa-id-card-o"></i> <span>Contacts</span>
+            <li class="header">PURCHASES &amp; SUPPLIERS</li>
+            <li class="{{ request()->is('pembelian*') ? 'active' : '' }}">
+                <a href="{{ route('pembelian.index') }}">
+                    <i class="fa fa-cart-arrow-down"></i> <span>Purchases (Stock-In)</span>
                 </a>
             </li>
             <li class="{{ request()->is('supplier*') ? 'active' : '' }}">
                 <a href="{{ route('supplier.index') }}">
-                    <i class="fa fa-truck"></i> <span>Food Suppliers</span>
+                    <i class="fa fa-truck"></i> <span>Suppliers</span>
                 </a>
             </li>
 
-            <li class="header">INVENTORY & FINANCE</li>
+            <li class="header">EXPENSES & CUSTOMERS</li>
             <li class="{{ request()->is('pengeluaran*') ? 'active' : '' }}">
                 <a href="{{ route('pengeluaran.index') }}">
-                    <i class="fa fa-credit-card"></i> <span>Daily Expenses</span>
+                    <i class="fa fa-money" style="color: #ef4444;"></i> <span>Daily Expenses</span>
                 </a>
             </li>
-            <li class="{{ request()->is('pembelian*') ? 'active' : '' }}">
-                <a href="{{ route('pembelian.index') }}">
-                    <i class="fa fa-cart-arrow-down"></i> <span>Inventory Purchases</span>
+            <li class="{{ request()->is('member*') ? 'active' : '' }}">
+                <a href="{{ route('member.index') }}">
+                    <i class="fa fa-users"></i> <span>Customers</span>
                 </a>
             </li>
+            @endif
 
+            @if(auth()->user()->hasRole('admin') || auth()->user()->level == 1)
             <li class="header">ANALYTICS & REPORTS</li>
             <li class="{{ request()->is('laporan*') ? 'active' : '' }}">
                 <a href="{{ route('laporan.index') }}">
-                    <i class="fa fa-line-chart"></i> <span>Income & Sales Report</span>
+                    <i class="fa fa-line-chart" style="color: #059669;"></i> <span>Sales & Profit Reports</span>
                 </a>
             </li>
 
             <li class="header">ADMINISTRATION</li>
             <li class="{{ request()->is('user*') ? 'active' : '' }}">
                 <a href="{{ route('user.index') }}">
-                    <i class="fa fa-users"></i> <span>Staff & Waiters</span>
+                    <i class="fa fa-user-circle-o"></i> <span>Staff & Roles (Spatie)</span>
                 </a>
             </li>
             <li class="{{ request()->is('setting*') ? 'active' : '' }}">

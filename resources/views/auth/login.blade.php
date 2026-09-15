@@ -4,8 +4,12 @@
 <div class="login-box">
     <div class="login-box-body">
         <div class="login-logo text-center">
-            <div style="width: 56px; height: 56px; background: #fff7ed; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 6px;">
-                <i class="fa fa-cutlery" style="font-size: 26px; color: #f97316;"></i>
+            <div style="min-width: 56px; min-height: 56px; max-width: 120px; background: #fff7ed; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 6px; padding: 6px;">
+                @if(!empty($setting->path_logo) && file_exists(public_path($setting->path_logo)))
+                    <img src="{{ url($setting->path_logo) }}" alt="{{ $setting->nama_perusahaan ?? 'Logo' }}" style="max-height: 50px; max-width: 110px; object-fit: contain;">
+                @else
+                    <i class="fa fa-cutlery" style="font-size: 26px; color: #f97316;"></i>
+                @endif
             </div>
             <h3>{{ $setting->nama_perusahaan ?? 'Restaurant POS' }}</h3>
             <p>Sign in to manage kitchen, orders & billing</p>

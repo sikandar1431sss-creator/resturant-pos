@@ -12,7 +12,7 @@
                         <th width="5%">#</th>
                         <th>Code</th>
                         <th>Name</th>
-                        <th>Purchase Price</th>
+                        <th>Cost Price</th>
                         <th><i class="fa fa-cog"></i></th>
                     </thead>
                     <tbody>

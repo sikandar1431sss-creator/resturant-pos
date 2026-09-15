@@ -281,11 +281,11 @@ Order Completed & Invoice
                 <!-- Action Buttons -->
                 <div class="receipt-actions">
                     <a href="{{ route('transaksi.nota_kecil') }}" target="_blank" class="btn-receipt-print btn-thermal">
-                        Print KOT / Thermal Slip <span class="shortcut-hint">[P]</span>
+                        <i class="fa fa-print"></i> Customer Receipt <span class="shortcut-hint">[P]</span>
                     </a>
                     
                     <a href="{{ route('transaksi.nota_besar') }}" target="_blank" class="btn-receipt-print btn-invoice-pdf">
-                        Print PDF Invoice
+                        <i class="fa fa-file-pdf-o"></i> PDF Invoice
                     </a>
 
                     <a href="{{ route('transaksi.baru') }}" class="btn-next-order" id="btnNextOrder">

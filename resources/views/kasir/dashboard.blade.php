@@ -1,12 +1,12 @@
 @extends('layouts.master')
 
 @section('title')
-    Cashier POS Terminal
+    Cashier Dashboard
 @endsection
 
 @section('breadcrumb')
     @parent
-    <li class="active">Cashier Terminal</li>
+    <li class="active">Cashier Dashboard</li>
 @endsection
 
 @section('content')
@@ -20,7 +20,7 @@
                 Restaurant Counter Terminal
             </h2>
             <p style="color: #cbd5e1; font-size: 15px; margin-bottom: 24px;">
-                Operator: <strong>{{ auth()->user()->name }}</strong> &nbsp;|&nbsp; Shift: <strong>{{ $shift_name }}</strong>
+                Operator: <strong>{{ auth()->user()->name }}</strong> &nbsp;|&nbsp; Status: <span class="label label-success" style="font-size: 11px;">Active</span>
             </p>
 
             <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
