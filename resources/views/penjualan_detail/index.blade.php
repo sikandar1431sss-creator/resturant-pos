@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-Create Invoice
+Create New Invoice
 @endsection
 
 @push('css')
@@ -63,14 +63,14 @@ Create Invoice
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        box-shadow: 0 4px 10px rgba(249, 115, 22, 0.28);
-        transition: all 0.2s ease;
+        box-shadow: none !important;
+        transition: background-color 0.2s ease;
     }
 
     .btn-pos-pill-new:hover {
         background: #ea580c !important;
-        transform: translateY(-1px);
         color: #ffffff !important;
+        box-shadow: none !important;
     }
 
     .btn-pos-pill-outline {
@@ -229,21 +229,21 @@ Create Invoice
         display: flex;
         flex-direction: column;
         cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: border-color 0.15s ease, background-color 0.15s ease;
         position: relative;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        box-shadow: none;
         user-select: none;
         height: auto;
     }
 
     .pos-item-card:hover {
-        transform: translateY(-2px);
         border-color: #f97316;
-        box-shadow: 0 6px 14px -3px rgba(249, 115, 22, 0.2);
+        background: #fffbf7;
+        box-shadow: none;
     }
 
     .pos-item-card:active {
-        transform: scale(0.97);
+        border-color: #ea580c;
     }
 
     .pos-item-img-container {
@@ -262,12 +262,11 @@ Create Invoice
         width: 100%;
         height: 100%;
         object-fit: contain;
-        transition: transform 0.2s ease;
         padding: 2px;
     }
 
     .pos-item-card:hover .pos-item-img {
-        transform: scale(1.06);
+        /* No transform / scale on hover */
     }
 
     .pos-item-name {
@@ -314,7 +313,6 @@ Create Invoice
     }
 
     .pos-item-card:hover .pos-item-add-btn {
-        transform: scale(1.1);
         background: #ea580c;
     }
 
@@ -323,7 +321,7 @@ Create Invoice
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        box-shadow: none !important;
         overflow: hidden;
         margin-bottom: 20px;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -646,18 +644,137 @@ Create Invoice
         align-items: center;
         justify-content: center;
         gap: 8px;
-        box-shadow: 0 8px 18px rgba(255, 87, 34, 0.35);
-        transition: all 0.2s ease;
+        box-shadow: none !important;
+        transition: background 0.2s ease;
     }
 
     .btn-place-order:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 10px 22px rgba(255, 87, 34, 0.45);
+        background: #ea580c;
+        box-shadow: none !important;
         color: #ffffff;
     }
 
     .btn-place-order:active {
-        transform: scale(0.98);
+        background: #c2410c;
+        box-shadow: none !important;
+    }
+
+    /* Quick Cooking Notes Chips */
+    .chips-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+
+    .btn-quick-chip {
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        color: #1e293b;
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 5px 10px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn-quick-chip:hover {
+        background: #ffedd5;
+        border-color: #fdba74;
+        color: #ea580c;
+        transform: translateY(-1px);
+    }
+
+    .btn-quick-chip.active {
+        background: #ea580c;
+        border-color: #ea580c;
+        color: #ffffff;
+    }
+
+    /* Visual Table Selector Grid */
+    .table-grid-picker {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        max-height: 220px;
+        overflow-y: auto;
+        padding: 4px;
+        margin-top: 6px;
+    }
+
+    .table-card-btn {
+        background: #ffffff;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 8px 6px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        position: relative;
+    }
+
+    .table-card-btn.table-available {
+        border-color: #86efac;
+        background: #f0fdf4;
+    }
+
+    .table-card-btn.table-available:hover {
+        border-color: #22c55e;
+        background: #dcfce7;
+        transform: translateY(-1px);
+    }
+
+    .table-card-btn.table-selected {
+        border-color: #16a34a !important;
+        background: #16a34a !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 10px rgba(22, 163, 74, 0.35);
+    }
+
+    .table-card-btn.table-selected * {
+        color: #ffffff !important;
+    }
+
+    .table-card-btn.table-occupied {
+        border-color: #fca5a5;
+        background: #fff1f2;
+        cursor: not-allowed;
+    }
+
+    .table-card-btn.table-occupied:hover {
+        border-color: #ef4444;
+        background: #ffe4e6;
+        transform: none;
+    }
+
+    .table-card-title {
+        font-size: 12px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 2px;
+    }
+
+    .table-status-pill {
+        font-size: 9px;
+        font-weight: 800;
+        padding: 2px 6px;
+        border-radius: 10px;
+        display: inline-block;
+        text-transform: uppercase;
+    }
+
+    .status-available-pill {
+        background: #bbf7d0;
+        color: #15803d;
+    }
+
+    .status-occupied-pill {
+        background: #fecaca;
+        color: #b91c1c;
     }
 
     /* Modal Details */
@@ -675,31 +792,24 @@ Create Invoice
     <div class="pos-top-bar">
         <div>
             <h1 class="pos-heading-title">
-                Create Invoice
+                Create New Invoice
                 @if($isEditMode)
-                    <span class="badge" style="background: #2563eb; color: #fff; font-size: 12px; font-weight: 800; padding: 5px 12px; border-radius: 6px; margin-left: 8px; vertical-align: middle; box-shadow: 0 2px 6px rgba(37,99,235,0.35);">
+                    <span class="badge" style="background: #2563eb; color: #fff; font-size: 12px; font-weight: 800; padding: 5px 12px; border-radius: 6px; margin-left: 8px; vertical-align: middle; box-shadow: none;">
                         <i class="fa fa-edit"></i> EDITING #INV-{{ tambah_nol_didepan($penjualan->id_penjualan, 5) }}
                     </span>
                 @endif
             </h1>
+            @if($isEditMode)
             <div class="pos-heading-sub">
-                @if($isEditMode)
-                    <span style="color: #2563eb; font-weight: 700;">Edit Mode Active</span> &bull; Modify items, table, customer or discounts and click Save &amp; Update
-                @else
-                    Dashboard &bull; Create Invoice
-                @endif
+                <span style="color: #2563eb; font-weight: 700;">Edit Mode Active</span> &bull; Modify items, table, customer or discounts and click Save &amp; Update
             </div>
+            @endif
         </div>
         <div class="pos-top-actions">
             @if($isEditMode)
                 <a href="{{ route('transaksi.cancel_edit') }}" class="btn btn-pos-pill-outline" style="color: #ef4444 !important; border-color: #fca5a5 !important; background: #fff5f5 !important;" title="Cancel editing without saving changes">
                     <i class="fa fa-times-circle"></i> Cancel Edit
                 </a>
-            @endif
-            @if(auth()->user()->can('kitchen.access') || auth()->user()->hasRole('admin') || auth()->user()->level == 1)
-            <a href="{{ route('kitchen.index') }}" target="_blank" class="btn btn-pos-pill-outline" style="color: #ea580c !important; border-color: #fdba74 !important; background: #fff7ed !important;" title="Open Live Kitchen Display System">
-                <i class="fa fa-cutlery"></i> Kitchen KDS
-            </a>
             @endif
             <a href="{{ route('transaksi.baru') }}" class="btn btn-pos-pill-new">
                 <i class="fa fa-plus"></i> New
@@ -725,7 +835,7 @@ Create Invoice
                     </div>
                     <select id="catSelectFilter" class="pos-select-filter">
                         <option value="all">All Categories</option>
-                        <option value="deals">🎁 Deals</option>
+                        <option value="deals">Deals</option>
                         @foreach($kategori as $cat)
                             @if($cat->nama_kategori !== 'Deals' && $cat->nama_kategori !== 'Deals & Combos')
                             <option value="{{ $cat->id_kategori }}">{{ $cat->nama_kategori }}</option>
@@ -738,7 +848,7 @@ Create Invoice
                 <div class="pos-cat-scroll">
                     <span class="pos-pill-tab active" data-category="all">All Items</span>
                     <span class="pos-pill-tab" data-category="deals" style="background: #fffbeb; border-color: #fde68a; color: #b45309; font-weight: 800;">
-                        <i class="fa fa-gift text-warning"></i> Deals
+                        Deals
                     </span>
                     @foreach($kategori as $cat)
                         @if($cat->nama_kategori !== 'Deals' && $cat->nama_kategori !== 'Deals & Combos')
@@ -786,7 +896,7 @@ Create Invoice
                          onclick="addItemToCart('{{ $item->id_produk }}')">
                         @if(($item->merk ?? '') === 'Deal Combo' || ($item->kategori->nama_kategori ?? '') === 'Deals' || ($item->kategori->nama_kategori ?? '') === 'Deals & Combos')
                             <span class="badge" style="position: absolute; top: 6px; left: 6px; z-index: 2; background: #f59e0b; color: #fff; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
-                                <i class="fa fa-gift"></i> DEAL
+                                DEAL
                             </span>
                         @endif
                         <div class="pos-item-img-container">
@@ -817,7 +927,7 @@ Create Invoice
                 <div class="pos-widget-header">
                     <span class="pos-widget-title">CURRENT ORDER</span>
                     <button type="button" class="btn-order-info-pill" onclick="openOrderInfoModal()">
-                        <i class="fa fa-info-circle"></i> ORDER INFO
+                        ORDER INFO
                     </button>
                 </div>
 
@@ -839,6 +949,10 @@ Create Invoice
                     <div class="pos-subtotal-row tax">
                         <span>Tax(%) / Disc</span>
                         <span id="lblDiscountAndTax">{{ get_currency_symbol() }} 0.00</span>
+                    </div>
+                    <div class="pos-subtotal-row" id="rowDeliveryFee" style="display: none; color: #0284c7;">
+                        <span>Delivery Fee (+)</span>
+                        <strong id="lblDeliveryFee">{{ get_currency_symbol() }} 0.00</strong>
                     </div>
 
                     <div class="pos-dotted-divider"></div>
@@ -892,12 +1006,16 @@ Create Invoice
                     <input type="hidden" name="total_item" id="form_total_item" value="{{ $penjualan->total_item ?? 0 }}">
                     <input type="hidden" name="bayar" id="form_bayar" value="{{ $penjualan->bayar ?? 0 }}">
                     <input type="hidden" name="diskon" id="form_diskon" value="{{ $penjualan->diskon ?? $diskon }}">
+                    <input type="hidden" name="ongkir" id="form_ongkir" value="{{ $penjualan->ongkir ?? 0 }}">
                     <input type="hidden" name="diterima" id="form_diterima" value="{{ $penjualan->diterima ?? 0 }}">
                     <input type="hidden" name="status_pembayaran" id="form_status_pembayaran" value="{{ $penjualan->status_pembayaran ?? 'unpaid' }}">
                     <input type="hidden" name="metode_pembayaran" id="form_metode_pembayaran" value="{{ $penjualan->metode_pembayaran ?? 'cash' }}">
                     <input type="hidden" name="id_member" id="form_id_member" value="{{ $memberSelected->id_member ?? '' }}">
                     <input type="hidden" name="nomor_meja" id="form_nomor_meja" value="{{ $penjualan->nomor_meja ?? 'Table 1' }}">
                     <input type="hidden" name="tipe_order" id="form_tipe_order" value="{{ $penjualan->tipe_order ?? 'Dine-In' }}">
+                    <input type="hidden" name="nama_pelanggan" id="form_nama_pelanggan" value="{{ $penjualan->nama_pelanggan ?? '' }}">
+                    <input type="hidden" name="telepon_pelanggan" id="form_telepon_pelanggan" value="{{ $penjualan->telepon_pelanggan ?? '' }}">
+                    <input type="hidden" name="alamat_pengiriman" id="form_alamat_pengiriman" value="{{ $penjualan->alamat_pengiriman ?? '' }}">
                 </form>
 
             </div>
@@ -905,51 +1023,112 @@ Create Invoice
     </div>
 </div>
 
-<!-- ORDER INFO MODAL (Triggered by ⓘ ORDER INFO button) -->
+<!-- ORDER INFO MODAL (Triggered by ORDER INFO button) -->
 <div class="modal fade" id="modal-order-info" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-sm" role="document">
-        <div class="modal-content" style="border-radius: 12px;">
-            <div class="modal-header" style="background: #1e3a68; color: #fff; border-radius: 12px 12px 0 0;">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content" style="border-radius: 14px;">
+            <div class="modal-header" style="background: #1e3a68; color: #fff; border-radius: 14px 14px 0 0;">
                 <button type="button" class="close" data-dismiss="modal" style="color: #fff; opacity: 0.9;">&times;</button>
-                <h4 class="modal-title" style="font-weight: 800; font-size: 14px; color: #fff;"><i class="fa fa-info-circle"></i> Order &amp; Table Settings</h4>
+                <h4 class="modal-title" style="font-weight: 700; font-size: 15px; color: #fff;">Order, Table &amp; Delivery Settings</h4>
             </div>
-            <div class="modal-body" style="padding: 16px;">
+            <div class="modal-body" style="padding: 20px;">
                 <div class="form-group">
-                    <label style="font-size: 12px; font-weight: 700; color: #334155;">Order Dining Type:</label>
-                    <select id="modalDiningSelect" class="form-control" style="border-radius: 8px; font-weight: 700;" onchange="handleModalDiningChange(this.value)">
-                        <option value="Dine-In" {{ ($penjualan->tipe_order ?? 'Dine-In') === 'Dine-In' ? 'selected' : '' }}>Dine-In</option>
-                        <option value="Takeaway" {{ ($penjualan->tipe_order ?? '') === 'Takeaway' ? 'selected' : '' }}>Takeaway</option>
-                        <option value="Delivery" {{ ($penjualan->tipe_order ?? '') === 'Delivery' ? 'selected' : '' }}>Delivery</option>
-                    </select>
-                </div>
-
-                <div class="form-group" id="modalTableFormGroup">
-                    <label style="font-size: 12px; font-weight: 700; color: #334155;">Table Selection:</label>
-                    <select id="modalTableSelect" class="form-control" style="border-radius: 8px; font-weight: 700;">
-                        <option value="Table 1" {{ ($penjualan->nomor_meja ?? 'Table 1') === 'Table 1' ? 'selected' : '' }}>Table 1</option>
-                        <option value="Table 2" {{ ($penjualan->nomor_meja ?? '') === 'Table 2' ? 'selected' : '' }}>Table 2</option>
-                        <option value="Table 3" {{ ($penjualan->nomor_meja ?? '') === 'Table 3' ? 'selected' : '' }}>Table 3</option>
-                        <option value="Table 4" {{ ($penjualan->nomor_meja ?? '') === 'Table 4' ? 'selected' : '' }}>Table 4</option>
-                        <option value="Table 5" {{ ($penjualan->nomor_meja ?? '') === 'Table 5' ? 'selected' : '' }}>Table 5</option>
-                        <option value="VIP Table" {{ ($penjualan->nomor_meja ?? '') === 'VIP Table' ? 'selected' : '' }}>VIP Table</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label style="font-size: 12px; font-weight: 700; color: #334155;">Customer / Member:</label>
-                    <div style="display: flex; gap: 6px;">
-                        <input type="text" id="modalCustomerName" class="form-control" readonly value="{{ $memberSelected->nama ?? 'Walk In Customer' }}" style="border-radius: 8px; font-weight: 700;">
-                        <button type="button" class="btn btn-default" onclick="tampilMember()" style="border-radius: 8px;" title="Select Member"><i class="fa fa-user-plus"></i></button>
+                    <label style="font-size: 12px; font-weight: 800; color: #334155; text-transform: uppercase; letter-spacing: 0.04em;">1. Dining Type:</label>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" id="btnTypeDineIn" class="btn btn-default btn-dining-pill {{ ($penjualan->tipe_order ?? 'Dine-In') === 'Dine-In' ? 'active' : '' }}" style="flex:1; font-weight: 700; border-radius: 8px; padding: 9px;" onclick="selectDiningType('Dine-In')">
+                            Dine-In
+                        </button>
+                        <button type="button" id="btnTypeTakeaway" class="btn btn-default btn-dining-pill {{ ($penjualan->tipe_order ?? '') === 'Takeaway' ? 'active' : '' }}" style="flex:1; font-weight: 700; border-radius: 8px; padding: 9px;" onclick="selectDiningType('Takeaway')">
+                            Takeaway
+                        </button>
+                        <button type="button" id="btnTypeDelivery" class="btn btn-default btn-dining-pill {{ ($penjualan->tipe_order ?? '') === 'Delivery' ? 'active' : '' }}" style="flex:1; font-weight: 700; border-radius: 8px; padding: 9px;" onclick="selectDiningType('Delivery')">
+                            Delivery
+                        </button>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label style="font-size: 12px; font-weight: 700; color: #334155;">Extra Discount ({{ get_currency_symbol() }}):</label>
-                    <input type="number" id="modalExtraDiscountInput" class="form-control" placeholder="0" min="0" value="{{ $penjualan->diskon ?? 0 }}" style="border-radius: 8px; font-weight: 700;" oninput="applyModalExtraDiscount(this.value)">
+                <!-- DINE-IN TABLE SELECTION -->
+                <div class="form-group" id="modalTableFormGroup">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <label style="font-size: 12px; font-weight: 800; color: #334155; text-transform: uppercase; letter-spacing: 0.04em; margin: 0;">2. Select Table:</label>
+                        <span style="font-size: 11px; color: #64748b;">
+                            <span style="display:inline-block; width:8px; height:8px; background:#22c55e; border-radius:50%;"></span> Free
+                            <span style="display:inline-block; width:8px; height:8px; background:#ef4444; border-radius:50%; margin-left: 6px;"></span> Occupied
+                        </span>
+                    </div>
+                    <div class="table-grid-picker" id="tableGridContainer">
+                        @foreach($mejaList as $tbl)
+                            @php
+                                $isOccupied = $tbl->status === 'occupied';
+                                $isCur = ($penjualan->nomor_meja ?? '') === $tbl->nomor_meja && (!$isOccupied || $isEditMode);
+                            @endphp
+                            <div class="table-card-btn {{ $isOccupied ? 'table-occupied' : 'table-available' }} {{ $isCur ? 'table-selected' : '' }}" 
+                                 data-table="{{ $tbl->nomor_meja }}"
+                                 data-status="{{ $tbl->status }}"
+                                 id="tbl_card_{{ preg_replace('/[^a-zA-Z0-9]/', '_', $tbl->nomor_meja) }}"
+                                 onclick="chooseTableCard('{{ $tbl->nomor_meja }}', '{{ $tbl->status }}', '{{ $tbl->id_penjualan_aktif ? '#INV-'.tambah_nol_didepan($tbl->id_penjualan_aktif, 5) : '' }}')">
+                                <div class="table-card-title">{{ $tbl->nomor_meja }}</div>
+                                <span class="table-status-pill {{ $tbl->status === 'occupied' ? 'status-occupied-pill' : 'status-available-pill' }}">
+                                    {{ $tbl->status === 'occupied' ? 'Occupied' : 'Free' }}
+                                </span>
+                                @if($tbl->id_penjualan_aktif && $tbl->status === 'occupied')
+                                    <div style="font-size: 8.5px; color: #ef4444; font-weight: 700;">#INV-{{ tambah_nol_didepan($tbl->id_penjualan_aktif, 5) }}</div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                    <input type="hidden" id="modalSelectedTable" value="{{ $penjualan->nomor_meja ?? '' }}">
+                </div>
+
+                <!-- DELIVERY SECTION (Visible only for Delivery) -->
+                <div id="modalDeliveryFormGroup" style="display: none; background: #f0f9ff; border: 1.5px solid #bae6fd; border-radius: 10px; padding: 14px; margin-bottom: 14px;">
+                    <div style="font-weight: 800; font-size: 12.5px; color: #0369a1; margin-bottom: 10px;">
+                        Customer Delivery Information
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group" style="margin-bottom: 8px;">
+                                <label style="font-size: 11px; font-weight: 700; color: #334155;">Customer Name:</label>
+                                <input type="text" id="modalDeliveryName" class="form-control" placeholder="e.g. Customer Name" value="{{ $penjualan->nama_pelanggan ?? '' }}" style="border-radius: 6px; font-size: 12.5px;" oninput="$('#form_nama_pelanggan').val(this.value)">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group" style="margin-bottom: 8px;">
+                                <label style="font-size: 11px; font-weight: 700; color: #334155;">Phone Number:</label>
+                                <input type="text" id="modalDeliveryPhone" class="form-control" placeholder="0300-1234567" value="{{ $penjualan->telepon_pelanggan ?? '' }}" style="border-radius: 6px; font-size: 12.5px;" oninput="$('#form_telepon_pelanggan').val(this.value)">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 8px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #334155;">Delivery Address:</label>
+                        <textarea id="modalDeliveryAddress" class="form-control" rows="2" placeholder="House #, Street, Block, Area..." style="border-radius: 6px; font-size: 12px;" oninput="$('#form_alamat_pengiriman').val(this.value)">{{ $penjualan->alamat_pengiriman ?? '' }}</textarea>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-size: 11px; font-weight: 700; color: #334155;">Delivery Fee / Charges ({{ get_currency_symbol() }}):</label>
+                        <input type="number" id="modalDeliveryFeeInput" class="form-control" placeholder="0" min="0" value="{{ $penjualan->ongkir ?? 0 }}" style="border-radius: 6px; font-size: 13px; font-weight: 700;" oninput="applyDeliveryFee(this.value)">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 11px; font-weight: 700; color: #334155;">Registered Member:</label>
+                            <div style="display: flex; gap: 4px;">
+                                <input type="text" id="modalCustomerName" class="form-control" readonly value="{{ $memberSelected->nama ?? 'Walk In Customer' }}" style="border-radius: 6px; font-size: 12px; font-weight: 700;">
+                                <button type="button" class="btn btn-default" onclick="tampilMember()" style="border-radius: 6px; font-weight: 700; font-size: 12px; padding: 6px 12px;" title="Select Member">Select</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label style="font-size: 11px; font-weight: 700; color: #334155;">Extra Discount (%):</label>
+                            <input type="number" id="modalExtraDiscountInput" class="form-control" placeholder="0" min="0" value="{{ $penjualan->diskon ?? 0 }}" style="border-radius: 6px; font-weight: 700; font-size: 12px;" oninput="applyModalExtraDiscount(this.value)">
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer" style="background: #f8fafc; border-radius: 0 0 12px 12px;">
-                <button type="button" class="btn btn-primary btn-block btn-flat" data-dismiss="modal" style="border-radius: 8px; font-weight: 700;">Apply &amp; Close</button>
+            <div class="modal-footer" style="background: #f8fafc; border-radius: 0 0 14px 14px;">
+                <button type="button" class="btn btn-primary btn-block btn-flat" data-dismiss="modal" style="border-radius: 8px; font-weight: 700;">Apply &amp; Continue</button>
             </div>
         </div>
     </div>
@@ -969,17 +1148,18 @@ Create Invoice
                         <thead>
                             <tr style="background: #f8fafc;">
                                 <th>Invoice</th>
-                                <th>Table &amp; Type</th>
-                                <th>Items</th>
+                                <th>Table / Order</th>
                                 <th>Customer</th>
-                                <th>Total</th>
+                                <th>Total Items</th>
+                                <th>Total Bill</th>
+                                <th>Status</th>
                                 <th>Time</th>
                                 <th style="text-align: right;">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="draftListBody">
+                        <tbody id="draftListTableBody">
                             <tr>
-                                <td colspan="7" class="text-center" style="padding: 24px; color: #94a3b8;">
+                                <td colspan="8" class="text-center" style="padding: 30px; color: #64748b;">
                                     <i class="fa fa-spinner fa-spin fa-2x"></i><br>Loading draft orders...
                                 </td>
                             </tr>
@@ -987,29 +1167,47 @@ Create Invoice
                     </table>
                 </div>
             </div>
-            <div class="modal-footer" style="background: #f8fafc; border-top: 1px solid #f1f5f9; border-radius: 0 0 14px 14px;">
-                <a href="{{ route('transaksi.baru') }}" class="btn btn-sm btn-primary btn-flat" style="border-radius: 6px;"><i class="fa fa-plus"></i> New Clean Order</a>
-                <button type="button" class="btn btn-sm btn-default btn-flat" data-dismiss="modal" style="border-radius: 6px;">Close</button>
+            <div class="modal-footer" style="background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
+                <span class="text-muted" style="font-size: 12px;">Active orders are automatically updated.</span>
+                <a href="{{ route('transaksi.baru') }}" class="btn btn-sm btn-primary btn-flat" style="border-radius: 6px;">New Order</a>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ITEM NOTES MODAL -->
-<div class="modal fade" id="modal-notes" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-sm" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title"><i class="fa fa-pencil-square-o"></i> Kitchen Cooking Notes</h4>
+<!-- ITEM COOKING NOTES / ADDONS MODAL -->
+<div class="modal fade" id="modal-item-notes" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm" role="document" style="max-width: 380px;">
+        <div class="modal-content" style="border-radius: 14px;">
+            <div class="modal-header" style="background: #ea580c; color: #fff; border-radius: 14px 14px 0 0;">
+                <button type="button" class="close" data-dismiss="modal" style="color: #fff; opacity: 0.9;">&times;</button>
+                <h4 class="modal-title" style="font-weight: 700; font-size: 14px; color: #fff;">Cooking Notes &amp; Tags</h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="padding: 16px;">
                 <input type="hidden" id="noteDetailId">
-                <div class="form-group">
-                    <label style="font-size: 12px; color: #475569;">Special Instructions:</label>
-                    <textarea id="itemNoteInput" class="form-control" rows="3" placeholder="e.g. No onions, Extra spicy, Dressing on the side..."></textarea>
+                
+                <label style="font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; margin-bottom: 6px; display: block;">Quick Tags:</label>
+                <div class="chips-container">
+                    <button type="button" class="btn-quick-chip" onclick="toggleQuickChip('+ Extra Mayo')">+ Extra Mayo</button>
+                    <button type="button" class="btn-quick-chip" onclick="toggleQuickChip('+ Extra Sauce')">+ Extra Sauce</button>
+                    <button type="button" class="btn-quick-chip" onclick="toggleQuickChip('+ Extra Cheese')">+ Extra Cheese</button>
+                    <button type="button" class="btn-quick-chip" onclick="toggleQuickChip('+ Extra Spicy')">+ Extra Spicy</button>
+                    <button type="button" class="btn-quick-chip" onclick="toggleQuickChip('Less Spicy')">Less Spicy</button>
+                    <button type="button" class="btn-quick-chip" onclick="toggleQuickChip('- No Onion')">- No Onion</button>
+                    <button type="button" class="btn-quick-chip" onclick="toggleQuickChip('- No Tomato')">- No Tomato</button>
+                    <button type="button" class="btn-quick-chip" onclick="toggleQuickChip('Separate Packing')">Separate Packing</button>
+                    <button type="button" class="btn-quick-chip" onclick="toggleQuickChip('Crispy')">Crispy</button>
+                    <button type="button" class="btn-quick-chip" onclick="toggleQuickChip('Sauce On Side')">Sauce On Side</button>
                 </div>
-                <button type="button" class="btn btn-primary btn-block btn-flat" onclick="saveItemNote()" style="border-radius: 8px;">Save Note</button>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="font-size: 11px; font-weight: 700; color: #334155;">Custom Instructions:</label>
+                    <textarea id="itemNoteInput" class="form-control" rows="3" placeholder="e.g. Extra mayo, No onions..." style="border-radius: 8px; font-size: 12.5px; font-weight: 600;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer" style="background: #f8fafc; border-radius: 0 0 14px 14px; display: flex; gap: 8px;">
+                <button type="button" class="btn btn-default btn-flat" style="flex:1; border-radius: 6px;" onclick="clearItemNote()">Clear</button>
+                <button type="button" class="btn btn-primary btn-flat" style="flex:2; border-radius: 6px; font-weight: 700; background: #ea580c; border-color: #ea580c;" onclick="saveItemNote()">Save Note</button>
             </div>
         </div>
     </div>
@@ -1024,16 +1222,19 @@ Create Invoice
     let IS_EDIT_MODE = {{ $isEditMode ? 'true' : 'false' }};
     let currentCartData = { items: [], total: 0, total_item: 0, product_discount: 0 };
     let extraDiscount = {{ (float)($penjualan->diskon ?? 0) }};
-    let selectedPaymentMethod = '{{ strtolower($penjualan->metode_pembayaran ?? "cash") }}';
+    let deliveryFee = {{ (float)($penjualan->ongkir ?? 0) }};
+    let currentDiningType = '{{ $penjualan->tipe_order ?? "Dine-In" }}';
+    let currentTable = '{{ $penjualan->nomor_meja ?? "Table 1" }}';
+    let selectedPaymentMethod = '{{ $isEditMode ? strtolower($penjualan->metode_pembayaran ?? "cash") : "cash" }}';
 
     $(function () {
         loadCart();
+        loadTablesStatus();
 
-        // Initialize edit values
-        setPaymentMethod(selectedPaymentMethod);
-        $('#modalDiningSelect').val('{{ $penjualan->tipe_order ?? "Dine-In" }}');
-        handleModalDiningChange('{{ $penjualan->tipe_order ?? "Dine-In" }}');
-        $('#modalTableSelect').val('{{ $penjualan->nomor_meja ?? "Table 1" }}');
+        // Initialize values
+        setPaymentMethod(selectedPaymentMethod || 'cash');
+        selectDiningType(currentDiningType);
+        $('#modalDeliveryFeeInput').val(deliveryFee);
         $('#modalExtraDiscountInput').val(extraDiscount);
 
         // Search in products
@@ -1060,25 +1261,132 @@ Create Invoice
     });
 
     function setPaymentMethod(method) {
-        selectedPaymentMethod = method;
-        $('#posPaymentMethodSelect').val(method);
-        $('#form_metode_pembayaran').val(method);
+        selectedPaymentMethod = method || 'cash';
+        $('#posPaymentMethodSelect').val(selectedPaymentMethod);
+        $('#form_metode_pembayaran').val(selectedPaymentMethod);
     }
 
     function openOrderInfoModal() {
+        loadTablesStatus();
         $('#modal-order-info').modal('show');
     }
 
-    function handleModalDiningChange(val) {
-        if (val === 'Dine-In') {
+    function selectDiningType(type) {
+        currentDiningType = type;
+        $('#form_tipe_order').val(type);
+
+        $('.btn-dining-pill').removeClass('active').css({ 'background': '#f8fafc', 'color': '#334155', 'border-color': '#e2e8f0' });
+        if (type === 'Dine-In') {
+            $('#btnTypeDineIn').addClass('active').css({ 'background': '#1e3a68', 'color': '#fff', 'border-color': '#1e3a68' });
             $('#modalTableFormGroup').show();
-            $('#form_tipe_order').val('Dine-In');
-            $('#form_nomor_meja').val($('#modalTableSelect').val() || 'Table 1');
-        } else {
+            $('#modalDeliveryFormGroup').hide();
+            $('#rowDeliveryFee').hide();
+            $('#form_nomor_meja').val(currentTable || 'Table 1');
+        } else if (type === 'Delivery') {
+            $('#btnTypeDelivery').addClass('active').css({ 'background': '#0284c7', 'color': '#fff', 'border-color': '#0284c7' });
             $('#modalTableFormGroup').hide();
-            $('#form_tipe_order').val(val);
-            $('#form_nomor_meja').val(val);
+            $('#modalDeliveryFormGroup').show();
+            if (deliveryFee > 0) {
+                $('#rowDeliveryFee').show();
+            }
+            $('#form_nomor_meja').val('Delivery');
+        } else {
+            // Takeaway
+            $('#btnTypeTakeaway').addClass('active').css({ 'background': '#f59e0b', 'color': '#fff', 'border-color': '#f59e0b' });
+            $('#modalTableFormGroup').hide();
+            $('#modalDeliveryFormGroup').hide();
+            $('#rowDeliveryFee').hide();
+            $('#form_nomor_meja').val('Takeaway');
         }
+
+        renderCartUI(currentCartData);
+    }
+
+    function chooseTableCard(tableName, status, activeInvoice = '') {
+        if (status === 'occupied') {
+            if (!IS_EDIT_MODE || tableName !== '{{ $penjualan->nomor_meja ?? "" }}') {
+                Swal.fire({
+                    title: '⚠️ ' + tableName + ' is Busy!',
+                    html: `This table is currently occupied by active order <strong>${activeInvoice || 'in progress'}</strong>.<br><br><span style="color:#ef4444; font-weight:700;">Please select an available (Free 🟢) table.</span>`,
+                    icon: 'warning',
+                    confirmButtonColor: '#ff521d'
+                });
+                return;
+            }
+        }
+
+        currentTable = tableName;
+        $('#modalSelectedTable').val(tableName);
+        $('#form_nomor_meja').val(tableName);
+
+        $('.table-card-btn').removeClass('table-selected');
+        let cardId = '#tbl_card_' + tableName.replace(/[^a-zA-Z0-9]/g, '_');
+        $(cardId).addClass('table-selected');
+
+        showSuccessToast('Selected ' + tableName);
+    }
+
+    function loadTablesStatus() {
+        $.get('{{ route('transaksi.tables_status') }}')
+            .done(tables => {
+                let container = $('#tableGridContainer');
+                if (!tables || tables.length === 0) return;
+
+                container.empty();
+                let currentTableStillValid = false;
+
+                tables.forEach(tbl => {
+                    let isOcc = (tbl.status === 'occupied');
+                    let isCur = (currentTable === tbl.nomor_meja);
+                    
+                    if (isCur && (!isOcc || IS_EDIT_MODE)) {
+                        currentTableStillValid = true;
+                    }
+
+                    let cardClass = isOcc ? 'table-occupied' : 'table-available';
+                    if (isCur && (!isOcc || IS_EDIT_MODE)) cardClass += ' table-selected';
+
+                    let badgeClass = isOcc ? 'status-occupied-pill' : 'status-available-pill';
+                    let badgeText = isOcc ? 'Occupied' : 'Free';
+                    let subText = (tbl.active_invoice && isOcc) ? `<div style="font-size:8.5px; color:#ef4444; font-weight:700;">${tbl.active_invoice}</div>` : '';
+
+                    container.append(`
+                        <div class="table-card-btn ${cardClass}" 
+                             data-table="${tbl.nomor_meja}" 
+                             data-status="${tbl.status}"
+                             id="tbl_card_${tbl.nomor_meja.replace(/[^a-zA-Z0-9]/g, '_')}"
+                             onclick="chooseTableCard('${tbl.nomor_meja}', '${tbl.status}', '${tbl.active_invoice || ''}')">
+                            <div class="table-card-title">${tbl.nomor_meja}</div>
+                            <span class="table-status-pill ${badgeClass}">${badgeText}</span>
+                            ${subText}
+                        </div>
+                    `);
+                });
+
+                // If current table is occupied by another order, auto-select first available free table
+                if (!currentTableStillValid && !IS_EDIT_MODE) {
+                    let firstFree = tables.find(t => t.status === 'available');
+                    if (firstFree) {
+                        currentTable = firstFree.nomor_meja;
+                        $('#modalSelectedTable').val(currentTable);
+                        $('#form_nomor_meja').val(currentTable);
+                        let cardId = '#tbl_card_' + currentTable.replace(/[^a-zA-Z0-9]/g, '_');
+                        $('.table-card-btn').removeClass('table-selected');
+                        $(cardId).addClass('table-selected');
+                    }
+                }
+            });
+    }
+
+    function applyDeliveryFee(val) {
+        deliveryFee = Math.max(0, parseFloat(val) || 0);
+        $('#form_ongkir').val(deliveryFee);
+        if (currentDiningType === 'Delivery' && deliveryFee > 0) {
+            $('#rowDeliveryFee').show();
+        } else {
+            $('#rowDeliveryFee').hide();
+        }
+        renderCartUI(currentCartData);
     }
 
     function applyModalExtraDiscount(val) {
@@ -1154,6 +1462,7 @@ Create Invoice
             `);
             $('#lblSubtotal').text(CURRENCY_SYMBOL + ' 0.00');
             $('#lblDiscountAndTax').text(CURRENCY_SYMBOL + ' 0.00');
+            $('#lblDeliveryFee').text(CURRENCY_SYMBOL + ' 0.00');
             $('#lblGrandTotal').text(CURRENCY_SYMBOL + ' 0.00');
             $('#form_total').val(0);
             $('#form_total_item').val(0);
@@ -1164,8 +1473,8 @@ Create Invoice
 
         let html = '';
         data.items.forEach(item => {
-            let noteText = localStorage.getItem('item_note_' + item.id_detail) || '';
-            let noteHtml = noteText ? `<div style="font-size: 10px; color: #f97316; font-style: italic; margin-top: 2px;"><i class="fa fa-tag"></i> ${noteText}</div>` : '';
+            let noteText = item.catatan || '';
+            let noteHtml = noteText ? `<div style="font-size: 11px; color: #ea580c; font-weight: 700; margin-top: 3px;"><i class="fa fa-tag"></i> ${noteText}</div>` : '';
 
             html += `
                 <div class="pos-food-card">
@@ -1174,8 +1483,8 @@ Create Invoice
                         <div class="pos-food-price">${CURRENCY_SYMBOL} ${item.harga_jual}</div>
                         ${noteHtml}
                         <div>
-                            <button type="button" class="btn-food-note" onclick="addCookingNote(${item.id_detail})">
-                                <i class="fa fa-pencil"></i> ${noteText ? 'Edit Note' : 'Add Note'}
+                            <button type="button" class="btn-food-note" onclick="addCookingNote(${item.id_detail}, '${escapeHtml(noteText)}')">
+                                <i class="fa fa-pencil"></i> ${noteText ? 'Edit Note' : '+ Note / Add-ons'}
                             </button>
                         </div>
                     </div>
@@ -1197,16 +1506,23 @@ Create Invoice
         let memberDiscPercent = extraDiscount;
         let couponDiscountAmount = (memberDiscPercent / 100) * data.total;
         let totalDiscount = couponDiscountAmount + (data.product_discount || 0);
-        let finalGrandTotal = Math.max(0, data.total - totalDiscount);
+        let activeDeliveryFee = (currentDiningType === 'Delivery') ? deliveryFee : 0;
+        let finalGrandTotal = Math.max(0, (data.total - totalDiscount) + activeDeliveryFee);
 
         $('#lblSubtotal').text(CURRENCY_SYMBOL + ' ' + (data.total_rp || data.total.toLocaleString()));
         $('#lblDiscountAndTax').text(totalDiscount > 0 ? ('-' + CURRENCY_SYMBOL + ' ' + totalDiscount.toLocaleString()) : (CURRENCY_SYMBOL + ' 0.00'));
+        $('#lblDeliveryFee').text('+' + CURRENCY_SYMBOL + ' ' + activeDeliveryFee.toLocaleString());
         $('#lblGrandTotal').text(CURRENCY_SYMBOL + ' ' + finalGrandTotal.toLocaleString());
 
         // Form Fields
         $('#form_total').val(data.total);
         $('#form_total_item').val(data.total_item);
         $('#form_bayar').val(finalGrandTotal);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
     }
 
     function addItemToCart(id_produk) {
@@ -1258,23 +1574,49 @@ Create Invoice
         });
     }
 
-    // Add Kitchen Cooking Note Modal
-    function addCookingNote(detailId) {
+    // 1-Click Cooking Notes Modal
+    function addCookingNote(detailId, currentNote) {
         $('#noteDetailId').val(detailId);
-        $('#itemNoteInput').val(localStorage.getItem('item_note_' + detailId) || '');
+        $('#itemNoteInput').val(currentNote || '');
         $('#modal-notes').modal('show');
+    }
+
+    function toggleQuickChip(tag) {
+        let input = $('#itemNoteInput');
+        let val = input.val().trim();
+        if (val.indexOf(tag) > -1) {
+            // Remove tag
+            val = val.replace(tag, '').replace(/,\s*,/g, ',').replace(/^,\s*/, '').replace(/,\s*$/, '').trim();
+        } else {
+            // Append tag
+            val = val ? (val + ', ' + tag) : tag;
+        }
+        input.val(val);
+    }
+
+    function clearItemNote() {
+        $('#itemNoteInput').val('');
     }
 
     function saveItemNote() {
         let detailId = $('#noteDetailId').val();
         let note = $('#itemNoteInput').val().trim();
-        localStorage.setItem('item_note_' + detailId, note);
-        $('#modal-notes').modal('hide');
-        loadCart();
-        showSuccessToast('Kitchen note saved');
+
+        $.post(`{{ url('/transaksi/item-note') }}/${detailId}`, {
+            '_token': $('[name=csrf-token]').attr('content'),
+            'catatan': note
+        })
+        .done(response => {
+            $('#modal-notes').modal('hide');
+            loadCart();
+            showSuccessToast('Kitchen instruction saved');
+        })
+        .fail(errors => {
+            showErrorToast('Failed to save note');
+        });
     }
 
-    // PLACE ORDER SUBMIT (Big orange button)
+    // PLACE ORDER SUBMIT
     function placeOrderSubmit() {
         if (!currentCartData.items || currentCartData.items.length === 0) {
             showWarningToast('Your cart is empty! Tap any dish on the left to add.');
@@ -1290,46 +1632,64 @@ Create Invoice
             'total_item': $('#form_total_item').val(),
             'bayar': payable,
             'diskon': $('#form_diskon').val(),
+            'ongkir': (currentDiningType === 'Delivery') ? $('#form_ongkir').val() : 0,
             'diterima': $('#form_diterima').val() || 0,
             'status_pembayaran': $('#form_status_pembayaran').val() || 'unpaid',
             'metode_pembayaran': selectedPaymentMethod,
             'id_member': $('#form_id_member').val(),
-            'nomor_meja': $('#modalTableSelect').val() || 'Table 1',
-            'tipe_order': $('#modalDiningSelect').val() || 'Dine-In'
+            'nomor_meja': $('#form_nomor_meja').val() || 'Table 1',
+            'tipe_order': $('#form_tipe_order').val() || 'Dine-In',
+            'nama_pelanggan': $('#form_nama_pelanggan').val(),
+            'telepon_pelanggan': $('#form_telepon_pelanggan').val(),
+            'alamat_pengiriman': $('#form_alamat_pengiriman').val()
         };
 
         $.post('{{ route('transaksi.simpan') }}', data)
             .done(response => {
                 let isEdit = (response.is_editing || IS_EDIT_MODE);
-                let swalTitle = isEdit ? 'Invoice Updated Successfully!' : 'Order Placed Successfully!';
-                let swalHtml = isEdit ?
-                    `<strong>${response.invoice}</strong> has been updated successfully.` :
-                    `<strong>${response.invoice}</strong> saved as <span class="label label-danger" style="font-size:12px;">UNPAID</span>.<br>Customer will pay before or after meal.`;
-                let nextBtnText = isEdit ? 'Go to Invoices' : 'Next Order';
+                let swalTitle = isEdit ? 'Invoice Updated Successfully!' : 'Order Placed & Sent to Kitchen!';
                 let nextUrl = isEdit ? "{{ route('penjualan.index') }}" : "{{ route('transaksi.baru') }}";
+                let kotUrl = response.kot_url || `{{ url('/kitchen/kot') }}/${response.id_penjualan}`;
+                let receiptUrl = response.print_url;
 
                 Swal.fire({
                     title: swalTitle,
-                    html: swalHtml,
+                    html: `
+                        <div style="font-size:14px; margin-top:8px;">
+                            <strong>${response.invoice}</strong> saved.<br>
+                            <span style="color:#64748b;">Direct Thermal Print Options:</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:8px; margin-top:16px;">
+                            <button type="button" class="btn btn-warning" style="font-weight:700; padding:10px; border-radius:8px;" onclick="window.open('${kotUrl}', '_blank')">
+                                Print Kitchen KOT Ticket [K]
+                            </button>
+                            <button type="button" class="btn btn-primary" style="font-weight:700; padding:10px; border-radius:8px;" onclick="window.open('${receiptUrl}', '_blank')">
+                                Print Customer Bill [P]
+                            </button>
+                        </div>
+                    `,
                     icon: 'success',
                     showCancelButton: true,
                     confirmButtonColor: '#ff521d',
                     cancelButtonColor: '#0f172a',
-                    confirmButtonText: 'Print Receipt (New Tab)',
-                    cancelButtonText: nextBtnText
+                    confirmButtonText: 'Start Next Order',
+                    cancelButtonText: 'View Invoices'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.open(response.print_url, '_blank');
-                        setTimeout(() => {
-                            window.location.href = nextUrl;
-                        }, 800);
+                        window.location.href = "{{ route('transaksi.baru') }}";
                     } else {
-                        window.location.href = nextUrl;
+                        window.location.href = "{{ route('penjualan.index') }}";
                     }
                 });
             })
             .fail(errors => {
-                showErrorToast('Failed to save order');
+                let msg = errors.responseJSON ? (errors.responseJSON.error || errors.responseJSON.message) : 'Failed to save order';
+                Swal.fire({
+                    title: 'Cannot Save Order',
+                    html: `<div style="font-size:14px; color:#ef4444; font-weight:700;">${msg}</div>`,
+                    icon: 'error',
+                    confirmButtonColor: '#ff521d'
+                });
             });
     }
 
@@ -1340,16 +1700,17 @@ Create Invoice
             return;
         }
 
-        let table = $('#modalTableSelect').val() || 'Table 1';
-        let dining = $('#modalDiningSelect').val() || 'Dine-In';
-
         $.post('{{ route('transaksi.draft') }}', {
             '_token': $('[name=csrf-token]').attr('content'),
             'id_penjualan': '{{ $id_penjualan }}',
-            'nomor_meja': table,
-            'tipe_order': dining,
+            'nomor_meja': $('#form_nomor_meja').val() || 'Table 1',
+            'tipe_order': $('#form_tipe_order').val() || 'Dine-In',
             'diskon': $('#form_diskon').val(),
-            'id_member': $('#form_id_member').val()
+            'ongkir': $('#form_ongkir').val() || 0,
+            'id_member': $('#form_id_member').val(),
+            'nama_pelanggan': $('#form_nama_pelanggan').val(),
+            'telepon_pelanggan': $('#form_telepon_pelanggan').val(),
+            'alamat_pengiriman': $('#form_alamat_pengiriman').val()
         })
         .done(response => {
             Swal.fire({
@@ -1364,7 +1725,12 @@ Create Invoice
         })
         .fail(errors => {
             let msg = errors.responseJSON ? (errors.responseJSON.error || errors.responseJSON.message) : 'Failed to save draft invoice';
-            showErrorToast(msg);
+            Swal.fire({
+                title: 'Cannot Park Draft',
+                html: `<div style="font-size:14px; color:#ef4444; font-weight:700;">${msg}</div>`,
+                icon: 'error',
+                confirmButtonColor: '#ff521d'
+            });
         });
     }
 
@@ -1442,27 +1808,19 @@ Create Invoice
     }
 
     function deleteDraftItem(url) {
-        showConfirmDialog('Delete Draft?', 'Are you sure you want to delete this drafted order?', 'Yes, delete', function() {
+        showConfirmDialog('Delete Draft?', 'Are you sure you want to delete this drafted order and release the table?', 'Yes, delete', function() {
             $.post(url, {
                 '_token': $('[name=csrf-token]').attr('content'),
                 '_method': 'delete'
             })
             .done(res => {
-                showSuccessToast('Draft deleted');
+                showSuccessToast('Draft deleted & Table Released');
                 loadDraftList();
+                loadTablesStatus();
             })
             .fail(() => {
                 showErrorToast('Failed to delete draft');
             });
-        });
-    }
-
-    function showQrMenuModal() {
-        Swal.fire({
-            title: 'QR Menu Live Orders',
-            text: 'All contactless table orders from customer QR scans stream here live.',
-            icon: 'info',
-            confirmButtonColor: '#f97316'
         });
     }
 

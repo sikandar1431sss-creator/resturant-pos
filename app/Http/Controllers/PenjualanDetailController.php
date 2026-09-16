@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kategori;
+use App\Models\Meja;
 use App\Models\Member;
 use App\Models\Penjualan;
 use App\Models\PenjualanDetail;
@@ -19,6 +20,9 @@ class PenjualanDetailController extends Controller
         $brands = Produk::whereNotNull('merk')->where('merk', '!=', '')->distinct()->pluck('merk');
         $member = Member::orderBy('nama')->get();
         $diskon = Setting::first()->diskon ?? 0;
+        // Synchronize table occupancy with live active orders
+        Meja::syncStatuses();
+        $mejaList = Meja::orderBy('id_meja')->get();
 
         // Check whether there are any transactions in progress
         if ($id_penjualan = session('id_penjualan')) {
@@ -26,11 +30,33 @@ class PenjualanDetailController extends Controller
             if (! $penjualan) {
                 return redirect()->route('transaksi.baru');
             }
+
+            // If Dine-In and table is occupied by ANOTHER transaction (and not editing an existing completed bill)
+            if ($penjualan->tipe_order === 'Dine-In' && !session('is_editing')) {
+                $isOccupiedByOther = Penjualan::where('tipe_order', 'Dine-In')
+                    ->where('nomor_meja', $penjualan->nomor_meja)
+                    ->where('id_penjualan', '!=', $penjualan->id_penjualan)
+                    ->where('total_item', '>', 0)
+                    ->where(function($q) {
+                        $q->where('status_pembayaran', '!=', 'paid')
+                          ->orWhere('diterima', '<', \Illuminate\Support\Facades\DB::raw('bayar'));
+                    })
+                    ->exists();
+
+                if ($isOccupiedByOther) {
+                    $firstFree = Meja::where('status', 'available')->orderBy('id_meja')->first();
+                    if ($firstFree) {
+                        $penjualan->nomor_meja = $firstFree->nomor_meja;
+                        $penjualan->update();
+                    }
+                }
+            }
+
             $memberSelected = $penjualan->member ?? new Member();
             $isEditMode = session('is_editing', false) || ($penjualan->total_item > 0 && session()->has('is_editing'));
             $invoiceDiskon = $penjualan->diskon > 0 ? $penjualan->diskon : $diskon;
 
-            return view('penjualan_detail.index', compact('produk', 'kategori', 'brands', 'member', 'diskon', 'invoiceDiskon', 'id_penjualan', 'penjualan', 'memberSelected', 'isEditMode'));
+            return view('penjualan_detail.index', compact('produk', 'kategori', 'brands', 'member', 'diskon', 'invoiceDiskon', 'id_penjualan', 'penjualan', 'memberSelected', 'isEditMode', 'mejaList'));
         } else {
             return redirect()->route('transaksi.baru');
         }
@@ -62,6 +88,7 @@ class PenjualanDetailController extends Controller
                 'harga_raw' => $item->harga_jual,
                 'jumlah' => $item->jumlah,
                 'diskon' => $item->diskon,
+                'catatan' => $item->catatan ?? '',
                 'subtotal' => format_uang($item->subtotal),
                 'subtotal_raw' => $item->subtotal,
                 'delete_url' => route('transaksi.destroy', $item->id_penjualan_detail)
@@ -147,5 +174,18 @@ class PenjualanDetailController extends Controller
         ];
 
         return response()->json($data);
+    }
+
+    public function updateNote(Request $request, $id)
+    {
+        $detail = PenjualanDetail::findOrFail($id);
+        $detail->catatan = $request->catatan;
+        $detail->update();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Cooking instruction saved',
+            'catatan' => $detail->catatan
+        ], 200);
     }
 }

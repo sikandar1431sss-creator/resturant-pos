@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Meja;
 use App\Models\Penjualan;
 use App\Models\PenjualanDetail;
 use App\Models\Produk;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use PDF;
 
 class PenjualanController extends Controller
@@ -264,9 +266,14 @@ class PenjualanController extends Controller
             ->whereDoesntHave('detail')
             ->delete();
 
+        // Synchronize table occupancy with real active orders
+        Meja::syncStatuses();
+        $freeTable = Meja::where('status', 'available')->orderBy('id_meja')->first();
+        $defaultTable = $freeTable ? $freeTable->nomor_meja : 'Table 1';
+
         $penjualan = new Penjualan();
         $penjualan->id_member = null;
-        $penjualan->nomor_meja = 'Table 1';
+        $penjualan->nomor_meja = $defaultTable;
         $penjualan->tipe_order = 'Dine-In';
         $penjualan->total_item = 0;
         $penjualan->total_harga = 0;
@@ -274,7 +281,7 @@ class PenjualanController extends Controller
         $penjualan->bayar = 0;
         $penjualan->diterima = 0;
         $penjualan->status_pembayaran = 'unpaid';
-        $penjualan->metode_pembayaran = 'card';
+        $penjualan->metode_pembayaran = 'cash';
         $penjualan->id_user = auth()->id() ?? 1;
         $penjualan->save();
 
@@ -380,31 +387,115 @@ class PenjualanController extends Controller
         ]);
     }
 
+    public function getTablesStatus()
+    {
+        // 1. Sync table statuses with active unpaid dine-in orders
+        $tables = Meja::syncStatuses();
+
+        $unpaidDineInOrders = Penjualan::where('tipe_order', 'Dine-In')
+            ->where(function($q) {
+                $q->where('status_pembayaran', '!=', 'paid')
+                  ->orWhere('diterima', '<', DB::raw('bayar'));
+            })
+            ->where('total_item', '>', 0)
+            ->get();
+
+        $occupiedMap = [];
+        foreach ($unpaidDineInOrders as $ord) {
+            $tableName = trim(strtolower($ord->nomor_meja ?? ''));
+            if ($tableName && !isset($occupiedMap[$tableName])) {
+                $occupiedMap[$tableName] = $ord;
+            }
+        }
+
+        foreach ($tables as $t) {
+            $key = trim(strtolower($t->nomor_meja));
+            if (isset($occupiedMap[$key])) {
+                $activeOrder = $occupiedMap[$key];
+                $t->active_invoice = '#INV-' . tambah_nol_didepan($activeOrder->id_penjualan, 5);
+                $t->active_amount = format_currency($activeOrder->bayar);
+                $t->active_time = date('h:i A', strtotime($activeOrder->created_at));
+            } else {
+                $t->active_invoice = null;
+                $t->active_amount = null;
+                $t->active_time = null;
+            }
+        }
+
+        return response()->json($tables);
+    }
+
     public function store(Request $request)
     {
         $penjualan = Penjualan::findOrFail($request->id_penjualan);
         $detail = PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->get();
 
+        $requestedTable = $request->nomor_meja ?? $penjualan->nomor_meja ?? 'Table 1';
+        $orderType = $request->tipe_order ?? $penjualan->tipe_order ?? 'Dine-In';
+
+        // Check if table is occupied by ANOTHER active unpaid order
+        if ($orderType === 'Dine-In' && !empty($requestedTable)) {
+            $alreadyOccupied = Penjualan::where('tipe_order', 'Dine-In')
+                ->where('nomor_meja', $requestedTable)
+                ->where('id_penjualan', '!=', $penjualan->id_penjualan)
+                ->where('total_item', '>', 0)
+                ->where(function($q) {
+                    $q->where('status_pembayaran', '!=', 'paid')
+                      ->orWhere('diterima', '<', DB::raw('bayar'));
+                })
+                ->first();
+
+            if ($alreadyOccupied) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Table [' . $requestedTable . '] is already occupied by active order #INV-' . tambah_nol_didepan($alreadyOccupied->id_penjualan, 5) . '. Please select a free table.'
+                ], 422);
+            }
+        }
+
         $total_item = !empty($request->total_item) ? (int)$request->total_item : (int)$detail->sum('jumlah');
         $total_harga = !empty($request->total) ? (float)$request->total : (float)$detail->sum('subtotal');
         $diskon = !empty($request->diskon) ? (float)$request->diskon : 0;
-        $bayar = !empty($request->bayar) ? (float)$request->bayar : ($total_harga - ($diskon / 100 * $total_harga));
+        $ongkir = !empty($request->ongkir) ? (float)$request->ongkir : 0;
+        
+        $discountAmount = ($diskon / 100 * $total_harga);
+        $bayar = !empty($request->bayar) ? (float)$request->bayar : max(0, ($total_harga - $discountAmount) + $ongkir);
 
         $status = $request->status_pembayaran ?? 'unpaid';
-        $diterima = ($status === 'paid') ? $bayar : 0;
+        $diterima = ($status === 'paid') ? $bayar : (!empty($request->diterima) ? (float)$request->diterima : 0);
 
         $penjualan->id_member = !empty($request->id_member) ? $request->id_member : null;
-        $penjualan->nomor_meja = $request->nomor_meja ?? $penjualan->nomor_meja ?? 'Table 1';
-        $penjualan->tipe_order = $request->tipe_order ?? $penjualan->tipe_order ?? 'Dine-In';
+        $penjualan->nama_pelanggan = $request->nama_pelanggan ?? $penjualan->nama_pelanggan;
+        $penjualan->telepon_pelanggan = $request->telepon_pelanggan ?? $penjualan->telepon_pelanggan;
+        $penjualan->alamat_pengiriman = $request->alamat_pengiriman ?? $penjualan->alamat_pengiriman;
+        $penjualan->ongkir = $ongkir;
+        $penjualan->nomor_meja = $requestedTable;
+        $penjualan->tipe_order = $orderType;
         $penjualan->catatan = $request->catatan ?? $penjualan->catatan;
         $penjualan->total_item = $total_item;
         $penjualan->total_harga = $total_harga;
         $penjualan->diskon = $diskon;
         $penjualan->bayar = $bayar;
         $penjualan->diterima = $diterima;
+        $penjualan->sisa_bayar = max(0, $bayar - $diterima);
         $penjualan->status_pembayaran = $status;
-        $penjualan->metode_pembayaran = $request->metode_pembayaran ?? 'card';
+        $penjualan->metode_pembayaran = $request->metode_pembayaran ?? 'cash';
         $penjualan->update();
+
+        // Update table status if Dine-In
+        if ($penjualan->tipe_order === 'Dine-In' && !empty($penjualan->nomor_meja)) {
+            $meja = Meja::where('nomor_meja', $penjualan->nomor_meja)->first();
+            if ($meja) {
+                if ($status === 'paid') {
+                    $meja->status = 'available';
+                    $meja->id_penjualan_aktif = null;
+                } else {
+                    $meja->status = 'occupied';
+                    $meja->id_penjualan_aktif = $penjualan->id_penjualan;
+                }
+                $meja->update();
+            }
+        }
 
         foreach ($detail as $item) {
             $item->diskon = $diskon;
@@ -426,6 +517,7 @@ class PenjualanController extends Controller
                 'status_pembayaran' => $status,
                 'bayar' => $bayar,
                 'print_url' => route('penjualan.nota_kecil', $penjualan->id_penjualan),
+                'kot_url' => route('kitchen.kot', $penjualan->id_penjualan),
                 'redirect_url' => route('transaksi.selesai')
             ], 200);
         }
@@ -438,6 +530,7 @@ class PenjualanController extends Controller
         $penjualan = Penjualan::findOrFail($id);
 
         $penjualan->diterima = $penjualan->bayar;
+        $penjualan->sisa_bayar = 0;
         $penjualan->status_pembayaran = 'paid';
 
         if (!empty($request->metode_pembayaran)) {
@@ -446,9 +539,16 @@ class PenjualanController extends Controller
 
         $penjualan->update();
 
+        // Release the table when payment is settled!
+        if (!empty($penjualan->nomor_meja)) {
+            Meja::where('nomor_meja', $penjualan->nomor_meja)
+                ->orWhere('id_penjualan_aktif', $penjualan->id_penjualan)
+                ->update(['status' => 'available', 'id_penjualan_aktif' => null]);
+        }
+
         return response()->json([
             'status' => 'success',
-            'message' => 'Invoice #' . tambah_nol_didepan($penjualan->id_penjualan, 5) . ' marked as PAID successfully!',
+            'message' => 'Invoice #' . tambah_nol_didepan($penjualan->id_penjualan, 5) . ' marked as PAID & Table Released!',
             'status_pembayaran' => 'paid',
             'print_url' => route('penjualan.nota_kecil', $penjualan->id_penjualan)
         ], 200);
@@ -471,11 +571,40 @@ class PenjualanController extends Controller
         $total_item = (int)$detail->sum('jumlah');
         $total_harga = (float)$detail->sum('subtotal');
         $diskon = !empty($request->diskon) ? (float)$request->diskon : 0;
-        $bayar = !empty($request->bayar) ? (float)$request->bayar : ($total_harga - ($diskon / 100 * $total_harga));
+        $ongkir = !empty($request->ongkir) ? (float)$request->ongkir : 0;
+        $discountAmount = ($diskon / 100 * $total_harga);
+        $bayar = !empty($request->bayar) ? (float)$request->bayar : max(0, ($total_harga - $discountAmount) + $ongkir);
+
+        $requestedTable = $request->nomor_meja ?? $penjualan->nomor_meja ?? 'Table 1';
+        $orderType = $request->tipe_order ?? $penjualan->tipe_order ?? 'Dine-In';
+
+        // Check if table is occupied by ANOTHER active unpaid order
+        if ($orderType === 'Dine-In' && !empty($requestedTable)) {
+            $alreadyOccupied = Penjualan::where('tipe_order', 'Dine-In')
+                ->where('nomor_meja', $requestedTable)
+                ->where('id_penjualan', '!=', $penjualan->id_penjualan)
+                ->where('total_item', '>', 0)
+                ->where(function($q) {
+                    $q->where('status_pembayaran', '!=', 'paid')
+                      ->orWhere('diterima', '<', DB::raw('bayar'));
+                })
+                ->first();
+
+            if ($alreadyOccupied) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Table [' . $requestedTable . '] is already occupied by active order #INV-' . tambah_nol_didepan($alreadyOccupied->id_penjualan, 5) . '. Please select a free table.'
+                ], 422);
+            }
+        }
 
         $penjualan->id_member = !empty($request->id_member) ? $request->id_member : null;
-        $penjualan->nomor_meja = $request->nomor_meja ?? $penjualan->nomor_meja ?? 'Table 1';
-        $penjualan->tipe_order = $request->tipe_order ?? $penjualan->tipe_order ?? 'Dine-In';
+        $penjualan->nama_pelanggan = $request->nama_pelanggan ?? $penjualan->nama_pelanggan;
+        $penjualan->telepon_pelanggan = $request->telepon_pelanggan ?? $penjualan->telepon_pelanggan;
+        $penjualan->alamat_pengiriman = $request->alamat_pengiriman ?? $penjualan->alamat_pengiriman;
+        $penjualan->ongkir = $ongkir;
+        $penjualan->nomor_meja = $requestedTable;
+        $penjualan->tipe_order = $orderType;
         $penjualan->catatan = $request->catatan ?? $penjualan->catatan;
         $penjualan->total_item = $total_item;
         $penjualan->total_harga = $total_harga;
@@ -485,6 +614,16 @@ class PenjualanController extends Controller
         $penjualan->sisa_bayar = $bayar;
         $penjualan->status_pembayaran = 'unpaid';
         $penjualan->update();
+
+        // Mark table as occupied for drafted dine-in order
+        if ($penjualan->tipe_order === 'Dine-In' && !empty($penjualan->nomor_meja)) {
+            $meja = Meja::where('nomor_meja', $penjualan->nomor_meja)->first();
+            if ($meja) {
+                $meja->status = 'occupied';
+                $meja->id_penjualan_aktif = $penjualan->id_penjualan;
+                $meja->update();
+            }
+        }
 
         // Clear active session so cashier starts fresh order
         session()->forget('id_penjualan');
@@ -525,7 +664,7 @@ class PenjualanController extends Controller
                 'total_harga' => format_currency($d->total_harga),
                 'bayar' => format_currency($d->bayar),
                 'bayar_raw' => $d->bayar,
-                'member' => $d->member->nama ?? 'Walk-in',
+                'member' => $d->member->nama ?? $d->nama_pelanggan ?? 'Walk-in',
                 'items_summary' => $itemsSummary,
                 'created_at' => date('d M, H:i', strtotime($d->created_at)),
                 'resume_url' => route('transaksi.resume_draft', $d->id_penjualan),
@@ -546,6 +685,10 @@ class PenjualanController extends Controller
     public function deleteDraft($id)
     {
         $penjualan = Penjualan::findOrFail($id);
+        if (!empty($penjualan->nomor_meja)) {
+            Meja::where('id_penjualan_aktif', $penjualan->id_penjualan)
+                ->update(['status' => 'available', 'id_penjualan_aktif' => null]);
+        }
         PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->delete();
         $penjualan->delete();
 
@@ -553,7 +696,7 @@ class PenjualanController extends Controller
             session()->forget('id_penjualan');
         }
 
-        return response()->json(['status' => 'success', 'message' => 'Draft invoice deleted successfully'], 200);
+        return response()->json(['status' => 'success', 'message' => 'Draft invoice deleted & Table Released'], 200);
     }
 
     public function show($id)
@@ -567,18 +710,22 @@ class PenjualanController extends Controller
                 return '<span class="label label-success">'. ($detail->produk->kode_produk ?? 'P000') .'</span>';
             })
             ->addColumn('nama_produk', function ($detail) {
-                return $detail->produk->nama_produk ?? 'Dish Item';
+                $notes = !empty($detail->catatan) ? '<br><small class="text-warning" style="font-weight:700;"><i class="fa fa-pencil"></i> ' . e($detail->catatan) . '</small>' : '';
+                return ($detail->produk->nama_produk ?? 'Dish') . $notes;
             })
             ->addColumn('harga_jual', function ($detail) {
                 return format_currency($detail->harga_jual);
             })
             ->addColumn('jumlah', function ($detail) {
-                return format_uang($detail->jumlah);
+                return '<strong style="font-size:13px;">' . format_uang($detail->jumlah) . '</strong>';
+            })
+            ->addColumn('diskon', function ($detail) {
+                return $detail->diskon > 0 ? '<span class="text-success font-weight-bold">-' . $detail->diskon . '%</span>' : '0%';
             })
             ->addColumn('subtotal', function ($detail) {
                 return format_currency($detail->subtotal);
             })
-            ->rawColumns(['kode_produk'])
+            ->rawColumns(['kode_produk', 'nama_produk', 'jumlah', 'diskon'])
             ->make(true);
     }
     public function destroy($id)
@@ -589,6 +736,10 @@ class PenjualanController extends Controller
 
         $penjualan = Penjualan::find($id);
         if ($penjualan) {
+            if (!empty($penjualan->nomor_meja)) {
+                Meja::where('id_penjualan_aktif', $penjualan->id_penjualan)
+                    ->update(['status' => 'available', 'id_penjualan_aktif' => null]);
+            }
             $this->revertStockForInvoice($penjualan);
             PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->delete();
             $penjualan->delete();

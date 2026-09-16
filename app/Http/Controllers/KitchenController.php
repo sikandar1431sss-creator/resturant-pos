@@ -37,35 +37,35 @@ class KitchenController extends Controller
         $isCashier = $this->isRestrictedCashier();
         $userId = $isCashier ? auth()->id() : null;
 
-        $pendingQuery = Penjualan::where('kitchen_status', 'pending')
+        // Sync table occupancy with current active unpaid dine-in orders
+        \App\Models\Meja::syncStatuses();
+
+        $activeOrdersQuery = Penjualan::where(function($q) {
+                $q->whereIn('kitchen_status', ['pending', 'cooking', 'ready'])
+                  ->orWhereNull('kitchen_status');
+            })
             ->where('total_item', '>', 0)
             ->whereDate('created_at', Carbon::today());
 
-        $cookingQuery = Penjualan::where('kitchen_status', 'cooking')
+        $deliveryQuery = Penjualan::where('tipe_order', 'Delivery')
             ->where('total_item', '>', 0)
             ->whereDate('created_at', Carbon::today());
 
-        $readyQuery = Penjualan::where('kitchen_status', 'ready')
-            ->where('total_item', '>', 0)
-            ->whereDate('created_at', Carbon::today());
-
-        $servedQuery = Penjualan::where('kitchen_status', 'served')
-            ->where('total_item', '>', 0)
+        $todayTotalQuery = Penjualan::where('total_item', '>', 0)
             ->whereDate('created_at', Carbon::today());
 
         if ($userId) {
-            $pendingQuery->where('id_user', $userId);
-            $cookingQuery->where('id_user', $userId);
-            $readyQuery->where('id_user', $userId);
-            $servedQuery->where('id_user', $userId);
+            $activeOrdersQuery->where('id_user', $userId);
+            $deliveryQuery->where('id_user', $userId);
+            $todayTotalQuery->where('id_user', $userId);
         }
 
-        $pendingCount = $pendingQuery->count();
-        $cookingCount = $cookingQuery->count();
-        $readyCount = $readyQuery->count();
-        $servedTodayCount = $servedQuery->count();
+        $activeOrdersCount = $activeOrdersQuery->count();
+        $dineInCount = \App\Models\Meja::where('status', 'occupied')->count();
+        $deliveryCount = $deliveryQuery->count();
+        $todayTotalCount = $todayTotalQuery->count();
 
-        // Get list of active cashiers/waiters for admin/manager/kitchen filter
+        // Get list of active cashiers/waiters for admin/manager filter
         $cashiersList = [];
         if (!$isCashier) {
             $cashiersList = User::orderBy('name')->get();
@@ -73,59 +73,47 @@ class KitchenController extends Controller
 
         return view('kitchen.index', compact(
             'setting',
-            'pendingCount',
-            'cookingCount',
-            'readyCount',
-            'servedTodayCount',
+            'activeOrdersCount',
+            'dineInCount',
+            'deliveryCount',
+            'todayTotalCount',
             'isCashier',
             'cashiersList'
         ));
     }
 
     /**
-     * Return live active kitchen orders JSON for auto-refresh and audio alerts.
+     * Return live active kitchen orders JSON for live dashboard monitor.
      */
     public function data(Request $request)
     {
         $typeFilter = $request->get('type', 'all'); // all, Dine-In, Takeaway, Delivery
-        $statusTab = $request->get('tab', 'active'); // active, ready, served
+        $statusTab = $request->get('tab', 'active'); // active, all_today
         $isCashier = $this->isRestrictedCashier();
 
         $query = Penjualan::with(['detail.produk.kategori', 'member', 'user'])
-            ->where('total_item', '>', 0);
+            ->where('total_item', '>', 0)
+            ->whereDate('created_at', Carbon::today());
 
-        // Multi-Cashier Scoping:
-        // Cashiers see strictly their own placed orders.
-        // Admin/Manager/Kitchen see all, with optional cashier_id filter.
         if ($isCashier) {
             $query->where('id_user', auth()->id());
         } elseif ($request->filled('cashier_id') && $request->cashier_id !== 'all') {
             $query->where('id_user', $request->cashier_id);
         }
 
-        if ($statusTab === 'active') {
-            $query->whereIn('kitchen_status', ['pending', 'cooking']);
-        } elseif ($statusTab === 'ready') {
-            $query->where('kitchen_status', 'ready');
-        } elseif ($statusTab === 'served') {
-            $query->where('kitchen_status', 'served')
-                  ->whereDate('created_at', Carbon::today())
-                  ->orderBy('kitchen_served_at', 'desc')
-                  ->limit(30);
-        } else {
-            // all live
-            $query->whereIn('kitchen_status', ['pending', 'cooking', 'ready']);
-        }
-
         if ($typeFilter !== 'all') {
             $query->where('tipe_order', $typeFilter);
         }
 
-        if ($statusTab !== 'served') {
-            $query->orderBy('created_at', 'asc');
+        if ($statusTab === 'active') {
+            // In progress orders for kitchen monitor
+            $query->where(function($q) {
+                $q->whereIn('kitchen_status', ['pending', 'cooking', 'ready'])
+                  ->orWhereNull('kitchen_status');
+            });
         }
 
-        $orders = $query->get();
+        $orders = $query->orderBy('id_penjualan', 'desc')->get();
 
         $now = Carbon::now();
         $formattedOrders = $orders->map(function ($order) use ($now) {
@@ -133,20 +121,12 @@ class KitchenController extends Controller
             $elapsedSeconds = $createdAt->diffInSeconds($now);
             $elapsedMinutes = floor($elapsedSeconds / 60);
 
-            // Urgency color level based on fast food standard preparation SLA
-            // < 5 mins = Normal (Green), 5 - 10 mins = Warning (Yellow), > 10 mins = Urgent (Red)
-            $urgency = 'normal';
-            if ($elapsedMinutes >= 10) {
-                $urgency = 'urgent';
-            } elseif ($elapsedMinutes >= 5) {
-                $urgency = 'warning';
-            }
-
             $items = $order->detail->map(function ($d) {
                 return [
                     'id_produk' => $d->id_produk,
                     'nama_produk' => optional($d->produk)->nama_produk ?? 'Menu Item',
                     'jumlah' => (int)$d->jumlah,
+                    'catatan' => $d->catatan ?? '',
                     'kategori' => optional(optional($d->produk)->kategori)->nama_kategori ?? 'General',
                 ];
             });
@@ -158,47 +138,38 @@ class KitchenController extends Controller
                 'tipe_order' => $order->tipe_order ?: 'Dine-In',
                 'nomor_meja' => $order->nomor_meja ?: 'Table 1',
                 'catatan' => $order->catatan,
+                'nama_pelanggan' => $order->nama_pelanggan,
+                'telepon_pelanggan' => $order->telepon_pelanggan,
+                'alamat_pengiriman' => $order->alamat_pengiriman,
+                'ongkir' => $order->ongkir,
                 'status_pembayaran' => $order->status_pembayaran ?: 'unpaid',
                 'kitchen_status' => $order->kitchen_status ?: 'pending',
                 'created_time' => $createdAt->format('h:i A'),
                 'created_date' => $createdAt->format('d M Y'),
                 'elapsed_seconds' => $elapsedSeconds,
                 'elapsed_minutes' => $elapsedMinutes,
-                'urgency' => $urgency,
                 'cashier' => optional($order->user)->name ?? 'Cashier',
-                'customer' => optional($order->member)->nama ?? 'Walk-in',
+                'customer' => optional($order->member)->nama ?? $order->nama_pelanggan ?? 'Walk-in',
                 'total_items' => (int)$order->total_item,
                 'items' => $items,
                 'kot_url' => route('kitchen.kot', $order->id_penjualan),
+                'receipt_url' => route('penjualan.nota_kecil', $order->id_penjualan),
             ];
         });
 
-        // Quick summary counts (respecting the same cashier scoping)
-        $countQuery = function ($status) use ($isCashier, $request) {
-            $q = Penjualan::where('kitchen_status', $status)
-                ->where('total_item', '>', 0)
-                ->whereDate('created_at', Carbon::today());
-
-            if ($isCashier) {
-                $q->where('id_user', auth()->id());
-            } elseif ($request->filled('cashier_id') && $request->cashier_id !== 'all') {
-                $q->where('id_user', $request->cashier_id);
-            }
-            return $q->count();
-        };
-
-        $counts = [
-            'pending' => $countQuery('pending'),
-            'cooking' => $countQuery('cooking'),
-            'ready' => $countQuery('ready'),
-            'served_today' => $countQuery('served'),
-            'total_active' => ($countQuery('pending') + $countQuery('cooking') + $countQuery('ready')),
-        ];
+        // Live stats for dashboard KPI cards
+        \App\Models\Meja::syncStatuses();
+        $liveBusyTables = \App\Models\Meja::where('status', 'occupied')->count();
+        $liveDeliveryCount = Penjualan::where('tipe_order', 'Delivery')->where('total_item', '>', 0)->whereDate('created_at', Carbon::today())->count();
+        $liveTodayTotal = Penjualan::where('total_item', '>', 0)->whereDate('created_at', Carbon::today())->count();
 
         return response()->json([
             'status' => 'success',
             'orders' => $formattedOrders,
-            'counts' => $counts,
+            'total_count' => $formattedOrders->count(),
+            'busy_tables_count' => $liveBusyTables,
+            'delivery_count' => $liveDeliveryCount,
+            'today_total_count' => $liveTodayTotal,
             'server_time' => $now->format('h:i:s A'),
             'is_cashier_scoped' => $isCashier,
             'user_name' => auth()->user()->name ?? 'Staff',

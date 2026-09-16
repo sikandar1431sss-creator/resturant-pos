@@ -4,7 +4,7 @@
         <div class="modal-content" style="border-radius: 14px; overflow: hidden; border: none; box-shadow: 0 20px 50px rgba(0,0,0,0.15);">
             <div class="modal-header" style="background: #1e3a68; color: #fff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
                 <h4 class="modal-title" id="dealModalTitle" style="font-weight: 800; font-size: 16px; color: #fff;">
-                    <i class="fa fa-gift text-warning"></i> Create New Deal
+                    <i class="fa fa-plus-circle"></i> Create New Deal
                 </h4>
                 <button type="button" class="close" data-dismiss="modal" style="color: #fff; opacity: 0.9; margin: 0;">&times;</button>
             </div>

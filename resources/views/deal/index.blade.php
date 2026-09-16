@@ -11,35 +11,6 @@
 
 @push('css')
 <style>
-    .deal-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 12px;
-        padding: 16px 20px;
-        background: #ffffff;
-        border-bottom: 1px solid #e2e8f0;
-    }
-    .btn-create-deal {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-        color: #ffffff !important;
-        font-weight: 800 !important;
-        font-size: 13.5px !important;
-        border-radius: 8px !important;
-        padding: 9px 18px !important;
-        border: none !important;
-        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35) !important;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        transition: all 0.2s ease;
-    }
-    .btn-create-deal:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(245, 158, 11, 0.45) !important;
-        color: #ffffff !important;
-    }
     .table-actions-group {
         display: inline-flex !important;
         align-items: center !important;
@@ -81,25 +52,15 @@
 @section('content')
 <div class="row">
     <div class="col-lg-12">
-        <div class="box" style="border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 14px rgba(0,0,0,0.04);">
-            <div class="deal-card-header">
-                <div>
-                    <h3 class="box-title" style="font-weight: 800; font-size: 18px; color: #0f172a; margin: 0;">
-                        <i class="fa fa-gift" style="color: #f59e0b; margin-right: 6px;"></i> Deals
-                    </h3>
-                    <div style="font-size: 12.5px; color: #64748b; margin-top: 3px;">
-                        Create meal deals and discounted packages. Deals appear automatically in POS Terminal.
-                    </div>
-                </div>
-                <div>
-                    <button type="button" onclick="addDealForm()" class="btn-create-deal">
-                        <i class="fa fa-plus-circle"></i> Create New Deal
-                    </button>
-                </div>
+        <div class="box">
+            <div class="box-header with-border">
+                <button onclick="addDealForm()" class="btn btn-success btn-flat">
+                    <i class="fa fa-plus-circle"></i> Add New Deal
+                </button>
             </div>
 
-            <div class="box-body table-responsive" style="padding: 18px;">
-                <table class="table table-striped table-deals table-hover" style="width: 100%;">
+            <div class="box-body table-responsive">
+                <table class="table table-striped table-deals table-bordered table-hover" style="width: 100%;">
                     <thead>
                         <th width="4%">#</th>
                         <th width="6%">Image</th>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kategori;
+use App\Models\Meja;
 use App\Models\Member;
 use App\Models\Pembelian;
 use App\Models\Pengeluaran;
@@ -123,6 +124,14 @@ class DashboardController extends Controller
             }
         }
 
+        // 5. Dining Table Floor & Occupancy Status
+        Meja::syncStatuses();
+        $tables = Meja::with('penjualanAktif')->orderBy('id_meja')->get();
+        $total_tables = $tables->count();
+        $free_tables = $tables->where('status', 'available')->count();
+        $occupied_tables = $tables->where('status', 'occupied')->count();
+        $occupancy_rate = $total_tables > 0 ? round(($occupied_tables / $total_tables) * 100) : 0;
+
         // Cashier simplified view check (if cashier role)
         if (auth()->check() && auth()->user()->level != 1 && !auth()->user()->hasRole('admin')) {
             $today_sales = $today_card['paid_sales'];
@@ -132,7 +141,12 @@ class DashboardController extends Controller
             return view('kasir.dashboard', compact(
                 'today_sales',
                 'today_orders',
-                'shift_name'
+                'shift_name',
+                'tables',
+                'total_tables',
+                'free_tables',
+                'occupied_tables',
+                'occupancy_rate'
             ));
         }
 
@@ -158,8 +172,53 @@ class DashboardController extends Controller
             'monthly_expenses',
             'cat_labels',
             'cat_amounts',
-            'currentYear'
+            'currentYear',
+            'tables',
+            'total_tables',
+            'free_tables',
+            'occupied_tables',
+            'occupancy_rate'
         ));
+    }
+
+    /**
+     * AJAX endpoint to fetch live table floor occupancy status.
+     */
+    public function getTableStatus()
+    {
+        Meja::syncStatuses();
+        $tables = Meja::with('penjualanAktif')->orderBy('id_meja')->get();
+        $total = $tables->count();
+        $free = $tables->where('status', 'available')->count();
+        $occupied = $tables->where('status', 'occupied')->count();
+        $occupancy_rate = $total > 0 ? round(($occupied / $total) * 100) : 0;
+
+        $tablesData = $tables->map(function ($t) {
+            $activeOrder = $t->penjualanAktif;
+            return [
+                'id_meja' => $t->id_meja,
+                'nomor_meja' => $t->nomor_meja,
+                'kapasitas' => $t->kapasitas,
+                'status' => $t->status,
+                'is_occupied' => $t->status === 'occupied',
+                'order' => $activeOrder ? [
+                    'id_penjualan' => $activeOrder->id_penjualan,
+                    'total_harga' => $activeOrder->total_harga,
+                    'bayar' => $activeOrder->bayar,
+                    'formatted_amount' => format_currency($activeOrder->bayar),
+                    'total_item' => $activeOrder->total_item,
+                    'time_ago' => $activeOrder->created_at ? $activeOrder->created_at->diffForHumans() : '',
+                ] : null,
+            ];
+        });
+
+        return response()->json([
+            'total' => $total,
+            'free' => $free,
+            'occupied' => $occupied,
+            'occupancy_rate' => $occupancy_rate,
+            'tables' => $tablesData,
+        ]);
     }
 
     /**

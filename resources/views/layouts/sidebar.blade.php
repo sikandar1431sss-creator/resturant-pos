@@ -1,4 +1,4 @@
-<aside class="main-sidebar" style="padding-top: 60px !important;">
+<aside class="main-sidebar">
     <section class="sidebar">
         <!-- Sidebar menu -->
         <ul class="sidebar-menu" data-widget="tree" style="padding-top: 15px; margin-top: 5px;">
@@ -44,7 +44,7 @@
             @if(auth()->user()->can('deals.view') || auth()->user()->hasRole('admin') || auth()->user()->level == 1)
             <li class="{{ request()->is('deal*') ? 'active' : '' }}">
                 <a href="{{ route('deal.index') }}">
-                    <i class="fa fa-gift" style="color: #f59e0b;"></i> <span>Deals &amp; Combos</span>
+                    <i class="fa fa-tags"></i> <span>Deals &amp; Combos</span>
                 </a>
             </li>
             @endif
@@ -111,9 +111,19 @@
             {{-- ANALYTICS & REPORTS --}}
             @if(auth()->user()->can('reports.view') || auth()->user()->hasRole('admin') || auth()->user()->level == 1)
             <li class="header">ANALYTICS &amp; REPORTS</li>
-            <li class="{{ request()->is('laporan*') ? 'active' : '' }}">
+            <li class="{{ request()->is('laporan/penjualan*') ? 'active' : '' }}">
+                <a href="{{ route('laporan.penjualan') }}">
+                    <i class="fa fa-shopping-cart" style="color: #10b981;"></i> <span>Sales Report</span>
+                </a>
+            </li>
+            <li class="{{ request()->is('laporan/pembelian*') ? 'active' : '' }}">
+                <a href="{{ route('laporan.pembelian') }}">
+                    <i class="fa fa-truck" style="color: #0284c7;"></i> <span>Purchase Report</span>
+                </a>
+            </li>
+            <li class="{{ (request()->is('laporan') || (request()->is('laporan*') && !request()->is('laporan/penjualan*') && !request()->is('laporan/pembelian*'))) ? 'active' : '' }}">
                 <a href="{{ route('laporan.index') }}">
-                    <i class="fa fa-line-chart" style="color: #059669;"></i> <span>Sales &amp; Profit Reports</span>
+                    <i class="fa fa-line-chart" style="color: #f59e0b;"></i> <span>Income &amp; Profit Report</span>
                 </a>
             </li>
             @endif

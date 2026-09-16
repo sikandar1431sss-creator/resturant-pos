@@ -33,6 +33,7 @@ Route::get('/', function () {
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/period-data', [DashboardController::class, 'getPeriodData'])->name('dashboard.period_data');
+    Route::get('/dashboard/table-status', [DashboardController::class, 'getTableStatus'])->name('dashboard.table_status');
 
     // ==========================================
     // 1. ADMIN & MANAGER (Inventory, Menu, Deals, Expenses)
@@ -106,6 +107,9 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/transaksi/nota-kecil', [PenjualanController::class, 'notaKecil'])->name('transaksi.nota_kecil');
         Route::get('/transaksi/nota-besar', [PenjualanController::class, 'notaBesar'])->name('transaksi.nota_besar');
 
+        Route::get('/transaksi/tables/status', [PenjualanController::class, 'getTablesStatus'])->name('transaksi.tables_status');
+        Route::post('/transaksi/item-note/{id}', [PenjualanDetailController::class, 'updateNote'])->name('transaksi.item_note');
+
         Route::get('/transaksi/{id}/data', [PenjualanDetailController::class, 'data'])->name('transaksi.data');
         Route::get('/transaksi/loadform/{diskon}/{total}/{diterima}', [PenjualanDetailController::class, 'loadForm'])->name('transaksi.load_form');
         Route::resource('/transaksi', PenjualanDetailController::class)->except('create', 'show');
@@ -128,6 +132,8 @@ Route::group(['middleware' => 'auth'], function () {
     // 4. ANALYTICS & REPORTS
     // ==========================================
     Route::group(['middleware' => ['role_or_permission:admin|manager|reports.view']], function () {
+        Route::get('/laporan/penjualan', [LaporanController::class, 'penjualan'])->name('laporan.penjualan');
+        Route::get('/laporan/pembelian', [LaporanController::class, 'pembelian'])->name('laporan.pembelian');
         Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
         Route::get('/laporan/data/{awal}/{akhir}', [LaporanController::class, 'data'])->name('laporan.data');
         Route::get('/laporan/pdf/{awal}/{akhir}', [LaporanController::class, 'exportPDF'])->name('laporan.export_pdf');

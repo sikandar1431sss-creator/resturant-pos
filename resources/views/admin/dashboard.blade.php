@@ -294,6 +294,147 @@
         padding: 4px 10px;
         border-radius: 6px;
     }
+
+    /* Table Status Floor Section */
+    .table-floor-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 18px 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .table-floor-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 14px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .table-floor-title {
+        font-size: 14.5px;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .table-stats-pills {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+    .table-stat-pill {
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .pill-free {
+        background: #dcfce7;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+    }
+    .pill-occupied {
+        background: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+    }
+    .pill-total {
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+    }
+    .pill-rate {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+    }
+    .table-floor-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 10px;
+    }
+    .table-seat-card {
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 10px 12px;
+        border: 1.5px solid #e2e8f0;
+        transition: all 0.15s ease;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 85px;
+    }
+    .table-seat-card.table-card-free {
+        border-color: #86efac;
+        background: #f0fdf4;
+    }
+    .table-seat-card.table-card-occupied {
+        border-color: #fca5a5;
+        background: #fff5f5;
+    }
+    .table-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 6px;
+    }
+    .table-name-text {
+        font-size: 13px;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0;
+    }
+    .table-capacity-tag {
+        font-size: 10.5px;
+        color: #64748b;
+        font-weight: 600;
+        margin-top: 1px;
+    }
+    .table-status-indicator {
+        font-size: 9.5px;
+        font-weight: 800;
+        padding: 2px 6px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+    .status-badge-free {
+        background: #15803d;
+        color: #ffffff;
+    }
+    .status-badge-occupied {
+        background: #b91c1c;
+        color: #ffffff;
+    }
+    .table-card-body {
+        margin-top: auto;
+        padding-top: 6px;
+        border-top: 1px dashed rgba(0,0,0,0.06);
+    }
+    .table-order-info {
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .table-order-sub {
+        font-size: 10.5px;
+        color: #64748b;
+        margin-top: 2px;
+    }
 </style>
 @endpush
 
@@ -585,6 +726,92 @@
                 </div>
                 <div style="position: relative; height: 320px; width: 100%;">
                     <canvas id="categoryDonutChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. ROW 4: DINING TABLES STATUS (COL 6) -->
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-12">
+            <div class="table-floor-card">
+                <div class="table-floor-header">
+                    <div>
+                        <h3 class="table-floor-title">
+                            <i class="fa fa-cutlery" style="color: #ea580c;"></i> Dining Tables Status
+                        </h3>
+                        <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">
+                            Live floor occupancy overview.
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-primary btn-flat btn-table-filter active" data-filter="all" onclick="filterDashboardTables('all', this)" style="border-radius: 6px 0 0 6px; font-weight: 700; font-size: 11px;">All</button>
+                            <button type="button" class="btn btn-default btn-flat btn-table-filter" data-filter="free" onclick="filterDashboardTables('free', this)" style="font-weight: 700; font-size: 11px; color: #15803d;">Free</button>
+                            <button type="button" class="btn btn-default btn-flat btn-table-filter" data-filter="occupied" onclick="filterDashboardTables('occupied', this)" style="border-radius: 0 6px 6px 0; font-weight: 700; font-size: 11px; color: #b91c1c;">Occupied</button>
+                        </div>
+
+                        <button type="button" class="btn btn-default btn-sm btn-flat" onclick="refreshDashboardTables()" title="Refresh table status" style="border-radius: 6px; padding: 4px 8px;">
+                            <i class="fa fa-refresh" id="iconRefreshTable"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-stats-pills" style="margin-bottom: 12px;">
+                    <span class="table-stat-pill pill-free" id="badgeFreeCount">
+                        <i class="fa fa-circle" style="font-size: 8px;"></i> <strong id="lblFreeCount">{{ $free_tables }}</strong> Free
+                    </span>
+                    <span class="table-stat-pill pill-occupied" id="badgeOccupiedCount">
+                        <i class="fa fa-circle" style="font-size: 8px;"></i> <strong id="lblOccupiedCount">{{ $occupied_tables }}</strong> Occupied
+                    </span>
+                    <span class="table-stat-pill pill-total">
+                        <strong id="lblTotalCount">{{ $total_tables }}</strong> Total
+                    </span>
+                    <span class="table-stat-pill pill-rate">
+                        <strong id="lblOccupancyRate">{{ $occupancy_rate }}%</strong> Occupancy
+                    </span>
+                </div>
+
+                <!-- Tables Grid -->
+                <div class="table-floor-grid" id="dashboardTablesGrid">
+                    @forelse($tables as $t)
+                        @php
+                            $isOccupied = ($t->status === 'occupied');
+                            $activeOrder = $t->penjualanAktif;
+                        @endphp
+                        <div class="table-seat-card {{ $isOccupied ? 'table-card-occupied' : 'table-card-free' }}" data-status="{{ $isOccupied ? 'occupied' : 'free' }}">
+                            <div class="table-card-top">
+                                <div>
+                                    <h4 class="table-name-text">{{ $t->nomor_meja }}</h4>
+                                    <div class="table-capacity-tag"><i class="fa fa-users text-muted"></i> {{ $t->kapasitas }} Seats</div>
+                                </div>
+                                <span class="table-status-indicator {{ $isOccupied ? 'status-badge-occupied' : 'status-badge-free' }}">
+                                    {{ $isOccupied ? 'Occupied' : 'Free' }}
+                                </span>
+                            </div>
+
+                            <div class="table-card-body">
+                                @if($isOccupied && $activeOrder)
+                                    <div class="table-order-info">
+                                        <span>Bill #{{ $activeOrder->id_penjualan }}</span>
+                                        <span style="color: #b91c1c;">{{ format_currency($activeOrder->bayar) }}</span>
+                                    </div>
+                                    <div class="table-order-sub">
+                                        <span>{{ $activeOrder->total_item }} items &bull; {{ $activeOrder->created_at ? $activeOrder->created_at->diffForHumans() : '' }}</span>
+                                    </div>
+                                @else
+                                    <div class="table-order-sub" style="color: #15803d; font-weight: 600;">
+                                        <i class="fa fa-check-circle"></i> Available
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @empty
+                        <div style="grid-column: 1 / -1; padding: 20px; text-align: center; color: #94a3b8;">
+                            No dining tables registered yet.
+                        </div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -885,5 +1112,98 @@
             }
         });
     }
+
+    // Table Floor Filtering & Live Refresh Functions
+    function filterDashboardTables(filter, btn) {
+        $('.btn-table-filter').removeClass('active btn-primary').addClass('btn-default');
+        $(btn).addClass('active btn-primary').removeClass('btn-default');
+
+        if (filter === 'all') {
+            $('.table-seat-card').show();
+        } else if (filter === 'free') {
+            $('.table-seat-card[data-status="free"]').show();
+            $('.table-seat-card[data-status="occupied"]').hide();
+        } else if (filter === 'occupied') {
+            $('.table-seat-card[data-status="occupied"]').show();
+            $('.table-seat-card[data-status="free"]').hide();
+        }
+    }
+
+    function refreshDashboardTables() {
+        let icon = $('#iconRefreshTable');
+        icon.addClass('fa-spin');
+
+        $.get('{{ route('dashboard.table_status') }}')
+            .done(function(data) {
+                $('#lblFreeCount').text(data.free);
+                $('#lblOccupiedCount').text(data.occupied);
+                $('#lblTotalCount').text(data.total);
+                $('#lblOccupancyRate').text(data.occupancy_rate + '%');
+
+                let grid = $('#dashboardTablesGrid');
+                grid.empty();
+
+                if (data.tables && data.tables.length > 0) {
+                    data.tables.forEach(function(t) {
+                        let isOccupied = t.is_occupied;
+                        let cardClass = isOccupied ? 'table-card-occupied' : 'table-card-free';
+                        let badgeClass = isOccupied ? 'status-badge-occupied' : 'status-badge-free';
+                        let statusText = isOccupied ? 'Occupied' : 'Free';
+                        let bodyHtml = '';
+
+                        if (isOccupied && t.order) {
+                            bodyHtml = `
+                                <div class="table-order-info">
+                                    <span>Bill #${t.order.id_penjualan}</span>
+                                    <span style="color: #b91c1c;">${t.order.formatted_amount}</span>
+                                </div>
+                                <div class="table-order-sub">
+                                    <span>${t.order.total_item} items &bull; ${t.order.time_ago}</span>
+                                </div>
+                            `;
+                        } else {
+                            bodyHtml = `
+                                <div class="table-order-sub" style="color: #15803d; font-weight: 600;">
+                                    <i class="fa fa-check-circle"></i> Available
+                                </div>
+                            `;
+                        }
+
+                        let html = `
+                            <div class="table-seat-card ${cardClass}" data-status="${isOccupied ? 'occupied' : 'free'}">
+                                <div class="table-card-top">
+                                    <div>
+                                        <h4 class="table-name-text">${t.nomor_meja}</h4>
+                                        <div class="table-capacity-tag"><i class="fa fa-users text-muted"></i> ${t.kapasitas} Seats</div>
+                                    </div>
+                                    <span class="table-status-indicator ${badgeClass}">
+                                        ${statusText}
+                                    </span>
+                                </div>
+                                <div class="table-card-body">
+                                    ${bodyHtml}
+                                </div>
+                            </div>
+                        `;
+                        grid.append(html);
+                    });
+
+                    // Re-apply current active filter
+                    let currentFilter = $('.btn-table-filter.active').data('filter') || 'all';
+                    if (currentFilter !== 'all') {
+                        $('.table-seat-card').hide();
+                        $(`.table-seat-card[data-status="${currentFilter}"]`).show();
+                    }
+                }
+            })
+            .always(function() {
+                setTimeout(function() {
+                    icon.removeClass('fa-spin');
+                }, 400);
+            });
+    }
+
+    // Auto-refresh tables periodically every 25 seconds
+    setInterval(refreshDashboardTables, 25000);
 </script>
 @endpush

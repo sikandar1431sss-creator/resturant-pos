@@ -312,7 +312,7 @@
                     <strong>Time:</strong> {{ date('h:i A', strtotime($penjualan->created_at ?? now())) }}
                 </td>
                 <td class="text-right">
-                    <strong>Customer:</strong> {{ !empty($penjualan->member->nama) ? $penjualan->member->nama : 'Walk-in' }}
+                    <strong>Customer:</strong> {{ !empty($penjualan->member->nama) ? $penjualan->member->nama : (!empty($penjualan->nama_pelanggan) ? $penjualan->nama_pelanggan : 'Walk-in') }}
                 </td>
             </tr>
             @if(!empty($penjualan->tipe_order) || !empty($penjualan->nomor_meja))
@@ -322,6 +322,13 @@
                 </td>
                 <td class="text-right">
                     <strong>Table:</strong> {{ $penjualan->nomor_meja ?? 'Table 1' }}
+                </td>
+            </tr>
+            @endif
+            @if(!empty($penjualan->alamat_pengiriman))
+            <tr>
+                <td colspan="2" style="font-size: 8pt; color: #222;">
+                    <strong>Delivery Address:</strong> {{ $penjualan->alamat_pengiriman }}
                 </td>
             </tr>
             @endif
@@ -347,7 +354,14 @@
             <tbody>
                 @foreach ($detail as $item)
                 <tr class="item-row">
-                    <td class="bold">{{ $item->produk->nama_produk ?? 'Item' }}</td>
+                    <td class="bold">
+                        {{ $item->produk->nama_produk ?? 'Item' }}
+                        @if(!empty($item->catatan))
+                            <div style="font-size: 7.5pt; font-weight: normal; color: #333; font-style: italic;">
+                                * {{ $item->catatan }}
+                            </div>
+                        @endif
+                    </td>
                     <td class="text-center">{{ $item->jumlah }}</td>
                     <td class="text-right">{{ format_uang($item->harga_jual) }}</td>
                     <td class="text-right bold">{{ format_uang($item->subtotal) }}</td>
@@ -372,6 +386,12 @@
                 <tr>
                     <td class="text-left">Discount</td>
                     <td class="text-right">-{{ $penjualan->diskon }}%</td>
+                </tr>
+                @endif
+                @if(($penjualan->ongkir ?? 0) > 0)
+                <tr>
+                    <td class="text-left">Delivery Fee</td>
+                    <td class="text-right">+{{ format_uang($penjualan->ongkir) }}</td>
                 </tr>
                 @endif
                 <tr class="grand-total-row">

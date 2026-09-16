@@ -8,14 +8,14 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
 
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Courier New', monospace;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Courier New', monospace;
             color: #000000;
         }
 
@@ -31,9 +31,10 @@
             max-width: 100%;
             margin: 0 auto;
             background: #ffffff;
-            padding: 14px 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            border-radius: 4px;
+            padding: 14px 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
         }
 
         .text-center { text-align: center; }
@@ -61,22 +62,18 @@
             font-size: 8.5pt;
             font-weight: 700;
             letter-spacing: 0.03em;
-            color: #333;
+            color: #222;
         }
 
-        /* Token Display Box */
+        /* Token Display Box - Clean Crisp Border */
         .token-box {
             border: 2px solid #000000;
-            background: #000000;
-            color: #ffffff !important;
+            background: #ffffff;
+            color: #000000;
             text-align: center;
             padding: 8px 4px;
             margin: 8px 0;
-            border-radius: 4px;
-        }
-
-        .token-box * {
-            color: #ffffff !important;
+            border-radius: 6px;
         }
 
         .token-label {
@@ -87,11 +84,12 @@
         }
 
         .token-number {
+            font-family: 'JetBrains Mono', monospace;
             font-size: 26pt;
             font-weight: 900;
-            line-height: 1;
-            letter-spacing: 0.05em;
-            margin: 2px 0;
+            line-height: 1.05;
+            letter-spacing: 0.04em;
+            margin: 3px 0;
         }
 
         .token-order-type {
@@ -124,11 +122,6 @@
             margin: 6px 0;
         }
 
-        .divider-double {
-            border-top: 3px double #000000;
-            margin: 6px 0;
-        }
-
         /* Items List */
         .items-table {
             width: 100%;
@@ -148,7 +141,7 @@
         .items-table td {
             padding: 6px 2px;
             vertical-align: top;
-            border-bottom: 1px dashed #ccc;
+            border-bottom: 1px dashed #bbb;
         }
 
         .item-qty-col {
@@ -156,13 +149,14 @@
             font-size: 14pt;
             font-weight: 900;
             text-align: center;
+            font-family: 'JetBrains Mono', monospace;
         }
 
         .item-name-col {
             font-size: 11pt;
             font-weight: 800;
             line-height: 1.25;
-            padding-left: 4px;
+            padding-left: 6px;
         }
 
         .item-category-tag {
@@ -172,6 +166,17 @@
             text-transform: uppercase;
             display: block;
             margin-top: 1px;
+        }
+
+        .item-cooking-note-ticket {
+            margin-top: 3px;
+            font-size: 8.5pt;
+            font-weight: 800;
+            border: 1px solid #000;
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
         }
 
         /* Notes Box */
@@ -215,17 +220,18 @@
         .btn-print-action {
             display: block;
             width: 100%;
-            background: #0f172a;
+            background: #ea580c;
             color: #ffffff !important;
             padding: 10px;
             text-align: center;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: 700;
             font-size: 12pt;
             text-decoration: none;
             cursor: pointer;
             border: none;
             margin-top: 14px;
+            box-shadow: 0 4px 10px rgba(234, 88, 12, 0.25);
         }
 
         @media print {
@@ -238,20 +244,12 @@
                 width: 100%;
                 max-width: 100%;
                 box-shadow: none;
+                border: none;
                 padding: 4px 0;
                 margin: 0;
             }
             .no-print {
                 display: none !important;
-            }
-            .token-box {
-                background: #000 !important;
-                color: #fff !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-            .token-box * {
-                color: #fff !important;
             }
         }
     </style>
@@ -265,7 +263,7 @@
             <div class="kot-subtitle">{{ strtoupper($setting->nama_perusahaan ?? 'FAST FOOD RESTAURANT') }}</div>
         </div>
 
-        <!-- Big Token Display -->
+        <!-- Clean Crisp Token Display -->
         <div class="token-box">
             <div class="token-label">KITCHEN TOKEN</div>
             <div class="token-number">#{{ tambah_nol_didepan($penjualan->id_penjualan, 3) }}</div>
@@ -291,6 +289,15 @@
             <tr>
                 <td colspan="2"><strong>Customer:</strong> {{ $penjualan->member->nama }}</td>
             </tr>
+            @elseif(!empty($penjualan->nama_pelanggan))
+            <tr>
+                <td colspan="2"><strong>Customer:</strong> {{ $penjualan->nama_pelanggan }} ({{ $penjualan->telepon_pelanggan ?? '' }})</td>
+            </tr>
+            @endif
+            @if(!empty($penjualan->alamat_pengiriman))
+            <tr>
+                <td colspan="2" style="font-size: 8.5pt; color: #333;"><strong>Address:</strong> {{ $penjualan->alamat_pengiriman }}</td>
+            </tr>
             @endif
         </table>
 
@@ -311,6 +318,11 @@
                         @if(!empty($item->produk->kategori->nama_kategori))
                             <span class="item-category-tag">[{{ $item->produk->kategori->nama_kategori }}]</span>
                         @endif
+                        @if(!empty($item->catatan))
+                            <div class="item-cooking-note-ticket">
+                                NOTE: {{ strtoupper($item->catatan) }}
+                            </div>
+                        @endif
                     </td>
                 </tr>
                 @endforeach
@@ -326,7 +338,7 @@
         <!-- Special Instructions / Notes -->
         @if(!empty($penjualan->catatan))
         <div class="kot-notes-box">
-            <div class="kot-notes-title">⚠️ SPECIAL INSTRUCTIONS:</div>
+            <div class="kot-notes-title">SPECIAL INSTRUCTIONS:</div>
             <div class="kot-notes-text">{{ $penjualan->catatan }}</div>
         </div>
         @endif
@@ -339,9 +351,10 @@
 
         <!-- Print Action Button (Hidden during print) -->
         <button onclick="window.print()" class="btn-print-action no-print">
-            🖨️ Print KOT Ticket
+            Print KOT Ticket
         </button>
     </div>
 
 </body>
 </html>
+

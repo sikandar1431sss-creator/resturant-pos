@@ -57,6 +57,39 @@
                 </div>
             </div>
         </div>
+
+        @if(isset($tables) && $tables->count() > 0)
+        <!-- Dining Table Status for Cashiers -->
+        <div class="box" style="margin-top: 20px; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <div class="box-header with-border" style="background: #ffffff; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
+                <h4 class="box-title" style="font-weight: 800; font-size: 15px; color: #0f172a; margin: 0;">
+                    <i class="fa fa-cutlery" style="color: #ea580c;"></i> Dining Tables Status
+                </h4>
+                <div style="display: flex; gap: 8px;">
+                    <span class="badge" style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-weight: 700; padding: 4px 10px; font-size: 11.5px;">
+                        {{ $free_tables ?? 0 }} Free
+                    </span>
+                    <span class="badge" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; font-weight: 700; padding: 4px 10px; font-size: 11.5px;">
+                        {{ $occupied_tables ?? 0 }} Occupied
+                    </span>
+                </div>
+            </div>
+            <div class="box-body" style="padding: 18px; background: #f8fafc;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;">
+                    @foreach($tables as $t)
+                        @php $isOcc = ($t->status === 'occupied'); @endphp
+                        <div style="background: {{ $isOcc ? '#fff5f5' : '#f0fdf4' }}; border: 1.5px solid {{ $isOcc ? '#fca5a5' : '#86efac' }}; border-radius: 8px; padding: 10px 12px; text-align: center;">
+                            <div style="font-weight: 800; font-size: 13px; color: #0f172a;">{{ $t->nomor_meja }}</div>
+                            <div style="font-size: 10.5px; color: #64748b; margin: 2px 0 6px 0;">{{ $t->kapasitas }} Seats</div>
+                            <span class="badge" style="background: {{ $isOcc ? '#b91c1c' : '#15803d' }}; color: #ffffff; font-size: 9.5px; font-weight: 800; padding: 2px 6px;">
+                                {{ $isOcc ? 'Occupied' : 'Free' }}
+                            </span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 @endsection
