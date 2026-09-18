@@ -1,7 +1,6 @@
 <footer class="main-footer">
     <div class="pull-right hidden-xs">
-        <b>Version</b> 1.0.00
+        <span class="text-muted"><i class="fa fa-desktop" style="color: #f97316;"></i> Restaurant Management Engine v2.0</span>
     </div>
-    <strong>&copy; {{ date('Y') }} <a href="/">{{ $setting->nama_perusahaan }}</a>.</strong> All rights
-    reserved.
+    <strong>&copy; {{ date('Y') }} <a href="{{ route('dashboard') }}" style="color: #f97316; font-weight: 700;">{{ $setting->nama_perusahaan ?? 'Restaurant POS' }}</a>.</strong> All rights reserved.
 </footer>

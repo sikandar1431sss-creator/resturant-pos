@@ -61,10 +61,11 @@
                 $.post($('#modal-form form').attr('action'), $('#modal-form form').serialize())
                     .done((response) => {
                         $('#modal-form').modal('hide');
+                        showSuccessToast('Expense saved successfully');
                         table.ajax.reload();
                     })
                     .fail((errors) => {
-                        alert('Unable to save data');
+                        showErrorToast('Unable to save expense data');
                         return;
                     });
             }
@@ -73,7 +74,7 @@
 
     function addForm(url) {
         $('#modal-form').modal('show');
-        $('#modal-form .modal-title').text('Add Expenses');
+        $('#modal-form .modal-title').text('Record Daily Expense');
 
         $('#modal-form form')[0].reset();
         $('#modal-form form').attr('action', url);
@@ -83,7 +84,7 @@
 
     function editForm(url) {
         $('#modal-form').modal('show');
-        $('#modal-form .modal-title').text('Edit Expenses');
+        $('#modal-form .modal-title').text('Edit Expense');
 
         $('#modal-form form')[0].reset();
         $('#modal-form form').attr('action', url);
@@ -96,25 +97,25 @@
                 $('#modal-form [name=nominal]').val(response.nominal);
             })
             .fail((errors) => {
-                alert('Unable to display data');
+                showErrorToast('Unable to display expense data');
                 return;
             });
     }
 
     function deleteData(url) {
-        if (confirm('Are you sure you want to delete selected data?')) {
+        showConfirmDialog('Delete Expense?', 'Are you sure you want to delete this expense entry?', 'Yes, delete', function() {
             $.post(url, {
                     '_token': $('[name=csrf-token]').attr('content'),
                     '_method': 'delete'
                 })
                 .done((response) => {
+                    showSuccessToast('Expense deleted successfully');
                     table.ajax.reload();
                 })
                 .fail((errors) => {
-                    alert('Unable to delete data');
-                    return;
+                    showErrorToast('Unable to delete expense');
                 });
-        }
+        });
     }
 </script>
 @endpush

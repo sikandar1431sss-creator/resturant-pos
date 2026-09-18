@@ -25,6 +25,17 @@ class SettingController extends Controller
         $setting->alamat = $request->alamat;
         $setting->diskon = $request->diskon;
         $setting->tipe_nota = $request->tipe_nota;
+        $setting->mata_uang = $request->mata_uang ?? 'PKR';
+        
+        $setting->show_sale_terms = $request->has('show_sale_terms') ? 1 : 0;
+        $setting->terms_title = $request->terms_title ?? 'شرائط و ضوابط';
+        $setting->terms_conditions = $request->terms_conditions;
+
+        $setting->show_purchase_terms = $request->has('show_purchase_terms') ? 1 : 0;
+        $setting->purchase_terms_title = $request->purchase_terms_title ?? 'خریداری رسید / سٹاک انوائس';
+        $setting->purchase_terms_conditions = $request->purchase_terms_conditions;
+
+        $setting->show_logo_receipt = $request->has('show_logo_receipt') ? 1 : 0;
 
         if ($request->hasFile('path_logo')) {
             $file = $request->file('path_logo');

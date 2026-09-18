@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Kategori;
+use App\Models\Meja;
 use App\Models\Member;
 use App\Models\Penjualan;
 use App\Models\PenjualanDetail;
@@ -13,68 +15,98 @@ class PenjualanDetailController extends Controller
 {
     public function index()
     {
-        $produk = Produk::orderBy('nama_produk')->get();
+        $produk = Produk::with('kategori')->orderBy('nama_produk')->get();
+        $kategori = Kategori::all();
+        $brands = Produk::whereNotNull('merk')->where('merk', '!=', '')->distinct()->pluck('merk');
         $member = Member::orderBy('nama')->get();
         $diskon = Setting::first()->diskon ?? 0;
+        // Synchronize table occupancy with live active orders
+        Meja::syncStatuses();
+        $mejaList = Meja::orderBy('id_meja')->get();
 
         // Check whether there are any transactions in progress
         if ($id_penjualan = session('id_penjualan')) {
             $penjualan = Penjualan::find($id_penjualan);
-            $memberSelected = $penjualan->member ?? new Member();
-
-            return view('penjualan_detail.index', compact('produk', 'member', 'diskon', 'id_penjualan', 'penjualan', 'memberSelected'));
-        } else {
-            if (auth()->user()->level == 1) {
+            if (! $penjualan) {
                 return redirect()->route('transaksi.baru');
-            } else {
-                return redirect()->route('home');
             }
+
+            // If Dine-In and table is occupied by ANOTHER transaction (and not editing an existing completed bill)
+            if ($penjualan->tipe_order === 'Dine-In' && !session('is_editing')) {
+                $isOccupiedByOther = Penjualan::where('tipe_order', 'Dine-In')
+                    ->where('nomor_meja', $penjualan->nomor_meja)
+                    ->where('id_penjualan', '!=', $penjualan->id_penjualan)
+                    ->where('total_item', '>', 0)
+                    ->where(function($q) {
+                        $q->where('status_pembayaran', '!=', 'paid')
+                          ->orWhere('diterima', '<', \Illuminate\Support\Facades\DB::raw('bayar'));
+                    })
+                    ->exists();
+
+                if ($isOccupiedByOther) {
+                    $firstFree = Meja::where('status', 'available')->orderBy('id_meja')->first();
+                    if ($firstFree) {
+                        $penjualan->nomor_meja = $firstFree->nomor_meja;
+                        $penjualan->update();
+                    }
+                }
+            }
+
+            $memberSelected = $penjualan->member ?? new Member();
+            $isEditMode = session('is_editing', false) || ($penjualan->total_item > 0 && session()->has('is_editing'));
+            $invoiceDiskon = $penjualan->diskon > 0 ? $penjualan->diskon : $diskon;
+
+            return view('penjualan_detail.index', compact('produk', 'kategori', 'brands', 'member', 'diskon', 'invoiceDiskon', 'id_penjualan', 'penjualan', 'memberSelected', 'isEditMode', 'mejaList'));
+        } else {
+            return redirect()->route('transaksi.baru');
         }
     }
 
     public function data($id)
     {
-        $detail = PenjualanDetail::with('produk')
+        $detail = PenjualanDetail::with('produk.kategori')
             ->where('id_penjualan', $id)
             ->get();
 
-        $data = array();
+        $items = [];
         $total = 0;
         $total_item = 0;
+        $product_discount = 0;
 
         foreach ($detail as $item) {
-            $row = array();
-            $row['kode_produk'] = '<span class="label label-success">'. $item->produk['kode_produk'] .'</span';
-            $row['nama_produk'] = $item->produk['nama_produk'];
-            $row['harga_jual']  = '$ '. format_uang($item->harga_jual);
-            $row['jumlah']      = '<input type="number" class="form-control input-sm quantity" data-id="'. $item->id_penjualan_detail .'" value="'. $item->jumlah .'">';
-            $row['diskon']      = $item->diskon . '%';
-            $row['subtotal']    = '$ '. format_uang($item->subtotal);
-            $row['aksi']        = '<div class="btn-group">
-                                    <button onclick="deleteData(`'. route('transaksi.destroy', $item->id_penjualan_detail) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
-                                </div>';
-            $data[] = $row;
+            $subtotal = $item->subtotal;
+            $original = $item->harga_jual * $item->jumlah;
+            $item_discount = $original - $subtotal;
+            $product_discount += $item_discount;
 
-            $total += $item->harga_jual * $item->jumlah - (($item->diskon * $item->jumlah) / 100 * $item->harga_jual);;
+            $items[] = [
+                'id_detail' => $item->id_penjualan_detail,
+                'id_produk' => $item->id_produk,
+                'nama_produk' => $item->produk['nama_produk'] ?? 'Food Item',
+                'kode_produk' => $item->produk['kode_produk'] ?? 'ITEM',
+                'harga_jual' => format_uang($item->harga_jual),
+                'harga_raw' => $item->harga_jual,
+                'jumlah' => $item->jumlah,
+                'diskon' => $item->diskon,
+                'catatan' => $item->catatan ?? '',
+                'subtotal' => format_uang($item->subtotal),
+                'subtotal_raw' => $item->subtotal,
+                'delete_url' => route('transaksi.destroy', $item->id_penjualan_detail)
+            ];
+
+            $total += $item->subtotal;
             $total_item += $item->jumlah;
         }
-        $data[] = [
-            'kode_produk' => '
-                <div class="total hide">'. $total .'</div>
-                <div class="total_item hide">'. $total_item .'</div>',
-            'nama_produk' => '',
-            'harga_jual'  => '',
-            'jumlah'      => '',
-            'diskon'      => '',
-            'subtotal'    => '',
-            'aksi'        => '',
-        ];
 
-        return datatables()
-            ->of($data)
-            ->addIndexColumn()
-            ->rawColumns(['aksi', 'kode_produk', 'jumlah'])
-            ->make(true);
+        return response()->json([
+            'items' => $items,
+            'total' => $total,
+            'total_rp' => format_uang($total),
+            'total_item' => $total_item,
+            'product_discount' => $product_discount,
+            'product_discount_rp' => format_uang($product_discount),
+            'currency_symbol' => get_currency_symbol()
+        ]);
     }
 
     public function store(Request $request)
@@ -84,30 +116,46 @@ class PenjualanDetailController extends Controller
             return response()->json('Data failed to save', 400);
         }
 
-        $detail = new PenjualanDetail();
-        $detail->id_penjualan = $request->id_penjualan;
-        $detail->id_produk = $produk->id_produk;
-        $detail->harga_jual = $produk->harga_jual;
-        $detail->jumlah = 1;
-        $detail->diskon = $produk->diskon;
-        $detail->subtotal = $produk->harga_jual - ($produk->diskon / 100 * $produk->harga_jual);;
-        $detail->save();
+        // Auto-increment quantity if product already exists in this cart
+        $existingDetail = PenjualanDetail::where('id_penjualan', $request->id_penjualan)
+            ->where('id_produk', $produk->id_produk)
+            ->first();
+
+        if ($existingDetail) {
+            $existingDetail->jumlah += 1;
+            $existingDetail->subtotal = $existingDetail->harga_jual * $existingDetail->jumlah - (($existingDetail->diskon * $existingDetail->jumlah) / 100 * $existingDetail->harga_jual);
+            $existingDetail->update();
+        } else {
+            $detail = new PenjualanDetail();
+            $detail->id_penjualan = $request->id_penjualan;
+            $detail->id_produk = $produk->id_produk;
+            $detail->harga_jual = $produk->harga_jual;
+            $detail->jumlah = 1;
+            $detail->diskon = $produk->diskon;
+            $detail->subtotal = $produk->harga_jual - ($produk->diskon / 100 * $produk->harga_jual);
+            $detail->save();
+        }
 
         return response()->json('Data saved successfully', 200);
     }
-    // visit "codeastro" for more projects!
+
     public function update(Request $request, $id)
     {
         $detail = PenjualanDetail::find($id);
-        $detail->jumlah = $request->jumlah;
-        $detail->subtotal = $detail->harga_jual * $request->jumlah - (($detail->diskon * $request->jumlah) / 100 * $detail->harga_jual);;
-        $detail->update();
+        if ($detail) {
+            $detail->jumlah = max(1, (int) $request->jumlah);
+            $detail->subtotal = $detail->harga_jual * $detail->jumlah - (($detail->diskon * $detail->jumlah) / 100 * $detail->harga_jual);
+            $detail->update();
+        }
+        return response()->json('Updated', 200);
     }
 
     public function destroy($id)
     {
         $detail = PenjualanDetail::find($id);
-        $detail->delete();
+        if ($detail) {
+            $detail->delete();
+        }
 
         return response(null, 204);
     }
@@ -120,12 +168,24 @@ class PenjualanDetailController extends Controller
             'totalrp' => format_uang($total),
             'bayar' => $bayar,
             'bayarrp' => format_uang($bayar),
-            'terbilang' => ucwords(terbilang($bayar). ' Dollar'),
+            'terbilang' => ucwords(terbilang($bayar)),
             'kembalirp' => format_uang($kembali),
-            'kembali_terbilang' => ucwords(terbilang($kembali). ' Dollar'),
+            'kembali_terbilang' => ucwords(terbilang($kembali)),
         ];
 
         return response()->json($data);
     }
+
+    public function updateNote(Request $request, $id)
+    {
+        $detail = PenjualanDetail::findOrFail($id);
+        $detail->catatan = $request->catatan;
+        $detail->update();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Cooking instruction saved',
+            'catatan' => $detail->catatan
+        ], 200);
+    }
 }
-// visit "codeastro" for more projects!

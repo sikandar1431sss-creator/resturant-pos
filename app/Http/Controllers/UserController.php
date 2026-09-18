@@ -4,117 +4,157 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     public function index()
     {
-        return view('user.index');
+        $roles = Role::orderBy('id', 'asc')->get();
+        return view('user.index', compact('roles'));
     }
 
     public function data()
     {
-        $user = User::isNotAdmin()->orderBy('id', 'desc')->get();
+        $user = User::with('roles')->orderBy('id', 'desc')->get();
 
         return datatables()
             ->of($user)
             ->addIndexColumn()
+            ->addColumn('role_badge', function ($user) {
+                $roleObj = $user->roles->first();
+                $role = $roleObj ? $roleObj->name : ($user->level == 1 ? 'admin' : 'cashier');
+                
+                if ($role === 'admin') {
+                    return '<span class="badge" style="background:#dc2626;color:#fff;padding:4px 9px;border-radius:4px;font-weight:700;"><i class="fa fa-shield"></i> Admin / Owner</span>';
+                } elseif ($role === 'manager') {
+                    return '<span class="badge" style="background:#ea580c;color:#fff;padding:4px 9px;border-radius:4px;font-weight:700;"><i class="fa fa-briefcase"></i> Manager</span>';
+                } elseif ($role === 'cashier') {
+                    return '<span class="badge" style="background:#16a34a;color:#fff;padding:4px 9px;border-radius:4px;font-weight:700;"><i class="fa fa-shopping-cart"></i> Cashier</span>';
+                } elseif ($role === 'kitchen') {
+                    return '<span class="badge" style="background:#d97706;color:#fff;padding:4px 9px;border-radius:4px;font-weight:700;"><i class="fa fa-cutlery"></i> Kitchen Chef</span>';
+                } elseif ($role === 'waiter') {
+                    return '<span class="badge" style="background:#0284c7;color:#fff;padding:4px 9px;border-radius:4px;font-weight:700;"><i class="fa fa-user"></i> Waiter</span>';
+                }
+                
+                return '<span class="badge" style="background:#6366f1;color:#fff;padding:4px 9px;border-radius:4px;font-weight:700;"><i class="fa fa-id-badge"></i> ' . ucfirst(str_replace('_', ' ', $role)) . '</span>';
+            })
             ->addColumn('aksi', function ($user) {
                 return '
-                <div class="btn-group">
-                    <button type="button" onclick="editForm(`'. route('user.update', $user->id) .'`)" class="btn btn-xs btn-primary btn-flat"><i class="fa fa-pencil"></i></button>
-                    <button type="button" onclick="deleteData(`'. route('user.destroy', $user->id) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
+                <div class="table-actions-group">
+                    <button type="button" onclick="editForm(`'. route('user.show', $user->id) .'`, `'. route('user.update', $user->id) .'`)" class="btn-table-action btn-edit" title="Edit Staff"><i class="fa fa-pencil"></i></button>
+                    <button type="button" onclick="deleteData(`'. route('user.destroy', $user->id) .'`)" class="btn-table-action btn-delete" title="Delete Staff"><i class="fa fa-trash"></i></button>
                 </div>
                 ';
             })
-            ->rawColumns(['aksi'])
+            ->rawColumns(['role_badge', 'aksi'])
             ->make(true);
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6|confirmed',
+            'role' => 'required|string',
+        ]);
+
+        $roleName = $request->role ?? 'cashier';
+        $level = ($roleName === 'admin') ? 1 : 2;
+
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = bcrypt($request->password);
-        $user->level = 2;
+        $user->level = $level;
         $user->foto = '/img/user.png';
         $user->save();
 
-        return response()->json('Data saved successfully', 200);
+        $user->assignRole($roleName);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Staff user created successfully'
+        ], 200);
     }
 
     /**
      * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        $user = User::find($id);
+        $user = User::with('roles')->findOrFail($id);
+        $roleName = $user->roles->first()->name ?? ($user->level == 1 ? 'admin' : 'cashier');
 
-        return response()->json($user);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $roleName,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-        $user = User::find($id);
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ]);
+
         $user->name = $request->name;
         $user->email = $request->email;
-        if ($request->has('password') && $request->password != "") 
-            $user->password = bcrypt($request->password);
-        $user->update();
 
-        return response()->json('Data saved successfully', 200);
+        if ($request->has('role') && !empty($request->role)) {
+            $roleName = $request->role;
+            $user->level = ($roleName === 'admin') ? 1 : 2;
+            $user->syncRoles([$roleName]);
+        }
+
+        if ($request->filled('password')) {
+            $request->validate([
+                'password' => 'min:6|confirmed'
+            ]);
+            $user->password = bcrypt($request->password);
+        }
+        
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Staff user updated successfully'
+        ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        $user = User::find($id)->delete();
+        $user = User::findOrFail($id);
 
-        return response(null, 204);
+        if ($user->id === auth()->id()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You cannot delete your own logged-in account.'
+            ], 422);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Staff user deleted successfully'
+        ], 200);
     }
 
     public function profil()

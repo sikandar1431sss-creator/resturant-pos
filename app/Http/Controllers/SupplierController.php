@@ -15,19 +15,41 @@ class SupplierController extends Controller
     public function data()
     {
         $supplier = Supplier::orderBy('id_supplier', 'desc')->get();
+        $allPurchases = \App\Models\Pembelian::all();
 
         return datatables()
             ->of($supplier)
             ->addIndexColumn()
+            ->addColumn('po_count', function ($item) use ($allPurchases) {
+                $count = $allPurchases->where('id_supplier', $item->id_supplier)->count();
+                return '<span class="badge" style="background:#0f172a; color:#fff; font-weight:700; font-size:11px; padding:3px 8px;">' . number_format($count) . '</span>';
+            })
+            ->addColumn('due_balance', function ($item) use ($allPurchases) {
+                $purchases = $allPurchases->where('id_supplier', $item->id_supplier);
+                $billed = $purchases->sum(function ($p) {
+                    $discountAmt = ($p->diskon ?? 0) / 100 * $p->total_harga;
+                    return $p->total_harga - $discountAmt;
+                });
+                $paid = $purchases->sum('bayar');
+                $due = max(0, $billed - $paid);
+
+                if ($due > 0.01) {
+                    return '<span class="label label-danger" style="font-weight:800; font-size:11.5px; padding:3px 8px; border-radius:4px;">Due: ' . format_currency($due) . '</span>';
+                }
+                return '<span class="label label-success" style="font-weight:700; font-size:11px; padding:3px 8px; border-radius:4px;">Clear</span>';
+            })
             ->addColumn('aksi', function ($supplier) {
                 return '
-                <div class="btn-group">
-                    <button type="button" onclick="editForm(`'. route('supplier.update', $supplier->id_supplier) .'`)" class="btn btn-xs btn-primary btn-flat"><i class="fa fa-pencil"></i></button>
-                    <button type="button" onclick="deleteData(`'. route('supplier.destroy', $supplier->id_supplier) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
+                <div class="table-actions-group">
+                    <a href="'. route('ledger.supplier.statement', $supplier->id_supplier) .'" class="btn btn-xs btn-primary btn-flat" style="border-radius:6px; font-weight:700; padding:4px 10px; background:#0284c7; border-color:#0284c7; display:inline-flex; align-items:center; gap:5px; text-decoration:none;" title="View Supplier Account Ledger">
+                        <i class="fa fa-book"></i> Ledger
+                    </a>
+                    <button type="button" onclick="editForm(`'. route('supplier.update', $supplier->id_supplier) .'`)" class="btn-table-action btn-edit" title="Edit Supplier"><i class="fa fa-pencil"></i></button>
+                    <button type="button" onclick="deleteData(`'. route('supplier.destroy', $supplier->id_supplier) .'`)" class="btn-table-action btn-delete" title="Delete Supplier"><i class="fa fa-trash"></i></button>
                 </div>
                 ';
             })
-            ->rawColumns(['aksi'])
+            ->rawColumns(['aksi', 'po_count', 'due_balance'])
             ->make(true);
     }
 

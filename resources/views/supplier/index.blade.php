@@ -17,13 +17,15 @@
                 <button onclick="addForm('{{ route('supplier.store') }}')" class="btn btn-success btn-flat"><i class="fa fa-plus-circle"></i> Add New Supplier</button>
             </div>
             <div class="box-body table-responsive">
-                <table class="table table-stiped table-bordered table-hover">
-                    <thead>
-                        <th width="5%">#</th>
-                        <th>Name</th>
+                <table class="table table-striped table-bordered table-hover">
+                    <thead style="background: #f8fafc;">
+                        <th width="4%">#</th>
+                        <th>Supplier Name</th>
                         <th>Telephone</th>
                         <th>Address</th>
-                        <th width="15%"><i class="fa fa-cog"></i></th>
+                        <th width="8%">POs</th>
+                        <th width="14%">Due Status</th>
+                        <th width="18%"><i class="fa fa-cog"></i></th>
                     </thead>
                 </table>
             </div>
@@ -52,6 +54,8 @@
                 {data: 'nama'},
                 {data: 'telepon'},
                 {data: 'alamat'},
+                {data: 'po_count'},
+                {data: 'due_balance'},
                 {data: 'aksi', searchable: false, sortable: false},
             ]
         });
@@ -61,10 +65,11 @@
                 $.post($('#modal-form form').attr('action'), $('#modal-form form').serialize())
                     .done((response) => {
                         $('#modal-form').modal('hide');
+                        showSuccessToast('Supplier saved successfully');
                         table.ajax.reload();
                     })
                     .fail((errors) => {
-                        alert('Unable to save data');
+                        showErrorToast('Unable to save supplier data');
                         return;
                     });
             }
@@ -73,7 +78,7 @@
 
     function addForm(url) {
         $('#modal-form').modal('show');
-        $('#modal-form .modal-title').text('Add Supplier');
+        $('#modal-form .modal-title').text('Add Food Supplier');
 
         $('#modal-form form')[0].reset();
         $('#modal-form form').attr('action', url);
@@ -83,7 +88,7 @@
 
     function editForm(url) {
         $('#modal-form').modal('show');
-        $('#modal-form .modal-title').text('Edit Supplier');
+        $('#modal-form .modal-title').text('Edit Food Supplier');
 
         $('#modal-form form')[0].reset();
         $('#modal-form form').attr('action', url);
@@ -97,25 +102,25 @@
                 $('#modal-form [name=alamat]').val(response.alamat);
             })
             .fail((errors) => {
-                alert('Unable to display data');
+                showErrorToast('Unable to display supplier data');
                 return;
             });
     }
 
     function deleteData(url) {
-        if (confirm('Are you sure you want to delete selected data?')) {
+        showConfirmDialog('Delete Supplier?', 'Are you sure you want to delete this supplier?', 'Yes, delete', function() {
             $.post(url, {
                     '_token': $('[name=csrf-token]').attr('content'),
                     '_method': 'delete'
                 })
                 .done((response) => {
+                    showSuccessToast('Supplier deleted successfully');
                     table.ajax.reload();
                 })
                 .fail((errors) => {
-                    alert('Unable to delete data');
-                    return;
+                    showErrorToast('Unable to delete supplier');
                 });
-        }
+        });
     }
 </script>
 @endpush
