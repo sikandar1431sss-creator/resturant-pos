@@ -84,7 +84,6 @@
                     url: $('#modal-form form').attr('action'),
                     type: 'post',
                     data: new FormData($('#modal-form form')[0]),
-                    async: false,
                     processData: false,
                     contentType: false
                 })

@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('title')
-Kitchen Orders Monitor
+Kitchen Orders
 @endsection
 
 @push('css')
@@ -10,24 +10,49 @@ Kitchen Orders Monitor
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
 
 <style>
-    body {
-        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background-color: #f8fafc;
+    /* Hide AdminLTE default duplicate content-header */
+    .content-header {
+        display: none !important;
     }
 
-    /* KPI Summary Stats Cards - Ultra Clean */
+    .kitchen-page-wrapper {
+        margin-top: 5px;
+    }
+
+    /* Top Page Header */
+    .kitchen-top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .kitchen-heading {
+        margin: 0;
+        font-weight: 800;
+        color: #0f172a;
+        font-size: 22px;
+        letter-spacing: -0.02em;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* KPI Summary Stats Cards */
     .kpi-row-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 16px;
-        margin-bottom: 22px;
+        gap: 14px;
+        margin-bottom: 18px;
     }
 
     .kpi-stat-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 12px;
-        padding: 16px 20px;
+        padding: 14px 18px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
         display: flex;
         flex-direction: column;
@@ -38,101 +63,110 @@ Kitchen Orders Monitor
     .kpi-stat-card:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
-        border-color: #cbd5e1;
     }
 
     .kpi-stat-title {
-        font-size: 12px;
+        font-size: 11.5px;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.04em;
         color: #64748b;
-        margin-bottom: 6px;
+        margin-bottom: 4px;
     }
 
     .kpi-stat-num {
-        font-size: 30px;
-        font-weight: 800;
+        font-size: 26px;
+        font-weight: 900;
         color: #0f172a;
-        line-height: 1;
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        line-height: 1.1;
     }
 
-    .card-active-kot {
-        border-top: 3px solid #ea580c;
-    }
-    .card-busy-tables {
-        border-top: 3px solid #2563eb;
-    }
-    .card-delivery-orders {
-        border-top: 3px solid #16a34a;
-    }
-    .card-total-kots {
-        border-top: 3px solid #7c3aed;
-    }
+    .card-active-kot { border-top: 3px solid #ea580c; }
+    .card-busy-tables { border-top: 3px solid #2563eb; }
+    .card-delivery-orders { border-top: 3px solid #16a34a; }
+    .card-total-kots { border-top: 3px solid #7c3aed; }
 
-    /* Filter & Controls Bar */
-    .kds-control-card {
+    /* Filter & Controls Card */
+    .filter-panel-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 12px;
-        padding: 12px 18px;
-        margin-bottom: 20px;
+        padding: 14px 18px;
+        margin-bottom: 18px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .filter-panel-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 12px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        gap: 10px;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f1f5f9;
     }
 
-    .type-pills-group {
+    .filter-panel-title {
+        font-size: 14px;
+        font-weight: 800;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .quick-preset-group {
         display: flex;
-        gap: 8px;
+        align-items: center;
+        gap: 6px;
         flex-wrap: wrap;
     }
 
-    .btn-type-pill {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        color: #475569;
-        font-size: 13px;
+    .btn-quick-preset {
+        font-size: 11.5px;
         font-weight: 700;
-        padding: 6px 16px;
-        border-radius: 8px;
+        padding: 4px 11px;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #475569;
         cursor: pointer;
         transition: all 0.15s ease;
     }
 
-    .btn-type-pill:hover {
-        background: #f1f5f9;
+    .btn-quick-preset:hover {
+        background: #e2e8f0;
         color: #0f172a;
-        border-color: #cbd5e1;
     }
 
-    .btn-type-pill.active {
+    .btn-quick-preset.active {
         background: #ea580c;
+        border-color: #ea580c;
         color: #ffffff;
-        border-color: #ea580c;
-        box-shadow: 0 2px 8px rgba(234, 88, 12, 0.2);
+        box-shadow: 0 2px 6px rgba(234, 88, 12, 0.25);
     }
 
-    .kds-search-input {
-        padding: 6px 14px;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-        background: #f8fafc;
-        font-size: 13px;
-        color: #0f172a;
-        outline: none;
-        min-width: 220px;
-        transition: all 0.15s ease;
+    .filter-form-label {
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #475569;
+        margin-bottom: 4px;
+        display: block;
     }
 
-    .kds-search-input:focus {
-        background: #ffffff;
+    .filter-form-control {
+        height: 36px;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        font-size: 12px;
+        font-weight: 600;
+        color: #1e293b;
+        box-shadow: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .filter-form-control:focus {
         border-color: #ea580c;
-        box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+        box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
     }
 
     .live-status-badge {
@@ -164,7 +198,7 @@ Kitchen Orders Monitor
 
     .btn-refresh-kds {
         background: #ffffff;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #cbd5e1;
         color: #334155;
         font-size: 12.5px;
         font-weight: 700;
@@ -176,15 +210,15 @@ Kitchen Orders Monitor
 
     .btn-refresh-kds:hover {
         background: #f8fafc;
-        border-color: #cbd5e1;
         color: #0f172a;
     }
 
-    /* Live Orders Grid */
+    /* Orders Grid */
     .kitchen-orders-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
         gap: 16px;
+        margin-bottom: 20px;
     }
 
     /* Order Card */
@@ -410,107 +444,341 @@ Kitchen Orders Monitor
         border-radius: 12px;
         color: #64748b;
     }
+
+    /* Pagination Bar */
+    .kitchen-pagination-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    .pagination-info-text {
+        font-size: 13px;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    .pagination-btn-group {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+
+    .btn-page-nav {
+        padding: 6px 12px;
+        font-size: 12.5px;
+        font-weight: 700;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        color: #334155;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .btn-page-nav:hover:not(:disabled) {
+        background: #f1f5f9;
+        color: #0f172a;
+        border-color: #cbd5e1;
+    }
+
+    .btn-page-nav.active {
+        background: #ea580c;
+        border-color: #ea580c;
+        color: #ffffff;
+        box-shadow: 0 2px 6px rgba(234, 88, 12, 0.25);
+    }
+
+    .btn-page-nav:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
 </style>
 @endpush
 
-@section('breadcrumb')
-    @parent
-    <li class="active">Kitchen Orders Monitor</li>
-@endsection
-
 @section('content')
-<!-- KPI Row Grid -->
-<div class="kpi-row-grid">
-    <div class="kpi-stat-card card-active-kot">
-        <span class="kpi-stat-title">Active In Kitchen</span>
-        <span class="kpi-stat-num" id="kpiActiveCount">{{ $activeOrdersCount }}</span>
+<div class="kitchen-page-wrapper">
+    <!-- Top Bar -->
+    <div class="kitchen-top-bar">
+        <div>
+            <h2 class="kitchen-heading">
+                Kitchen Orders
+            </h2>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="live-status-badge">
+                <span class="pulse-dot"></span> Live Sync (10s)
+            </span>
+            <button type="button" class="btn-refresh-kds" onclick="fetchOrders(1, true)">
+                <i class="fa fa-refresh"></i> Refresh
+            </button>
+        </div>
     </div>
 
-    <div class="kpi-stat-card card-busy-tables">
-        <span class="kpi-stat-title">Dine-In Tables Busy</span>
-        <span class="kpi-stat-num" id="kpiBusyTables">{{ $dineInCount }}</span>
+    <!-- KPI Row Grid -->
+    <div class="kpi-row-grid">
+        <div class="kpi-stat-card card-active-kot">
+            <span class="kpi-stat-title">Active In Kitchen</span>
+            <span class="kpi-stat-num" id="kpiActiveCount">{{ $activeOrdersCount }}</span>
+        </div>
+
+        <div class="kpi-stat-card card-busy-tables">
+            <span class="kpi-stat-title">Dine-In Tables Busy</span>
+            <span class="kpi-stat-num" id="kpiBusyTables">{{ $dineInCount }}</span>
+        </div>
+
+        <div class="kpi-stat-card card-delivery-orders">
+            <span class="kpi-stat-title">Delivery Orders</span>
+            <span class="kpi-stat-num" id="kpiDeliveryCount">{{ $deliveryCount }}</span>
+        </div>
+
+        <div class="kpi-stat-card card-total-kots">
+            <span class="kpi-stat-title">Matching Orders</span>
+            <span class="kpi-stat-num" id="kpiTodayTotal">{{ $todayTotalCount }}</span>
+        </div>
     </div>
 
-    <div class="kpi-stat-card card-delivery-orders">
-        <span class="kpi-stat-title">Delivery Orders</span>
-        <span class="kpi-stat-num" id="kpiDeliveryCount">{{ $deliveryCount }}</span>
+    <!-- Filter & Date Controls Card -->
+    <div class="filter-panel-card">
+        <div class="filter-panel-header">
+            <h4 class="filter-panel-title">Filters &amp; Date Range</h4>
+            <div class="quick-preset-group">
+                <span style="font-size: 12px; font-weight: 700; color: #64748b; margin-right: 4px;">Quick Dates:</span>
+                <button type="button" class="btn-quick-preset active" data-preset="today">Today</button>
+                <button type="button" class="btn-quick-preset" data-preset="yesterday">Yesterday</button>
+                <button type="button" class="btn-quick-preset" data-preset="week">This Week</button>
+                <button type="button" class="btn-quick-preset" data-preset="month">This Month</button>
+                <button type="button" class="btn-quick-preset" data-preset="all">All Time</button>
+                <button type="button" id="btnResetKitchenFilter" class="btn-quick-preset" style="color: #ef4444; border-color: #fca5a5; background: #ffffff;">Reset</button>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 4px;">
+            <!-- Start Date -->
+            <div class="col-md-2 col-sm-4 col-xs-6" style="margin-bottom: 10px;">
+                <label class="filter-form-label">From Date</label>
+                <input type="date" id="kitchen_start_date" class="form-control filter-form-control">
+            </div>
+
+            <!-- End Date -->
+            <div class="col-md-2 col-sm-4 col-xs-6" style="margin-bottom: 10px;">
+                <label class="filter-form-label">To Date</label>
+                <input type="date" id="kitchen_end_date" class="form-control filter-form-control">
+            </div>
+
+            <!-- Status Tab -->
+            <div class="col-md-2 col-sm-4 col-xs-6" style="margin-bottom: 10px;">
+                <label class="filter-form-label">Status Tab</label>
+                <select id="kitchen_status_tab" class="form-control filter-form-control">
+                    <option value="active" selected>Active Orders</option>
+                    <option value="all">All Orders</option>
+                </select>
+            </div>
+
+            <!-- Order / Dining Type -->
+            <div class="col-md-2 col-sm-4 col-xs-6" style="margin-bottom: 10px;">
+                <label class="filter-form-label">Order Type</label>
+                <select id="kitchen_order_type" class="form-control filter-form-control">
+                    <option value="all" selected>All Types</option>
+                    <option value="Dine-In">Dine-In</option>
+                    <option value="Takeaway">Takeaway</option>
+                    <option value="Delivery">Delivery</option>
+                </select>
+            </div>
+
+            <!-- Search -->
+            <div class="col-md-4 col-sm-8 col-xs-12" style="margin-bottom: 10px;">
+                <label class="filter-form-label">Search</label>
+                <input type="text" id="kitchenSearchInput" class="form-control filter-form-control" placeholder="Search Token / Table / Invoice / Customer...">
+            </div>
+        </div>
     </div>
 
-    <div class="kpi-stat-card card-total-kots">
-        <span class="kpi-stat-title">Today's Total KOTs</span>
-        <span class="kpi-stat-num" id="kpiTodayTotal">{{ $todayTotalCount }}</span>
-    </div>
-</div>
-
-<!-- Controls & Filters Toolbar -->
-<div class="kds-control-card">
-    <div class="type-pills-group">
-        <button type="button" class="btn-type-pill active" data-type="all" onclick="setTypeFilter('all')">
-            All Orders
-        </button>
-        <button type="button" class="btn-type-pill" data-type="Dine-In" onclick="setTypeFilter('Dine-In')">
-            Dine-In
-        </button>
-        <button type="button" class="btn-type-pill" data-type="Takeaway" onclick="setTypeFilter('Takeaway')">
-            Takeaway
-        </button>
-        <button type="button" class="btn-type-pill" data-type="Delivery" onclick="setTypeFilter('Delivery')">
-            Delivery
-        </button>
+    <!-- Orders Grid -->
+    <div class="kitchen-orders-grid" id="kitchenOrdersGrid">
+        <div class="empty-kitchen-box">
+            <h4 style="font-weight: 700; color: #334155; margin: 0;">Loading kitchen orders...</h4>
+        </div>
     </div>
 
-    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-        <input type="text" id="kdsSearchInput" class="kds-search-input" placeholder="Search Token / Table / Invoice..." onkeyup="filterKitchenCards()">
+    <!-- Pagination Footer -->
+    <div class="kitchen-pagination-card" id="kitchenPaginationCard" style="display: none;">
+        <div class="pagination-info-text" id="kitchenPaginationInfo">
+            Showing 0 to 0 of 0 orders
+        </div>
 
-        <span class="live-status-badge">
-            <span class="pulse-dot"></span> Live Sync (10s)
-        </span>
-        <button type="button" class="btn-refresh-kds" onclick="fetchOrders(true)" title="Refresh Now">
-            Refresh
-        </button>
-    </div>
-</div>
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: #64748b;">
+                <span>Per Page:</span>
+                <select id="kitchenPerPage" class="form-control" style="width: 70px; height: 32px; border-radius: 6px; font-size: 12px; font-weight: 700; padding: 2px 6px;">
+                    <option value="6">6</option>
+                    <option value="9" selected>9</option>
+                    <option value="12">12</option>
+                    <option value="18">18</option>
+                </select>
+            </div>
 
-<!-- Orders Grid -->
-<div class="kitchen-orders-grid" id="kitchenOrdersGrid">
-    <div class="empty-kitchen-box">
-        <h4 style="font-weight: 700; color: #334155; margin: 0;">Loading kitchen orders...</h4>
+            <div class="pagination-btn-group" id="kitchenPaginationBtns">
+                <!-- Page navigation buttons dynamically inserted -->
+            </div>
+        </div>
     </div>
 </div>
 @endsection
 
 @push('scripts')
 <script>
-    let currentType = 'all';
-    let cachedOrders = [];
+    let currentPage = 1;
+    let lastPage = 1;
+    let autoRefreshTimer = null;
 
     $(function() {
-        fetchOrders();
-        // Silent auto-refresh every 10 seconds
-        setInterval(function() {
-            fetchOrders(false);
+        // Default today's date in inputs
+        let todayStr = getTodayFormatted();
+        $('#kitchen_start_date').val(todayStr);
+        $('#kitchen_end_date').val(todayStr);
+
+        fetchOrders(1);
+
+        // Auto sync every 10s
+        autoRefreshTimer = setInterval(function() {
+            fetchOrders(currentPage, false);
         }, 10000);
+
+        // Real-time filter listeners
+        $('#kitchen_start_date, #kitchen_end_date').on('change', function() {
+            $('.btn-quick-preset').removeClass('active');
+            fetchOrders(1, true);
+        });
+
+        $('#kitchen_status_tab, #kitchen_order_type, #kitchenPerPage').on('change', function() {
+            fetchOrders(1, true);
+        });
+
+        // Search with debounce
+        let searchTimeout;
+        $('#kitchenSearchInput').on('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function() {
+                fetchOrders(1, true);
+            }, 300);
+        });
+
+        // Quick Preset handler
+        $('.btn-quick-preset').on('click', function() {
+            if ($(this).attr('id') === 'btnResetKitchenFilter') return;
+
+            $('.btn-quick-preset').removeClass('active');
+            $(this).addClass('active');
+
+            let preset = $(this).data('preset');
+            let today = new Date();
+            let start = '', end = '';
+
+            const formatDate = (d) => {
+                let month = '' + (d.getMonth() + 1);
+                let day = '' + d.getDate();
+                let year = d.getFullYear();
+                if (month.length < 2) month = '0' + month;
+                if (day.length < 2) day = '0' + day;
+                return [year, month, day].join('-');
+            };
+
+            if (preset === 'today') {
+                start = formatDate(today);
+                end = formatDate(today);
+            } else if (preset === 'yesterday') {
+                let yest = new Date();
+                yest.setDate(yest.getDate() - 1);
+                start = formatDate(yest);
+                end = formatDate(yest);
+            } else if (preset === 'week') {
+                let curr = new Date();
+                let first = curr.getDate() - (curr.getDay() === 0 ? 6 : curr.getDay() - 1);
+                let firstday = new Date(curr.setDate(first));
+                start = formatDate(firstday);
+                end = formatDate(new Date());
+            } else if (preset === 'month') {
+                let firstday = new Date(today.getFullYear(), today.getMonth(), 1);
+                start = formatDate(firstday);
+                end = formatDate(new Date());
+            } else {
+                start = '';
+                end = '';
+            }
+
+            $('#kitchen_start_date').val(start);
+            $('#kitchen_end_date').val(end);
+            fetchOrders(1, true);
+        });
+
+        // Reset Filter
+        $('#btnResetKitchenFilter').on('click', function() {
+            let todayStr = getTodayFormatted();
+            $('#kitchen_start_date').val(todayStr);
+            $('#kitchen_end_date').val(todayStr);
+            $('#kitchen_status_tab').val('active');
+            $('#kitchen_order_type').val('all');
+            $('#kitchenSearchInput').val('');
+
+            $('.btn-quick-preset').removeClass('active');
+            $('[data-preset="today"]').addClass('active');
+
+            fetchOrders(1, true);
+        });
     });
 
-    function setTypeFilter(type) {
-        currentType = type;
-        $('.btn-type-pill').removeClass('active');
-        $(`.btn-type-pill[data-type="${type}"]`).addClass('active');
-        fetchOrders(true);
+    function getTodayFormatted() {
+        let d = new Date();
+        let month = '' + (d.getMonth() + 1);
+        let day = '' + d.getDate();
+        let year = d.getFullYear();
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+        return [year, month, day].join('-');
     }
 
-    function fetchOrders(animate = false) {
+    function fetchOrders(page = 1, showLoading = false) {
+        currentPage = page;
+        let perPage = $('#kitchenPerPage').val() || 9;
+        let startDate = $('#kitchen_start_date').val();
+        let endDate = $('#kitchen_end_date').val();
+        let statusTab = $('#kitchen_status_tab').val() || 'active';
+        let typeFilter = $('#kitchen_order_type').val() || 'all';
+        let search = $('#kitchenSearchInput').val() || '';
+
+        if (showLoading && page === 1) {
+            $('#kitchenOrdersGrid').html(`
+                <div class="empty-kitchen-box">
+                    <h4 style="font-weight: 700; color: #334155; margin: 0;">Loading kitchen orders...</h4>
+                </div>
+            `);
+        }
+
         $.ajax({
             url: "{{ route('kitchen.data') }}",
             type: "GET",
             data: {
-                tab: 'active',
-                type: currentType
+                page: currentPage,
+                per_page: perPage,
+                start_date: startDate,
+                end_date: endDate,
+                tab: statusTab,
+                type: typeFilter,
+                search: search
             },
             dataType: "json",
             success: function(res) {
                 if (res.total_count !== undefined) {
-                    $('#kpiActiveCount').text(res.total_count);
+                    $('#kpiTodayTotal').text(res.total_count);
                 }
                 if (res.busy_tables_count !== undefined) {
                     $('#kpiBusyTables').text(res.busy_tables_count);
@@ -518,32 +786,15 @@ Kitchen Orders Monitor
                 if (res.delivery_count !== undefined) {
                     $('#kpiDeliveryCount').text(res.delivery_count);
                 }
-                if (res.today_total_count !== undefined) {
-                    $('#kpiTodayTotal').text(res.today_total_count);
+                if (res.total_count !== undefined && statusTab === 'active') {
+                    $('#kpiActiveCount').text(res.total_count);
                 }
 
-                cachedOrders = res.orders || [];
-                renderKitchenOrders(cachedOrders);
+                lastPage = res.last_page || 1;
+                renderKitchenOrders(res.orders || []);
+                renderPagination(res);
             }
         });
-    }
-
-    function filterKitchenCards() {
-        let query = ($('#kdsSearchInput').val() || '').toLowerCase().trim();
-        if (!query) {
-            renderKitchenOrders(cachedOrders);
-            return;
-        }
-
-        let filtered = cachedOrders.filter(ord => {
-            let tokenStr = (ord.token || '').toLowerCase();
-            let invStr = (ord.invoice || '').toLowerCase();
-            let tableStr = (ord.nomor_meja || '').toLowerCase();
-            let custStr = (ord.customer || '').toLowerCase();
-            return tokenStr.includes(query) || invStr.includes(query) || tableStr.includes(query) || custStr.includes(query);
-        });
-
-        renderKitchenOrders(filtered);
     }
 
     function renderKitchenOrders(orders) {
@@ -553,8 +804,8 @@ Kitchen Orders Monitor
         if (!orders || orders.length === 0) {
             container.html(`
                 <div class="empty-kitchen-box">
-                    <h4 style="font-weight: 800; color: #1e293b; margin: 0 0 4px 0;">All Kitchen Orders Prepared</h4>
-                    <p style="font-size: 13px; margin: 0; color: #64748b;">No active food items waiting for cooking right now.</p>
+                    <h4 style="font-weight: 800; color: #1e293b; margin: 0 0 4px 0;">No Kitchen Orders Found</h4>
+                    <p style="font-size: 13px; margin: 0; color: #64748b;">No active food items match the current date and filter selection.</p>
                 </div>
             `);
             return;
@@ -607,7 +858,7 @@ Kitchen Orders Monitor
                                 <span class="token-pill">#${ord.token}</span>
                                 <div>
                                     <div style="font-weight: 800; font-size: 13.5px; color: #0f172a;">${ord.invoice}</div>
-                                    <div class="invoice-label">${ord.created_time}</div>
+                                    <div class="invoice-label">${ord.created_date} &bull; ${ord.created_time}</div>
                                 </div>
                             </div>
                             <span class="dining-type-badge ${typeBadgeClass}">${typeLabel}</span>
@@ -629,7 +880,7 @@ Kitchen Orders Monitor
 
                     <div class="kitchen-card-footer">
                         <a href="${ord.kot_url}" target="_blank" class="btn-reprint-kot">
-                            Print KOT
+                            <i class="fa fa-print"></i> Print KOT
                         </a>
                         <a href="${ord.receipt_url}" target="_blank" class="btn-view-bill" title="Print Customer Receipt">
                             Receipt
@@ -641,7 +892,56 @@ Kitchen Orders Monitor
             container.append(cardHtml);
         });
     }
+
+    function renderPagination(res) {
+        let card = $('#kitchenPaginationCard');
+        if (!res || res.total_count === 0) {
+            card.hide();
+            return;
+        }
+
+        card.show();
+        let from = res.from || 0;
+        let to = res.to || 0;
+        let total = res.total_count || 0;
+        let cur = res.current_page || 1;
+        let last = res.last_page || 1;
+
+        $('#kitchenPaginationInfo').text(`Showing ${from} to ${to} of ${total} orders`);
+
+        let btns = $('#kitchenPaginationBtns');
+        btns.empty();
+
+        // Prev
+        let prevDisabled = (cur <= 1) ? 'disabled' : '';
+        btns.append(`<button type="button" class="btn-page-nav" ${prevDisabled} onclick="fetchOrders(${cur - 1}, true)">&laquo; Prev</button>`);
+
+        // Page Numbers
+        let startPage = Math.max(1, cur - 2);
+        let endPage = Math.min(last, cur + 2);
+
+        if (startPage > 1) {
+            btns.append(`<button type="button" class="btn-page-nav" onclick="fetchOrders(1, true)">1</button>`);
+            if (startPage > 2) {
+                btns.append(`<span style="padding: 0 4px; color: #94a3b8;">...</span>`);
+            }
+        }
+
+        for (let p = startPage; p <= endPage; p++) {
+            let active = (p === cur) ? 'active' : '';
+            btns.append(`<button type="button" class="btn-page-nav ${active}" onclick="fetchOrders(${p}, true)">${p}</button>`);
+        }
+
+        if (endPage < last) {
+            if (endPage < last - 1) {
+                btns.append(`<span style="padding: 0 4px; color: #94a3b8;">...</span>`);
+            }
+            btns.append(`<button type="button" class="btn-page-nav" onclick="fetchOrders(${last}, true)">${last}</button>`);
+        }
+
+        // Next
+        let nextDisabled = (cur >= last) ? 'disabled' : '';
+        btns.append(`<button type="button" class="btn-page-nav" ${nextDisabled} onclick="fetchOrders(${cur + 1}, true)">Next &raquo;</button>`);
+    }
 </script>
 @endpush
-
-

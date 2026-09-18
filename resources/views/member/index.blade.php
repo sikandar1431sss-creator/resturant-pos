@@ -70,17 +70,19 @@
             <div class="box-body table-responsive">
                 <form action="" method="post" class="form-member">
                     @csrf
-                    <table class="table table-stiped table-bordered table-hover">
-                        <thead>
-                            <th width="5%">
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead style="background: #f8fafc;">
+                            <th width="4%">
                                 <input type="checkbox" name="select_all" id="select_all">
                             </th>
-                            <th width="5%">#</th>
-                            <th>Code</th>
-                            <th>Name</th>
+                            <th width="4%">#</th>
+                            <th width="10%">Code</th>
+                            <th>Customer Name</th>
                             <th>Telephone</th>
                             <th>Address</th>
-                            <th width="15%"><i class="fa fa-cog"></i></th>
+                            <th width="8%">Orders</th>
+                            <th width="14%">Due Status</th>
+                            <th width="18%"><i class="fa fa-cog"></i></th>
                         </thead>
                     </table>
                 </form>
@@ -111,6 +113,8 @@
                 {data: 'nama'},
                 {data: 'telepon'},
                 {data: 'alamat'},
+                {data: 'orders_count'},
+                {data: 'due_balance'},
                 {data: 'aksi', searchable: false, sortable: false},
             ]
         });

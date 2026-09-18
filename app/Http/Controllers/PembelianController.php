@@ -115,7 +115,7 @@ class PembelianController extends Controller
     {
         $setting = Setting::first();
         $pembelian = Pembelian::with('supplier')->findOrFail($id);
-        $detail = PembelianDetail::with('produk')->where('id_pembelian', $id)->get();
+        $detail = PembelianDetail::with(['produk', 'rawMaterial'])->where('id_pembelian', $id)->get();
 
         return view('pembelian.nota_kecil', compact('setting', 'pembelian', 'detail'));
     }
@@ -129,8 +129,27 @@ class PembelianController extends Controller
         return redirect()->route('pembelian_detail.index');
     }
 
-    public function create($id)
+    public function create($id = null)
     {
+        if (empty($id)) {
+            $id = request('id') ?? request('supplier_id');
+            if (empty($id)) {
+                $queryKeys = array_keys(request()->query());
+                if (!empty($queryKeys) && is_numeric($queryKeys[0])) {
+                    $id = (int)$queryKeys[0];
+                }
+            }
+        }
+
+        if (empty($id)) {
+            $firstSupplier = Supplier::first();
+            $id = $firstSupplier ? $firstSupplier->id_supplier : null;
+        }
+
+        if (empty($id)) {
+            return redirect()->route('supplier.index');
+        }
+
         $pembelian = new Pembelian();
         $pembelian->id_supplier = $id;
         $pembelian->total_item  = 0;
@@ -150,10 +169,10 @@ class PembelianController extends Controller
         $pembelian = Pembelian::findOrFail($request->id_pembelian);
         $detail = PembelianDetail::where('id_pembelian', $pembelian->id_pembelian)->get();
 
-        $total_item = !empty($request->total_item) ? (int)$request->total_item : (int)$detail->sum('jumlah');
-        $total_harga = !empty($request->total) ? (float)$request->total : (float)$detail->sum('subtotal');
-        $diskon = !empty($request->diskon) ? (float)$request->diskon : 0;
-        $bayar = !empty($request->bayar) ? (float)$request->bayar : ($total_harga - ($diskon / 100 * $total_harga));
+        $total_item = isset($request->total_item) && $request->total_item !== '' ? (float) str_replace(',', '', (string)$request->total_item) : (float)$detail->sum('jumlah');
+        $total_harga = isset($request->total) && $request->total !== '' ? (float) str_replace(',', '', (string)$request->total) : (float)$detail->sum('subtotal');
+        $diskon = isset($request->diskon) && $request->diskon !== '' ? (float) str_replace(',', '', (string)$request->diskon) : 0;
+        $bayar = isset($request->bayar) && $request->bayar !== '' ? (float) str_replace(',', '', (string)$request->bayar) : ($total_harga - ($diskon / 100 * $total_harga));
 
         $pembelian->total_item = $total_item;
         $pembelian->total_harga = $total_harga;
@@ -162,9 +181,25 @@ class PembelianController extends Controller
         $pembelian->update();
 
         foreach ($detail as $item) {
-            $produk = Produk::find($item->id_produk);
-            $produk->stok += $item->jumlah;
-            $produk->update();
+            if (!empty($item->id_raw_material)) {
+                $material = \App\Models\RawMaterial::find($item->id_raw_material);
+                if ($material) {
+                    $material->stok += (float)$item->jumlah;
+                    if ($item->harga_beli > 0) {
+                        $material->harga_beli = (float)$item->harga_beli;
+                    }
+                    $material->update();
+                }
+            } elseif (!empty($item->id_produk)) {
+                $produk = Produk::find($item->id_produk);
+                if ($produk) {
+                    $produk->stok += (float)$item->jumlah;
+                    if ($item->harga_beli > 0) {
+                        $produk->harga_beli = (float)$item->harga_beli;
+                    }
+                    $produk->update();
+                }
+            }
         }
 
         return redirect()->route('pembelian.index');
@@ -172,22 +207,24 @@ class PembelianController extends Controller
 
     public function show($id)
     {
-        $detail = PembelianDetail::with('produk')->where('id_pembelian', $id)->get();
+        $detail = PembelianDetail::with(['produk', 'rawMaterial'])->where('id_pembelian', $id)->get();
 
         return datatables()
             ->of($detail)
             ->addIndexColumn()
             ->addColumn('kode_produk', function ($detail) {
-                return '<span class="label label-success">'. $detail->produk->kode_produk .'</span>';
+                $code = $detail->rawMaterial->kode_material ?? $detail->produk->kode_produk ?? '-';
+                return '<span class="label label-success">'. $code .'</span>';
             })
             ->addColumn('nama_produk', function ($detail) {
-                return $detail->produk->nama_produk;
+                return $detail->rawMaterial->nama_material ?? $detail->produk->nama_produk ?? '-';
             })
             ->addColumn('harga_beli', function ($detail) {
                 return format_currency($detail->harga_beli);
             })
             ->addColumn('jumlah', function ($detail) {
-                return format_uang($detail->jumlah);
+                $unit = $detail->rawMaterial->satuan ?? '';
+                return format_uang($detail->jumlah) . ($unit ? ' ' . $unit : '');
             })
             ->addColumn('subtotal', function ($detail) {
                 return format_currency($detail->subtotal);
@@ -199,17 +236,27 @@ class PembelianController extends Controller
     public function destroy($id)
     {
         $pembelian = Pembelian::find($id);
-        $detail    = PembelianDetail::where('id_pembelian', $pembelian->id_pembelian)->get();
-        foreach ($detail as $item) {
-            $produk = Produk::find($item->id_produk);
-            if ($produk) {
-                $produk->stok -= $item->jumlah;
-                $produk->update();
+        if ($pembelian) {
+            $detail = PembelianDetail::where('id_pembelian', $pembelian->id_pembelian)->get();
+            foreach ($detail as $item) {
+                if (!empty($item->id_raw_material)) {
+                    $material = \App\Models\RawMaterial::find($item->id_raw_material);
+                    if ($material) {
+                        $material->stok = max(0, $material->stok - $item->jumlah);
+                        $material->update();
+                    }
+                } elseif (!empty($item->id_produk)) {
+                    $produk = Produk::find($item->id_produk);
+                    if ($produk) {
+                        $produk->stok = max(0, $produk->stok - $item->jumlah);
+                        $produk->update();
+                    }
+                }
+                $item->delete();
             }
-            $item->delete();
-        }
 
-        $pembelian->delete();
+            $pembelian->delete();
+        }
 
         return response(null, 204);
     }

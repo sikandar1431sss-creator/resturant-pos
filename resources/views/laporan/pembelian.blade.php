@@ -266,7 +266,7 @@
                                     <tr>
                                         <td>{{ $idx + 1 }}</td>
                                         <td>
-                                            <a href="{{ route('pembelian.create', $p->id_pembelian) }}" style="font-weight: 700; color: #0284c7;">
+                                            <a href="{{ route('pembelian.edit', $p->id_pembelian) }}" style="font-weight: 700; color: #0284c7;">
                                                 PO #{{ $p->id_pembelian }}
                                             </a>
                                         </td>

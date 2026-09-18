@@ -11,6 +11,53 @@
 
 @push('css')
 <style>
+    /* Hide AdminLTE default duplicate content-header & breadcrumbs */
+    .content-header {
+        display: none !important;
+    }
+
+    .deals-page-wrapper {
+        margin-top: 5px;
+    }
+
+    /* Top Page Header */
+    .deals-top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .deals-heading {
+        margin: 0;
+        font-weight: 800;
+        color: #0f172a;
+        font-size: 22px;
+        letter-spacing: -0.02em;
+    }
+
+    .btn-create-deal {
+        background: #ea580c !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        font-size: 13.5px !important;
+        border-radius: 8px !important;
+        padding: 9px 20px !important;
+        border: none !important;
+        box-shadow: none !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    .btn-create-deal:hover {
+        background: #c2410c !important;
+        color: #ffffff !important;
+    }
+
     .table-actions-group {
         display: inline-flex !important;
         align-items: center !important;
@@ -50,29 +97,37 @@
 @endpush
 
 @section('content')
-<div class="row">
-    <div class="col-lg-12">
-        <div class="box">
-            <div class="box-header with-border">
-                <button onclick="addDealForm()" class="btn btn-success btn-flat">
-                    <i class="fa fa-plus-circle"></i> Add New Deal
-                </button>
-            </div>
+<div class="deals-page-wrapper">
+    <!-- Top Page Header -->
+    <div class="deals-top-bar">
+        <div>
+            <h2 class="deals-heading">Deals</h2>
+        </div>
+        <div>
+            <button onclick="addDealForm()" class="btn-create-deal">
+                <i class="fa fa-plus-circle"></i> Add New Deal
+            </button>
+        </div>
+    </div>
 
-            <div class="box-body table-responsive">
-                <table class="table table-striped table-deals table-bordered table-hover" style="width: 100%;">
-                    <thead>
-                        <th width="4%">#</th>
-                        <th width="6%">Image</th>
-                        <th width="22%">Description</th>
-                        <th width="10%">Code</th>
-                        <th>Items</th>
-                        <th>Cost Price</th>
-                        <th>Selling Price</th>
-                        <th>Status</th>
-                        <th width="12%"><i class="fa fa-cog"></i> Action</th>
-                    </thead>
-                </table>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="box" style="border-top: none; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; overflow: hidden;">
+                <div class="box-body table-responsive" style="padding: 20px;">
+                    <table class="table table-striped table-deals table-bordered table-hover" style="width: 100%;">
+                        <thead>
+                            <th width="4%">#</th>
+                            <th width="6%">Image</th>
+                            <th width="22%">Description</th>
+                            <th width="10%">Code</th>
+                            <th>Items</th>
+                            <th>Cost Price</th>
+                            <th>Selling Price</th>
+                            <th>Status</th>
+                            <th width="12%"><i class="fa fa-cog"></i> Action</th>
+                        </thead>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -97,7 +152,22 @@
                 url: '{{ route('deal.data') }}',
             },
             columns: [
-                {data: 'DT_RowIndex', searchable: false, sortable: false},
+                {
+                    data: 'DT_RowIndex',
+                    searchable: false,
+                    sortable: false,
+                    render: function (data, type, row, meta) {
+                        if (meta && meta.settings) {
+                            let total = meta.settings.fnRecordsDisplay();
+                            let start = meta.settings._iDisplayStart || 0;
+                            let num = total - (start + meta.row);
+                            if (num > 0) {
+                                return '<strong style="color: #64748b;">' + num + '</strong>';
+                            }
+                        }
+                        return '<strong style="color: #64748b;">' + (data || 1) + '</strong>';
+                    }
+                },
                 {data: 'foto', searchable: false, sortable: false},
                 {data: 'nama_deal'},
                 {data: 'kode_deal'},

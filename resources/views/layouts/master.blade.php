@@ -47,11 +47,6 @@
                 <h1>
                     @yield('title')
                 </h1>
-                <ol class="breadcrumb">
-                    @section('breadcrumb')
-                        <li><a href="{{ url('/') }}"><i class="fa fa-home"></i> Home</a></li>
-                    @show
-                </ol>
             </section>
 
             <!-- Main content -->
@@ -124,17 +119,16 @@
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Custom Styled SweetAlert Toast (Large & Prominent)
+        // Custom Styled SweetAlert Toast
         const SwalToast = Swal.mixin({
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
             timer: 3500,
             timerProgressBar: true,
-            width: '420px',
             didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
             }
         });
 
@@ -160,17 +154,17 @@
             });
         }
 
-        function showConfirmDialog(title, text, confirmBtnText, onConfirmCallback) {
+        function showConfirmDialog(title, text, confirmBtnText, onConfirmCallback, icon = 'warning') {
             Swal.fire({
                 title: title || 'Are you sure?',
                 text: text || "You won't be able to revert this!",
-                icon: 'warning',
-                width: '520px',
+                icon: icon,
                 showCancelButton: true,
-                confirmButtonColor: '#f97316',
-                cancelButtonColor: '#94a3b8',
                 confirmButtonText: confirmBtnText || 'Yes, proceed!',
-                cancelButtonText: 'Cancel'
+                cancelButtonText: 'Cancel',
+                reverseButtons: false,
+                focusCancel: true,
+                buttonsStyling: true
             }).then((result) => {
                 if (result.isConfirmed) {
                     if (typeof onConfirmCallback === 'function') {

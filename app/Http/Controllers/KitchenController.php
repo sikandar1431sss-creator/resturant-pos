@@ -88,12 +88,26 @@ class KitchenController extends Controller
     public function data(Request $request)
     {
         $typeFilter = $request->get('type', 'all'); // all, Dine-In, Takeaway, Delivery
-        $statusTab = $request->get('tab', 'active'); // active, all_today
+        $statusTab = $request->get('tab', 'active'); // active, all
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
         $isCashier = $this->isRestrictedCashier();
 
         $query = Penjualan::with(['detail.produk.kategori', 'member', 'user'])
-            ->where('total_item', '>', 0)
-            ->whereDate('created_at', Carbon::today());
+            ->where('total_item', '>', 0);
+
+        // Date filter
+        if (!empty($startDate) && !empty($endDate)) {
+            $query->whereDate('created_at', '>=', $startDate)
+                  ->whereDate('created_at', '<=', $endDate);
+        } elseif (!empty($startDate)) {
+            $query->whereDate('created_at', '>=', $startDate);
+        } elseif (!empty($endDate)) {
+            $query->whereDate('created_at', '<=', $endDate);
+        } else {
+            // Default to today if no date specified
+            $query->whereDate('created_at', Carbon::today());
+        }
 
         if ($isCashier) {
             $query->where('id_user', auth()->id());
@@ -113,10 +127,30 @@ class KitchenController extends Controller
             });
         }
 
-        $orders = $query->orderBy('id_penjualan', 'desc')->get();
+        // Search term
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function($q) use ($search) {
+                $q->where('id_penjualan', 'like', "%{$search}%")
+                  ->orWhere('nomor_meja', 'like', "%{$search}%")
+                  ->orWhere('nama_pelanggan', 'like', "%{$search}%")
+                  ->orWhereHas('member', function($mq) use ($search) {
+                      $mq->where('nama', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $totalFiltered = (clone $query)->count();
+
+        // Pagination
+        $perPage = (int) $request->get('per_page', 9);
+        $page = (int) $request->get('page', 1);
+
+        $paginated = $query->orderBy('id_penjualan', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page);
 
         $now = Carbon::now();
-        $formattedOrders = $orders->map(function ($order) use ($now) {
+        $formattedOrders = collect($paginated->items())->map(function ($order) use ($now) {
             $createdAt = Carbon::parse($order->created_at);
             $elapsedSeconds = $createdAt->diffInSeconds($now);
             $elapsedMinutes = floor($elapsedSeconds / 60);
@@ -166,7 +200,12 @@ class KitchenController extends Controller
         return response()->json([
             'status' => 'success',
             'orders' => $formattedOrders,
-            'total_count' => $formattedOrders->count(),
+            'total_count' => $totalFiltered,
+            'current_page' => $paginated->currentPage(),
+            'last_page' => $paginated->lastPage(),
+            'per_page' => $paginated->perPage(),
+            'from' => $paginated->firstItem() ?? 0,
+            'to' => $paginated->lastItem() ?? 0,
             'busy_tables_count' => $liveBusyTables,
             'delivery_count' => $liveDeliveryCount,
             'today_total_count' => $liveTodayTotal,

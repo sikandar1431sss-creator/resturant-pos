@@ -98,10 +98,23 @@ class WorkflowDemoSeeder extends Seeder
             'pos.apply_discount',
             'kitchen.access',
             'kitchen.manage_orders',
+            'sales.view_all',
+            'sales.view_own',
             'sales.view',
+            'sales.edit',
+            'sales.delete',
             'categories.view',
+            'categories.manage',
             'products.view',
+            'products.create',
+            'products.edit',
+            'products.delete',
             'deals.view',
+            'deals.manage',
+            'raw_materials.view',
+            'raw_materials.manage',
+            'recipes.manage',
+            'tables.manage',
             'purchases.view',
             'purchases.manage',
             'suppliers.manage',
@@ -109,6 +122,8 @@ class WorkflowDemoSeeder extends Seeder
             'expenses.manage',
             'members.manage',
             'reports.view',
+            'reports.export',
+            'users.manage',
         ]);
 
         $cashierRole = Role::firstOrCreate(['name' => 'cashier', 'guard_name' => 'web']);
@@ -135,8 +150,11 @@ class WorkflowDemoSeeder extends Seeder
         $waiterRole->syncPermissions([
             'pos.access',
             'pos.create_order',
-            'pos.print_kot',
             'pos.drafts',
+            'pos.print_kot',
+            'pos.print_bill',
+            'sales.view_own',
+            'kitchen.access',
         ]);
 
         // 4. Create Workflow User Accounts

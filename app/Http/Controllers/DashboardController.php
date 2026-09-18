@@ -26,7 +26,7 @@ class DashboardController extends Controller
         }
 
         $userScopedId = null;
-        if (auth()->check() && !auth()->user()->hasAnyRole(['admin', 'manager']) && auth()->user()->level != 1) {
+        if (auth()->check() && !auth()->user()->hasAnyRole(['admin', 'manager']) && auth()->user()->level != 1 && !auth()->user()->can('sales.view_all')) {
             $userScopedId = auth()->id();
         }
 
@@ -132,8 +132,8 @@ class DashboardController extends Controller
         $occupied_tables = $tables->where('status', 'occupied')->count();
         $occupancy_rate = $total_tables > 0 ? round(($occupied_tables / $total_tables) * 100) : 0;
 
-        // Cashier simplified view check (if cashier role)
-        if (auth()->check() && auth()->user()->level != 1 && !auth()->user()->hasRole('admin')) {
+        // Cashier simplified view check (only for counter cashiers/waiters without management or reporting rights)
+        if (auth()->check() && !auth()->user()->hasAnyRole(['admin', 'manager']) && auth()->user()->level != 1 && !auth()->user()->can('reports.view')) {
             $today_sales = $today_card['paid_sales'];
             $today_orders = $today_card['invoices'];
             $shift_name = $this->getShiftName();
@@ -283,7 +283,7 @@ class DashboardController extends Controller
         }
 
         $userScopedId = null;
-        if (auth()->check() && !auth()->user()->hasAnyRole(['admin', 'manager']) && auth()->user()->level != 1) {
+        if (auth()->check() && !auth()->user()->hasAnyRole(['admin', 'manager']) && auth()->user()->level != 1 && !auth()->user()->can('sales.view_all')) {
             $userScopedId = auth()->id();
         }
 

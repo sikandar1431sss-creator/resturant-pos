@@ -17,13 +17,15 @@
                 <button onclick="addForm('{{ route('supplier.store') }}')" class="btn btn-success btn-flat"><i class="fa fa-plus-circle"></i> Add New Supplier</button>
             </div>
             <div class="box-body table-responsive">
-                <table class="table table-stiped table-bordered table-hover">
-                    <thead>
-                        <th width="5%">#</th>
-                        <th>Name</th>
+                <table class="table table-striped table-bordered table-hover">
+                    <thead style="background: #f8fafc;">
+                        <th width="4%">#</th>
+                        <th>Supplier Name</th>
                         <th>Telephone</th>
                         <th>Address</th>
-                        <th width="15%"><i class="fa fa-cog"></i></th>
+                        <th width="8%">POs</th>
+                        <th width="14%">Due Status</th>
+                        <th width="18%"><i class="fa fa-cog"></i></th>
                     </thead>
                 </table>
             </div>
@@ -52,6 +54,8 @@
                 {data: 'nama'},
                 {data: 'telepon'},
                 {data: 'alamat'},
+                {data: 'po_count'},
+                {data: 'due_balance'},
                 {data: 'aksi', searchable: false, sortable: false},
             ]
         });

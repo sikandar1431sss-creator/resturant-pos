@@ -21,28 +21,49 @@ class MemberController extends Controller
 
     public function data()
     {
-        $member = Member::orderBy('kode_member')->get();
+        $member = Member::orderBy('id_member', 'desc')->get();
+        $allMemberSales = \App\Models\Penjualan::whereNotNull('id_member')->get();
 
         return datatables()
             ->of($member)
             ->addIndexColumn()
-            ->addColumn('select_all', function ($produk) {
+            ->addColumn('select_all', function ($item) {
                 return '
-                    <input type="checkbox" name="id_member[]" value="'. $produk->id_member .'">
+                    <input type="checkbox" name="id_member[]" value="'. $item->id_member .'">
                 ';
             })
-            ->addColumn('kode_member', function ($member) {
-                return '<span class="label label-success">'. $member->kode_member .'<span>';
+            ->addColumn('kode_member', function ($item) {
+                return '<span class="label label-success" style="font-weight:700; font-size:11px;">'. e($item->kode_member) .'</span>';
             })
-            ->addColumn('aksi', function ($member) {
+            ->addColumn('orders_count', function ($item) use ($allMemberSales) {
+                $count = $allMemberSales->where('id_member', $item->id_member)->count();
+                return '<span class="badge" style="background:#0f172a; color:#fff; font-weight:700; font-size:11px; padding:3px 8px;">' . number_format($count) . '</span>';
+            })
+            ->addColumn('due_balance', function ($item) use ($allMemberSales) {
+                $sales = $allMemberSales->where('id_member', $item->id_member);
+                $invoiced = $sales->sum('bayar');
+                $received = $sales->sum(function ($s) {
+                    return min($s->bayar, (float)$s->diterima);
+                });
+                $due = max(0, $invoiced - $received);
+
+                if ($due > 0.01) {
+                    return '<span class="label label-danger" style="font-weight:800; font-size:11.5px; padding:3px 8px; border-radius:4px;">Due: ' . format_currency($due) . '</span>';
+                }
+                return '<span class="label label-success" style="font-weight:700; font-size:11px; padding:3px 8px; border-radius:4px;">Clear</span>';
+            })
+            ->addColumn('aksi', function ($item) {
                 return '
                 <div class="table-actions-group">
-                    <button type="button" onclick="editForm(`'. route('member.update', $member->id_member) .'`)" class="btn-table-action btn-edit" title="Edit Contact"><i class="fa fa-pencil"></i></button>
-                    <button type="button" onclick="deleteData(`'. route('member.destroy', $member->id_member) .'`)" class="btn-table-action btn-delete" title="Delete Contact"><i class="fa fa-trash"></i></button>
+                    <a href="'. route('ledger.customer.statement', $item->id_member) .'" class="btn btn-xs btn-primary btn-flat" style="border-radius:6px; font-weight:700; padding:4px 10px; background:#8b5cf6; border-color:#8b5cf6; display:inline-flex; align-items:center; gap:5px; text-decoration:none;" title="View Customer Account Ledger">
+                        <i class="fa fa-book"></i> Ledger
+                    </a>
+                    <button type="button" onclick="editForm(`'. route('member.update', $item->id_member) .'`)" class="btn-table-action btn-edit" title="Edit Customer"><i class="fa fa-pencil"></i></button>
+                    <button type="button" onclick="deleteData(`'. route('member.destroy', $item->id_member) .'`)" class="btn-table-action btn-delete" title="Delete Customer"><i class="fa fa-trash"></i></button>
                 </div>
                 ';
             })
-            ->rawColumns(['aksi', 'select_all', 'kode_member'])
+            ->rawColumns(['aksi', 'select_all', 'kode_member', 'orders_count', 'due_balance'])
             ->make(true);
     }
 

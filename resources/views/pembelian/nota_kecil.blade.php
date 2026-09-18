@@ -337,8 +337,13 @@
             <tbody>
                 @foreach ($detail as $item)
                 <tr class="item-row">
-                    <td class="bold">{{ $item->produk->nama_produk ?? 'Item' }}</td>
-                    <td class="text-center">{{ $item->jumlah }}</td>
+                    <td class="bold">
+                        {{ $item->rawMaterial->nama_material ?? $item->produk->nama_produk ?? 'Item' }}
+                        @if(!empty($item->rawMaterial))
+                            <span style="font-size: 7.5pt; font-weight: normal; color: #444;">(Raw Stock)</span>
+                        @endif
+                    </td>
+                    <td class="text-center">{{ (float)$item->jumlah }} {{ $item->rawMaterial->satuan ?? '' }}</td>
                     <td class="text-right">{{ format_uang($item->harga_beli) }}</td>
                     <td class="text-right bold">{{ format_uang($item->subtotal) }}</td>
                 </tr>

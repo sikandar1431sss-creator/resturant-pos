@@ -9,9 +9,13 @@ class RawMaterialController extends Controller
 {
     public function index()
     {
-        $lowStockCount = RawMaterial::lowStock()->count();
+        $totalMaterials = RawMaterial::count();
+        $inStockCount = RawMaterial::where('stok', '>', \DB::raw('min_stok'))->count();
+        $lowStockCount = RawMaterial::where('stok', '<=', \DB::raw('min_stok'))->where('stok', '>', 0)->count();
+        $outOfStockCount = RawMaterial::where('stok', '<=', 0)->count();
         $units = \App\Models\Unit::orderBy('nama_satuan')->get();
-        return view('raw_material.index', compact('lowStockCount', 'units'));
+
+        return view('raw_material.index', compact('totalMaterials', 'inStockCount', 'lowStockCount', 'outOfStockCount', 'units'));
     }
 
     public function data()
@@ -47,7 +51,6 @@ class RawMaterialController extends Controller
             ->addColumn('aksi', function ($material) {
                 return '
                 <div class="table-actions-group">
-                    <button type="button" onclick="adjustStock(`'. route('raw_material.adjust', $material->id) .'`, `'. addslashes($material->nama_material) .'`, `'. $material->stok .'`, `'. addslashes($material->satuan) .'`)" class="btn-table-action btn-stock" title="Quick Stock Adjustment (+/- Stock)"><i class="fa fa-cubes"></i></button>
                     <button type="button" onclick="editForm(`'. route('raw_material.update', $material->id) .'`)" class="btn-table-action btn-edit" title="Edit Raw Material"><i class="fa fa-pencil"></i></button>
                     <button type="button" onclick="deleteData(`'. route('raw_material.destroy', $material->id) .'`)" class="btn-table-action btn-delete" title="Delete Raw Material"><i class="fa fa-trash"></i></button>
                 </div>

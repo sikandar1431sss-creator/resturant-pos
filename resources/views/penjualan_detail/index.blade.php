@@ -783,6 +783,391 @@ Create New Invoice
         border: none !important;
         box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
     }
+
+    /* ==========================================================================
+       ENTERPRISE PARKED DRAFT INVOICES MODAL
+       ========================================================================== */
+    .draft-modal-dialog {
+        max-width: 1080px !important;
+        width: 95% !important;
+        margin: 30px auto;
+    }
+
+    .draft-modal-content {
+        border-radius: 16px !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+        overflow: hidden;
+        background: #ffffff;
+    }
+
+    .draft-modal-header {
+        background: #ffffff;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .draft-header-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .draft-header-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #fff7ed;
+        color: #ea580c;
+        border: 1px solid #ffedd5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    .draft-modal-title {
+        font-size: 17px;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .draft-count-pill {
+        background: #ea580c;
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 800;
+        padding: 3px 9px;
+        border-radius: 20px;
+        letter-spacing: 0.02em;
+    }
+
+    .draft-modal-sub {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 2px;
+        font-weight: 500;
+    }
+
+    .draft-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .draft-search-box {
+        position: relative;
+        min-width: 260px;
+    }
+
+    .draft-search-box i {
+        position: absolute;
+        left: 11px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 12.5px;
+    }
+
+    .draft-search-input {
+        width: 100%;
+        height: 36px;
+        padding: 0 12px 0 32px;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        font-size: 12px;
+        font-weight: 600;
+        color: #1e293b;
+        background: #f8fafc;
+        transition: all 0.2s ease;
+    }
+
+    .draft-search-input:focus {
+        background: #ffffff;
+        border-color: #ea580c;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+    }
+
+    .btn-draft-refresh {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .btn-draft-refresh:hover {
+        background: #f8fafc;
+        color: #0f172a;
+        border-color: #94a3b8;
+    }
+
+    .draft-close-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: #f1f5f9;
+        border: none;
+        color: #64748b;
+        font-size: 18px;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .draft-close-btn:hover {
+        background: #fee2e2;
+        color: #ef4444;
+    }
+
+    .draft-modal-body {
+        padding: 0;
+        max-height: calc(82vh - 160px);
+        overflow-y: auto;
+    }
+
+    .draft-table {
+        width: 100%;
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .draft-table thead th {
+        background: #f8fafc;
+        color: #475569;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 12px 16px;
+        border-top: none;
+        border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .draft-table tbody tr {
+        transition: background-color 0.15s ease;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .draft-table tbody tr:hover {
+        background-color: #f8fafc !important;
+    }
+
+    .draft-table tbody td {
+        padding: 13px 16px;
+        vertical-align: middle;
+        font-size: 12.5px;
+        color: #334155;
+        border-top: none;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .draft-inv-code {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-weight: 800;
+        color: #ea580c;
+        font-size: 13px;
+        display: block;
+    }
+
+    .draft-cashier-sub {
+        font-size: 11px;
+        color: #94a3b8;
+        font-weight: 500;
+        margin-top: 1px;
+    }
+
+    .draft-type-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 11.5px;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+    }
+
+    .draft-type-dinein {
+        background: #eff6ff;
+        color: #2563eb;
+        border: 1px solid #dbeafe;
+    }
+
+    .draft-type-takeaway {
+        background: #fffbeb;
+        color: #b45309;
+        border: 1px solid #fef3c7;
+    }
+
+    .draft-type-delivery {
+        background: #f0fdfa;
+        color: #0d9488;
+        border: 1px solid #ccfbf1;
+    }
+
+    .draft-customer-name {
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .draft-customer-phone {
+        font-size: 11px;
+        color: #64748b;
+        margin-top: 2px;
+    }
+
+    .draft-item-count-badge {
+        background: #f1f5f9;
+        color: #334155;
+        font-weight: 800;
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-bottom: 3px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .draft-items-preview {
+        font-size: 11.5px;
+        color: #64748b;
+        max-width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .draft-amount-val {
+        font-weight: 800;
+        font-size: 14px;
+        color: #0f172a;
+        text-align: right;
+    }
+
+    .draft-status-pill {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 2px 7px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        margin-top: 2px;
+        background: #fef2f2;
+        color: #ef4444;
+        border: 1px solid #fee2e2;
+    }
+
+    .draft-actions-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 6px;
+    }
+
+    .btn-draft-resume {
+        background: #ea580c !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 6px !important;
+        padding: 6px 14px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        text-decoration: none !important;
+        transition: background-color 0.15s ease;
+        box-shadow: none !important;
+    }
+
+    .btn-draft-resume:hover {
+        background: #c2410c !important;
+        color: #ffffff !important;
+    }
+
+    .btn-draft-delete {
+        background: #ffffff !important;
+        color: #ef4444 !important;
+        border: 1px solid #fecaca !important;
+        border-radius: 6px !important;
+        padding: 6px 10px !important;
+        font-size: 12px !important;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .btn-draft-delete:hover {
+        background: #fee2e2 !important;
+        border-color: #f87171 !important;
+        color: #dc2626 !important;
+    }
+
+    .draft-modal-footer {
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        padding: 14px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .draft-live-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .live-dot {
+        width: 8px;
+        height: 8px;
+        background: #10b981;
+        border-radius: 50%;
+        display: inline-block;
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        animation: pulseGreen 2s infinite;
+    }
+
+    @keyframes pulseGreen {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
 </style>
 @endpush
 
@@ -816,7 +1201,7 @@ Create New Invoice
             </a>
             @if(auth()->user()->can('pos.drafts') || auth()->user()->hasRole('admin') || auth()->user()->level == 1)
             <button type="button" class="btn btn-pos-pill-outline" onclick="showDraftListModal()">
-                <i class="fa fa-clock-o"></i> Draft List
+                <i class="fa fa-pause-circle"></i> Draft Invoices <span class="badge" id="posDraftCountBadge" style="display:none; background:#ea580c; color:#fff; font-size:10.5px; margin-left:4px; font-weight:800; border-radius:10px; padding:2px 7px;">0</span>
             </button>
             @endif
         </div>
@@ -1134,42 +1519,80 @@ Create New Invoice
     </div>
 </div>
 
-<!-- DRAFT & TABLE ORDERS MODAL -->
-<div class="modal fade" id="modal-draft-list" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
-                <h4 class="modal-title">Parked Draft Invoices &amp; Table Orders</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top: -8px;"><span aria-hidden="true">&times;</span></button>
+<!-- PARKED DRAFT & TABLE ORDERS MODAL -->
+<div class="modal fade" id="modal-draft-list" tabindex="-1" role="dialog" aria-labelledby="draftModalTitle">
+    <div class="modal-dialog draft-modal-dialog" role="document">
+        <div class="modal-content draft-modal-content">
+            <!-- Modal Header -->
+            <div class="draft-modal-header">
+                <div class="draft-header-left">
+                    <div class="draft-header-icon">
+                        <i class="fa fa-pause-circle"></i>
+                    </div>
+                    <div>
+                        <h4 class="draft-modal-title" id="draftModalTitle">
+                            Parked Draft Invoices &amp; Table Orders
+                            <span class="draft-count-pill" id="draftModalCount">0 Parked</span>
+                        </h4>
+                        <div class="draft-modal-sub">
+                            Resume on-hold tables, takeaway orders, or pending invoices
+                        </div>
+                    </div>
+                </div>
+                <div class="draft-header-actions">
+                    <div class="draft-search-box">
+                        <i class="fa fa-search"></i>
+                        <input type="text" id="draftSearchInput" class="draft-search-input" placeholder="Search invoice, table, customer..." onkeyup="filterDraftTable()">
+                    </div>
+                    <button type="button" class="btn-draft-refresh" onclick="loadDraftList()" title="Refresh List">
+                        <i class="fa fa-refresh" id="draftRefreshIcon"></i>
+                    </button>
+                    <button type="button" class="draft-close-btn" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
             </div>
-            <div class="modal-body" style="padding: 16px 20px;">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover" id="draftListTable" style="margin-bottom: 0;">
+
+            <!-- Modal Body Table -->
+            <div class="draft-modal-body">
+                <div class="table-responsive" style="margin-bottom: 0;">
+                    <table class="draft-table" id="draftListTable">
                         <thead>
-                            <tr style="background: #f8fafc;">
-                                <th>Invoice</th>
-                                <th>Table / Order</th>
-                                <th>Customer</th>
-                                <th>Total Items</th>
-                                <th>Total Bill</th>
-                                <th>Status</th>
-                                <th>Time</th>
-                                <th style="text-align: right;">Action</th>
+                            <tr>
+                                <th style="width: 15%;">Invoice</th>
+                                <th style="width: 16%;">Table / Type</th>
+                                <th style="width: 16%;">Customer</th>
+                                <th style="width: 20%;">Items Details</th>
+                                <th style="width: 13%; text-align: right;">Total Bill</th>
+                                <th style="width: 10%; text-align: center;">Parked Time</th>
+                                <th style="width: 10%; text-align: right;">Action</th>
                             </tr>
                         </thead>
                         <tbody id="draftListTableBody">
                             <tr>
-                                <td colspan="8" class="text-center" style="padding: 30px; color: #64748b;">
-                                    <i class="fa fa-spinner fa-spin fa-2x"></i><br>Loading draft orders...
+                                <td colspan="7" class="text-center" style="padding: 40px 20px; color: #64748b;">
+                                    <i class="fa fa-spinner fa-spin fa-2x" style="color: #ea580c; margin-bottom: 8px;"></i>
+                                    <div style="font-weight: 700; color: #1e293b; font-size: 14px;">Loading parked draft orders...</div>
+                                    <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">Fetching active on-hold records from server</div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-            <div class="modal-footer" style="background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
-                <span class="text-muted" style="font-size: 12px;">Active orders are automatically updated.</span>
-                <a href="{{ route('transaksi.baru') }}" class="btn btn-sm btn-primary btn-flat" style="border-radius: 6px;">New Order</a>
+
+            <!-- Modal Footer -->
+            <div class="draft-modal-footer">
+                <div class="draft-live-indicator">
+                    <span class="live-dot"></span>
+                    <span>Live synced with restaurant table occupancy</span>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button type="button" class="btn btn-default btn-flat" data-dismiss="modal" style="border-radius: 6px; font-weight: 600; font-size: 12.5px; border-color: #cbd5e1; background: #ffffff;">Close</button>
+                    <a href="{{ route('transaksi.baru') }}" class="btn btn-flat" style="background: #ea580c; color: #fff; font-weight: 700; font-size: 12.5px; border-radius: 6px; border: none; padding: 7px 16px;">
+                        <i class="fa fa-plus-circle"></i> New Order
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -1230,6 +1653,7 @@ Create New Invoice
     $(function () {
         loadCart();
         loadTablesStatus();
+        loadDraftCountBadge();
 
         // Initialize values
         setPaymentMethod(selectedPaymentMethod || 'cash');
@@ -1734,77 +2158,179 @@ Create New Invoice
         });
     }
 
-    // SHOW DRAFT ORDERS LIST MODAL
+    // DRAFT & PARKED ORDERS MANAGEMENT
+    let allDraftsData = [];
+
+    function loadDraftCountBadge() {
+        $.get('{{ route('transaksi.draft_list') }}')
+            .done(res => {
+                let drafts = Array.isArray(res) ? res : (res.data || []);
+                allDraftsData = drafts;
+                updateDraftCounts(drafts.length);
+            })
+            .fail(() => {
+                // silently fail for badge count
+            });
+    }
+
     function showDraftListModal() {
         $('#modal-draft-list').modal('show');
+        $('#draftSearchInput').val('');
         loadDraftList();
     }
 
     function loadDraftList() {
-        $('#draftListBody').html(`
+        let refreshIcon = $('#draftRefreshIcon');
+        refreshIcon.addClass('fa-spin');
+
+        $('#draftListTableBody').html(`
             <tr>
-                <td colspan="7" class="text-center" style="padding: 24px; color: #94a3b8;">
-                    <i class="fa fa-spinner fa-spin fa-2x"></i><br>Loading draft orders...
+                <td colspan="7" class="text-center" style="padding: 40px 20px; color: #64748b;">
+                    <i class="fa fa-spinner fa-spin fa-2x" style="color: #ea580c; margin-bottom: 8px;"></i>
+                    <div style="font-weight: 700; color: #1e293b; font-size: 14px;">Loading parked draft orders...</div>
+                    <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">Fetching active on-hold records from server</div>
                 </td>
             </tr>
         `);
 
         $.get('{{ route('transaksi.draft_list') }}')
-            .done(drafts => {
-                let tbody = $('#draftListBody');
-                tbody.empty();
-
-                if (!drafts || drafts.length === 0) {
-                    tbody.html(`
-                        <tr>
-                            <td colspan="7" class="text-center" style="padding: 30px; color: #94a3b8;">
-                                <i class="fa fa-check-circle-o" style="font-size: 32px; color: #10b981; margin-bottom: 8px;"></i>
-                                <h4 style="font-weight: 700; color: #475569; margin: 0 0 4px 0;">No Active Draft Orders</h4>
-                                <p style="font-size: 12px; margin: 0;">All table and takeaway orders have been settled.</p>
-                            </td>
-                        </tr>
-                    `);
-                    return;
-                }
-
-                drafts.forEach(d => {
-                    let diningBadgeClass = (d.tipe_order === 'Dine-In') ? 'label-primary' : (d.tipe_order === 'Delivery' ? 'label-info' : 'label-warning');
-
-                    tbody.append(`
-                        <tr>
-                            <td><strong style="color: #ea580c;">${d.invoice}</strong></td>
-                            <td>
-                                <strong style="color: #0f172a;">${d.nomor_meja}</strong><br>
-                                <span class="label ${diningBadgeClass}" style="font-size: 10px;">${d.tipe_order}</span>
-                            </td>
-                            <td>
-                                <span class="badge" style="background: #f1f5f9; color: #334155; font-weight: 700;">${d.total_item} items</span>
-                                <div style="font-size: 11px; color: #64748b; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${d.items_summary}</div>
-                            </td>
-                            <td><span class="text-muted"><i class="fa fa-user"></i> ${d.member}</span></td>
-                            <td><strong style="color: #0f172a; font-size: 13.5px;">${d.bayar}</strong></td>
-                            <td><span style="font-size: 11.5px; color: #64748b;">${d.created_at}</span></td>
-                            <td style="text-align: right; white-space: nowrap;">
-                                <a href="${d.resume_url}" class="btn btn-xs btn-success btn-flat" style="font-weight: 700; border-radius: 4px; padding: 4px 8px;">
-                                    Resume
-                                </a>
-                                <button type="button" onclick="deleteDraftItem('${d.delete_url}')" class="btn btn-xs btn-danger btn-flat" style="border-radius: 4px; padding: 4px 8px;" title="Delete draft">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `);
-                });
+            .done(res => {
+                refreshIcon.removeClass('fa-spin');
+                let drafts = Array.isArray(res) ? res : (res.data || []);
+                allDraftsData = drafts;
+                updateDraftCounts(drafts.length);
+                renderDraftsTable(drafts);
             })
             .fail(() => {
-                $('#draftListBody').html(`
+                refreshIcon.removeClass('fa-spin');
+                $('#draftListTableBody').html(`
                     <tr>
-                        <td colspan="7" class="text-center text-danger" style="padding: 20px;">
-                            <i class="fa fa-exclamation-triangle"></i> Failed to load draft list.
+                        <td colspan="7" class="text-center" style="padding: 35px 20px;">
+                            <div style="width: 48px; height: 48px; border-radius: 50%; background: #fee2e2; color: #ef4444; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 10px;">
+                                <i class="fa fa-exclamation-triangle"></i>
+                            </div>
+                            <h4 style="font-weight: 700; color: #1e293b; margin: 0 0 6px 0; font-size: 15px;">Failed to Load Drafts</h4>
+                            <p style="font-size: 12.5px; color: #64748b; margin: 0 0 12px 0;">Could not connect to server or retrieve parked invoice list.</p>
+                            <button type="button" class="btn btn-sm btn-flat" onclick="loadDraftList()" style="background: #ea580c; color: #fff; border-radius: 6px; font-weight: 700;">
+                                <i class="fa fa-refresh"></i> Retry Again
+                            </button>
                         </td>
                     </tr>
                 `);
             });
+    }
+
+    function updateDraftCounts(count) {
+        $('#draftModalCount').text(count + ' Parked');
+        let topBadge = $('#posDraftCountBadge');
+        if (topBadge.length) {
+            if (count > 0) {
+                topBadge.text(count).show();
+            } else {
+                topBadge.hide();
+            }
+        }
+    }
+
+    function renderDraftsTable(drafts) {
+        let tbody = $('#draftListTableBody');
+        tbody.empty();
+
+        if (!drafts || drafts.length === 0) {
+            tbody.html(`
+                <tr>
+                    <td colspan="7" class="text-center" style="padding: 45px 20px;">
+                        <div style="width: 56px; height: 56px; border-radius: 50%; background: #f0fdf4; color: #10b981; display: inline-flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 12px; border: 1px solid #bbf7d0;">
+                            <i class="fa fa-check-circle"></i>
+                        </div>
+                        <h4 style="font-weight: 800; color: #0f172a; margin: 0 0 4px 0; font-size: 16px;">No Active Draft Orders</h4>
+                        <p style="font-size: 12.5px; color: #64748b; margin: 0 0 16px 0;">All table and takeaway orders have been settled or are currently empty.</p>
+                        <a href="{{ route('transaksi.baru') }}" class="btn btn-sm btn-flat" style="background: #ea580c; color: #fff; font-weight: 700; border-radius: 6px; padding: 7px 18px;">
+                            <i class="fa fa-plus-circle"></i> Start New Order
+                        </a>
+                    </td>
+                </tr>
+            `);
+            return;
+        }
+
+        drafts.forEach(d => {
+            let orderType = d.tipe_order || 'Dine-In';
+            let typeBadge = '';
+            if (orderType === 'Delivery') {
+                typeBadge = `<span class="draft-type-pill draft-type-delivery"><i class="fa fa-motorcycle"></i> ${d.nomor_meja || 'Delivery'}</span>`;
+            } else if (orderType === 'Takeaway') {
+                typeBadge = `<span class="draft-type-pill draft-type-takeaway"><i class="fa fa-shopping-bag"></i> ${d.nomor_meja || 'Takeaway'}</span>`;
+            } else {
+                typeBadge = `<span class="draft-type-pill draft-type-dinein"><i class="fa fa-cutlery"></i> ${d.nomor_meja || 'Table'}</span>`;
+            }
+
+            let customerPhone = d.telepon_pelanggan ? `<div class="draft-customer-phone"><i class="fa fa-phone" style="font-size:10px;"></i> ${d.telepon_pelanggan}</div>` : '';
+
+            let currentOrderBadge = d.is_current ? `<span class="label label-primary" style="font-size:9.5px; margin-left:4px; border-radius:3px;">Current</span>` : '';
+
+            tbody.append(`
+                <tr>
+                    <td>
+                        <span class="draft-inv-code">${d.invoice} ${currentOrderBadge}</span>
+                        <div class="draft-cashier-sub"><i class="fa fa-user-circle-o"></i> ${d.cashier_name || 'Cashier'}</div>
+                    </td>
+                    <td>
+                        ${typeBadge}
+                    </td>
+                    <td>
+                        <div class="draft-customer-name">
+                            <i class="fa fa-user text-muted" style="font-size: 11px;"></i>
+                            <span>${d.member}</span>
+                        </div>
+                        ${customerPhone}
+                    </td>
+                    <td>
+                        <span class="draft-item-count-badge">${d.total_item} ${d.total_item === 1 ? 'item' : 'items'}</span>
+                        <div class="draft-items-preview" title="${d.items_summary}">
+                            ${d.items_summary}
+                        </div>
+                    </td>
+                    <td style="text-align: right;">
+                        <div class="draft-amount-val">${d.bayar}</div>
+                        <span class="draft-status-pill">On-Hold</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="font-weight: 700; font-size: 12px; color: #1e293b;">${d.time_ago || ''}</div>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 1px;">${d.created_at}</div>
+                    </td>
+                    <td style="text-align: right; white-space: nowrap;">
+                        <div class="draft-actions-wrap">
+                            <a href="${d.resume_url}" class="btn-draft-resume" title="Resume order in POS">
+                                <i class="fa fa-play-circle"></i> Resume
+                            </a>
+                            <button type="button" onclick="deleteDraftItem('${d.delete_url}')" class="btn-draft-delete" title="Delete draft">
+                                <i class="fa fa-trash-o"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `);
+        });
+    }
+
+    function filterDraftTable() {
+        let q = ($('#draftSearchInput').val() || '').toLowerCase().trim();
+        if (!q) {
+            renderDraftsTable(allDraftsData);
+            return;
+        }
+
+        let filtered = allDraftsData.filter(d => {
+            return (d.invoice && d.invoice.toLowerCase().includes(q)) ||
+                   (d.nomor_meja && d.nomor_meja.toLowerCase().includes(q)) ||
+                   (d.tipe_order && d.tipe_order.toLowerCase().includes(q)) ||
+                   (d.member && d.member.toLowerCase().includes(q)) ||
+                   (d.items_summary && d.items_summary.toLowerCase().includes(q)) ||
+                   (d.cashier_name && d.cashier_name.toLowerCase().includes(q));
+        });
+
+        renderDraftsTable(filtered);
     }
 
     function deleteDraftItem(url) {
@@ -1817,6 +2343,7 @@ Create New Invoice
                 showSuccessToast('Draft deleted & Table Released');
                 loadDraftList();
                 loadTablesStatus();
+                loadDraftCountBadge();
             })
             .fail(() => {
                 showErrorToast('Failed to delete draft');

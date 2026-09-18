@@ -127,9 +127,21 @@ return [
         ],
 
         'inventory' => [
-            'title' => 'Purchases & Suppliers',
-            'description' => 'Stock purchases, ingredient buying, and suppliers.',
+            'title' => 'Purchases & Inventory Stock',
+            'description' => 'Stock purchases, ingredient buying, raw materials, and recipes.',
             'permissions' => [
+                'raw_materials.view' => [
+                    'label' => 'View Raw Materials',
+                    'desc' => 'View stock of raw ingredients and threshold alerts.'
+                ],
+                'raw_materials.manage' => [
+                    'label' => 'Manage Raw Materials',
+                    'desc' => 'Add, edit raw materials and adjust stock levels.'
+                ],
+                'recipes.manage' => [
+                    'label' => 'Manage Dish Recipes (BOM)',
+                    'desc' => 'Configure ingredients required for menu items.'
+                ],
                 'purchases.view' => [
                     'label' => 'View Purchases',
                     'desc' => 'View stock purchases history and purchase invoices.'
@@ -141,6 +153,10 @@ return [
                 'suppliers.manage' => [
                     'label' => 'Manage Suppliers',
                     'desc' => 'Add and manage vendor / supplier profiles.'
+                ],
+                'tables.manage' => [
+                    'label' => 'Manage Dining Tables',
+                    'desc' => 'Add, edit, delete, and release dining tables.'
                 ],
             ]
         ],

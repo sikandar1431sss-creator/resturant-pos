@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Meja;
+use App\Models\Member;
 use App\Models\Penjualan;
 use App\Models\PenjualanDetail;
 use App\Models\Produk;
 use App\Models\Setting;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PDF;
@@ -15,10 +17,14 @@ class PenjualanController extends Controller
 {
     public function index()
     {
-        return view('penjualan.index');
+        $users = User::orderBy('name')->get();
+        $meja = Meja::orderBy('nomor_meja')->get();
+        $members = Member::orderBy('nama')->get();
+
+        return view('penjualan.index', compact('users', 'meja', 'members'));
     }
 
-    public function data()
+    public function data(Request $request)
     {
         $query = Penjualan::with(['member', 'user'])
             ->where('total_item', '>', 0);
@@ -28,11 +34,83 @@ class PenjualanController extends Controller
             $query->where('id_user', auth()->id());
         }
 
+        // Date Range Filter
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        // Status Pembayaran Filter
+        if ($request->filled('status_pembayaran') && $request->status_pembayaran !== 'all') {
+            if ($request->status_pembayaran === 'paid') {
+                $query->where(function($q) {
+                    $q->where('status_pembayaran', 'paid')
+                      ->orWhereRaw('diterima >= bayar');
+                });
+            } elseif ($request->status_pembayaran === 'unpaid') {
+                $query->where(function($q) {
+                    $q->where('status_pembayaran', '!=', 'paid')
+                      ->whereRaw('(diterima < bayar OR status_pembayaran IS NULL OR status_pembayaran = "")');
+                });
+            }
+        }
+
+        // Payment Method Filter
+        if ($request->filled('metode_pembayaran') && $request->metode_pembayaran !== 'all') {
+            $query->where('metode_pembayaran', $request->metode_pembayaran);
+        }
+
+        // Dining / Order Type Filter
+        if ($request->filled('tipe_order') && $request->tipe_order !== 'all') {
+            $query->where('tipe_order', $request->tipe_order);
+        }
+
+        // Cashier / User Filter
+        if ($request->filled('id_user') && $request->id_user !== 'all') {
+            $query->where('id_user', $request->id_user);
+        }
+
+        // Table Filter
+        if ($request->filled('nomor_meja') && $request->nomor_meja !== 'all') {
+            $query->where('nomor_meja', $request->nomor_meja);
+        }
+
+        // Calculate KPI stats on filtered query
+        $statsQuery = clone $query;
+        $allMatching = $statsQuery->get();
+        $totalCount = $allMatching->count();
+        $totalAmount = (float) $allMatching->sum('bayar');
+        $paidCount = 0;
+        $paidAmount = 0;
+        $unpaidCount = 0;
+        $unpaidAmount = 0;
+
+        foreach ($allMatching as $inv) {
+            $isPaid = (strtolower($inv->status_pembayaran ?? '') === 'paid' || $inv->diterima >= $inv->bayar);
+            if ($isPaid) {
+                $paidCount++;
+                $paidAmount += (float) $inv->bayar;
+            } else {
+                $unpaidCount++;
+                $unpaidAmount += (float) $inv->bayar;
+            }
+        }
+
         $penjualan = $query->orderBy('id_penjualan', 'desc')->get();
 
         return datatables()
             ->of($penjualan)
             ->addIndexColumn()
+            ->with('stats', [
+                'total_count' => $totalCount,
+                'total_amount' => format_currency($totalAmount),
+                'paid_count' => $paidCount,
+                'paid_amount' => format_currency($paidAmount),
+                'unpaid_count' => $unpaidCount,
+                'unpaid_amount' => format_currency($unpaidAmount),
+            ])
             ->addColumn('invoice', function ($penjualan) {
                 $type = $penjualan->tipe_order ?? 'Dine-In';
                 $badge = '';
@@ -153,7 +231,7 @@ class PenjualanController extends Controller
                 ';
             })
 
-            ->rawColumns(['aksi', 'invoice', 'kode_member', 'total_item', 'bayar', 'metode_pembayaran', 'status_pembayaran', 'tanggal', 'diskon', 'kasir'])
+            ->rawColumns(['aksi', 'invoice', 'kode_member', 'total_item', 'bayar', 'metode_pembayaran', 'status_pembayaran', 'tanggal', 'diskon', 'kasir', 'DT_RowIndex'])
             ->make(true);
     }
 
@@ -637,9 +715,16 @@ class PenjualanController extends Controller
 
     public function draftList()
     {
-        $query = Penjualan::with(['member', 'user'])
-            ->where('diterima', 0)
-            ->where('total_item', '>', 0);
+        $query = Penjualan::with(['member', 'user', 'detail.produk'])
+            ->where(function ($q) {
+                $q->where('diterima', 0)
+                  ->orWhere('status_pembayaran', 'unpaid')
+                  ->orWhereNull('status_pembayaran');
+            })
+            ->where(function ($q) {
+                $q->where('total_item', '>', 0)
+                  ->orWhereHas('detail');
+            });
 
         // Strict Multi-Cashier Scoping for draft parked invoices
         if (auth()->check() && !auth()->user()->hasRole('admin') && !auth()->user()->can('sales.view_all') && auth()->user()->level != 1) {
@@ -647,26 +732,45 @@ class PenjualanController extends Controller
         }
 
         $drafts = $query->orderBy('id_penjualan', 'desc')->get();
+        $currentSessionId = session('id_penjualan');
 
         $data = [];
         foreach ($drafts as $d) {
-            $details = PenjualanDetail::with('produk')->where('id_penjualan', $d->id_penjualan)->get();
+            $details = $d->detail;
+            if (!$details || $details->isEmpty()) {
+                $details = PenjualanDetail::with('produk')->where('id_penjualan', $d->id_penjualan)->get();
+            }
+
+            $itemsCount = $d->total_item > 0 ? (int)$d->total_item : (int)$details->sum('jumlah');
+
+            if ($itemsCount === 0 && $details->isEmpty()) {
+                continue;
+            }
+
             $itemsSummary = $details->map(function ($item) {
-                return ($item->jumlah . 'x ' . ($item->produk->nama_produk ?? 'Dish'));
+                $dishName = $item->produk->nama_produk ?? 'Food Item';
+                return ($item->jumlah . 'x ' . $dishName);
             })->implode(', ');
+
+            $createdAtCarbon = \Carbon\Carbon::parse($d->created_at);
 
             $data[] = [
                 'id_penjualan' => $d->id_penjualan,
                 'invoice' => '#INV-' . tambah_nol_didepan($d->id_penjualan, 5),
-                'nomor_meja' => $d->nomor_meja ?: 'Table 1',
+                'nomor_meja' => $d->nomor_meja ?: ($d->tipe_order === 'Takeaway' ? 'Takeaway' : ($d->tipe_order === 'Delivery' ? 'Delivery' : 'Table 1')),
                 'tipe_order' => $d->tipe_order ?: 'Dine-In',
-                'total_item' => $d->total_item,
+                'total_item' => $itemsCount,
                 'total_harga' => format_currency($d->total_harga),
                 'bayar' => format_currency($d->bayar),
-                'bayar_raw' => $d->bayar,
+                'bayar_raw' => (float)$d->bayar,
                 'member' => $d->member->nama ?? $d->nama_pelanggan ?? 'Walk-in',
-                'items_summary' => $itemsSummary,
-                'created_at' => date('d M, H:i', strtotime($d->created_at)),
+                'telepon_pelanggan' => $d->telepon_pelanggan ?? '',
+                'items_summary' => $itemsSummary ?: 'No items listed',
+                'created_at' => $createdAtCarbon->format('d M, H:i'),
+                'full_date' => $createdAtCarbon->format('d M Y, h:i A'),
+                'time_ago' => $createdAtCarbon->diffForHumans(),
+                'cashier_name' => $d->user->name ?? 'Cashier',
+                'is_current' => ($currentSessionId == $d->id_penjualan),
                 'resume_url' => route('transaksi.resume_draft', $d->id_penjualan),
                 'delete_url' => route('transaksi.delete_draft', $d->id_penjualan)
             ];

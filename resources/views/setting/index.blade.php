@@ -508,25 +508,26 @@
         // Form Submit Handler
         $('.form-setting').validator().on('submit', function (e) {
             if (! e.preventDefault()) {
+                let $submitBtn = $(this).find('button[type="submit"]');
+                let originalBtnHtml = $submitBtn.html();
+                $submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
+
                 $.ajax({
                     url: $('.form-setting').attr('action'),
                     type: $('.form-setting').attr('method'),
                     data: new FormData($('.form-setting')[0]),
-                    async: false,
                     processData: false,
                     contentType: false
                 })
                 .done(response => {
                     showData();
-                    Swal.fire({
-                        title: 'Saved!',
-                        text: 'Settings and Invoice preferences updated successfully.',
-                        icon: 'success',
-                        confirmButtonColor: '#0284c7'
-                    });
+                    showSuccessToast('Settings and preferences saved successfully!');
                 })
                 .fail(errors => {
-                    showErrorToast('Unable to save settings');
+                    showErrorToast('Unable to save settings. Please check required fields.');
+                })
+                .always(() => {
+                    $submitBtn.prop('disabled', false).html(originalBtnHtml);
                 });
             }
         });

@@ -60,14 +60,21 @@ class RolePermissionSeeder extends Seeder
             'kitchen.manage_orders',
             'sales.view_all',
             'sales.view_own',
+            'sales.view',
             'sales.edit',
+            'sales.delete',
             'products.view',
             'products.create',
             'products.edit',
+            'products.delete',
             'deals.view',
             'deals.manage',
             'categories.view',
             'categories.manage',
+            'raw_materials.view',
+            'raw_materials.manage',
+            'recipes.manage',
+            'tables.manage',
             'purchases.view',
             'purchases.manage',
             'suppliers.manage',
@@ -76,6 +83,7 @@ class RolePermissionSeeder extends Seeder
             'members.manage',
             'reports.view',
             'reports.export',
+            'users.manage',
         ]);
 
         // --- CASHIER / COUNTER STAFF (Counter Billing & Own Shift Invoices) ---
@@ -101,16 +109,14 @@ class RolePermissionSeeder extends Seeder
             'pos.print_kot',
         ]);
 
-        // --- DINE-IN / FRONT WAITER (Order Taking, KOT & Billing) ---
+        // --- DINE-IN / FRONT WAITER (Order Taking, Table Drafts, KOT) ---
         $waiterRole = Role::firstOrCreate(['name' => 'waiter', 'guard_name' => 'web']);
         $waiterRole->syncPermissions([
             'pos.access',
             'pos.create_order',
-            'pos.settle_payment',
-            'pos.apply_discount',
             'pos.drafts',
-            'pos.print_bill',
             'pos.print_kot',
+            'pos.print_bill',
             'sales.view_own',
             'kitchen.access',
         ]);

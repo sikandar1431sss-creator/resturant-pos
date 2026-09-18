@@ -87,7 +87,6 @@
                     url: $('.form-profil').attr('action'),
                     type: $('.form-profil').attr('method'),
                     data: new FormData($('.form-profil')[0]),
-                    async: false,
                     processData: false,
                     contentType: false
                 })

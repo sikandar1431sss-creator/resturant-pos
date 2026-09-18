@@ -7,15 +7,21 @@ use App\Http\Controllers\{
     ProdukController,
     DealController,
     MemberController,
+    MejaController,
     PengeluaranController,
     PembelianController,
     PembelianDetailController,
     PenjualanController,
     PenjualanDetailController,
     KitchenController,
+    ProductRecipeController,
+    RawMaterialController,
     RoleController,
     SettingController,
     SupplierController,
+    SupplierLedgerController,
+    CustomerLedgerController,
+    UnitController,
     UserController,
 };
 use Illuminate\Support\Facades\Route;
@@ -36,7 +42,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/dashboard/table-status', [DashboardController::class, 'getTableStatus'])->name('dashboard.table_status');
 
     // ==========================================
-    // 1. ADMIN & MANAGER (Inventory, Menu, Deals, Expenses)
+    // 1. ADMIN & MANAGER (Menu, Deals, Inventory & Recipes, Tables, Expenses)
     // ==========================================
     Route::group(['middleware' => ['role_or_permission:admin|manager|categories.view|products.view|purchases.view|expenses.view']], function () {
         // Deals & Combos
@@ -53,24 +59,59 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/produk/cetak-barcode', [ProdukController::class, 'cetakBarcode'])->name('produk.cetak_barcode');
         Route::resource('/produk', ProdukController::class);
 
+        // Dish Recipes & Ingredients Mapping (BOM)
+        Route::get('/recipe', [ProductRecipeController::class, 'index'])->name('recipe.index');
+        Route::get('/recipe/{id}/get', [ProductRecipeController::class, 'getRecipe'])->name('recipe.get');
+        Route::get('/recipe/{id}/data', [ProductRecipeController::class, 'getRecipe'])->name('recipe.data');
+        Route::post('/recipe/{id}/save', [ProductRecipeController::class, 'saveRecipe'])->name('recipe.save');
+        Route::post('/recipe/{id}', [ProductRecipeController::class, 'saveRecipe']);
+
+        // Raw Materials & Ingredients Inventory
+        Route::get('/raw_material/data', [RawMaterialController::class, 'data'])->name('raw_material.data');
+        Route::post('/raw_material/{id}/adjust', [RawMaterialController::class, 'adjust'])->name('raw_material.adjust');
+        Route::resource('/raw_material', RawMaterialController::class);
+
+        // Measurement Units (KG, Gram, Liter, Pcs)
+        Route::get('/unit/data', [UnitController::class, 'data'])->name('unit.data');
+        Route::get('/unit/list', [UnitController::class, 'list'])->name('unit.list');
+        Route::resource('/unit', UnitController::class);
+
+        // Dining Tables & Seating Management
+        Route::get('/meja/data', [MejaController::class, 'data'])->name('meja.data');
+        Route::post('/meja/{id}/free', [MejaController::class, 'freeTable'])->name('meja.free');
+        Route::resource('/meja', MejaController::class);
+
         // Suppliers & Purchases
         Route::get('/supplier/data', [SupplierController::class, 'data'])->name('supplier.data');
         Route::resource('/supplier', SupplierController::class);
 
         Route::get('/pembelian/data', [PembelianController::class, 'data'])->name('pembelian.data');
         Route::get('/pembelian/{id}/create', [PembelianController::class, 'create'])->name('pembelian.create');
+        Route::get('/pembelian/create', [PembelianController::class, 'create']);
         Route::get('/pembelian/{id}/nota-kecil', [PembelianController::class, 'notaKecil'])->name('pembelian.nota_kecil');
         Route::post('/pembelian/{id}/settle-payment', [PembelianController::class, 'settlePayment'])->name('pembelian.settle_payment');
-        Route::resource('/pembelian', PembelianController::class);
+        Route::resource('/pembelian', PembelianController::class)->except('create');
 
         Route::get('/pembelian_detail/{id}/data', [PembelianDetailController::class, 'data'])->name('pembelian_detail.data');
-        Route::get('/pembelian_detail/loadform/{diskon}/{total}', [PembelianDetailController::class, 'loadForm'])->name('pembelian_detail.load_form');
+        Route::get('/pembelian_detail/loadform/{diskon?}/{total?}', [PembelianDetailController::class, 'loadForm'])->name('pembelian_detail.load_form');
         Route::resource('/pembelian_detail', PembelianDetailController::class)->except('create', 'show', 'edit');
 
         // Customer Members
         Route::get('/member/data', [MemberController::class, 'data'])->name('member.data');
         Route::post('/member/cetak-member', [MemberController::class, 'cetakMember'])->name('member.cetak_member');
         Route::resource('/member', MemberController::class);
+
+        // Supplier Ledgers & Statements
+        Route::get('/ledger/supplier/data', [SupplierLedgerController::class, 'data'])->name('ledger.supplier.data');
+        Route::get('/ledger/supplier', [SupplierLedgerController::class, 'index'])->name('ledger.supplier.index');
+        Route::get('/ledger/supplier/{id}', [SupplierLedgerController::class, 'statement'])->name('ledger.supplier.statement');
+        Route::post('/ledger/supplier/{id}/pay', [SupplierLedgerController::class, 'recordPayment'])->name('ledger.supplier.pay');
+
+        // Customer Ledgers & Statements
+        Route::get('/ledger/customer/data', [CustomerLedgerController::class, 'data'])->name('ledger.customer.data');
+        Route::get('/ledger/customer', [CustomerLedgerController::class, 'index'])->name('ledger.customer.index');
+        Route::get('/ledger/customer/{id}', [CustomerLedgerController::class, 'statement'])->name('ledger.customer.statement');
+        Route::post('/ledger/customer/{id}/receive', [CustomerLedgerController::class, 'receivePayment'])->name('ledger.customer.receive');
 
         // Operational Expenses
         Route::get('/pengeluaran/data', [PengeluaranController::class, 'data'])->name('pengeluaran.data');
