@@ -21,55 +21,70 @@
     <style>
         * {
             box-sizing: border-box;
-            font-family: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         body.login-page {
             min-height: 100vh;
             margin: 0;
-            padding: 20px 10px;
-            background: url('{{ asset('img/login-bg.jpg') }}') no-repeat center center fixed !important;
-            background-size: cover !important;
+            padding: 24px 14px;
+            background: #0f172a;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
+            overflow-x: hidden;
         }
 
-        /* Subtle ambient vignette overlay */
-        body.login-page::before {
-            content: '';
-            position: absolute;
+        /* Fullscreen Infinite Background Video */
+        .bg-video-element {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Dark Radial Gradient Overlay for High Readability */
+        .video-overlay {
+            position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.08);
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.45) 0%, rgba(15, 23, 42, 0.78) 100%);
+            z-index: 1;
             pointer-events: none;
         }
 
         .login-card-container {
-            width: 440px;
-            max-width: 94vw;
+            width: 420px;
+            max-width: 95vw;
             position: relative;
-            z-index: 2;
-            margin: 10px auto;
+            z-index: 10;
+            margin: auto;
         }
 
         .login-card {
-            background: #ffffff;
-            border-radius: 18px;
-            padding: 34px 34px 28px 34px;
-            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35), 0 10px 25px -5px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.94);
+            border-radius: 20px;
+            padding: 36px 32px 30px 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: all 0.3s ease;
         }
 
         /* Centered Boxed Logo */
         .logo-box-wrapper {
             text-align: center;
-            margin-bottom: 8px;
+            margin-bottom: 20px;
         }
 
         .logo-frame-box {
@@ -77,26 +92,36 @@
             height: 76px;
             background: #ffffff;
             border: 1.5px solid #e2e8f0;
-            border-radius: 14px;
+            border-radius: 16px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             padding: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
         }
 
         .logo-frame-box img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .login-brand-title {
+            font-weight: 800;
+            font-size: 20px;
+            color: #0f172a;
+            margin-top: 12px;
+            letter-spacing: -0.02em;
+            line-height: 1.25;
         }
 
         .login-subtitle {
             text-align: center;
             color: #64748b;
-            font-size: 13.5px;
+            font-size: 13px;
             font-weight: 500;
-            margin: 10px 0 24px 0;
+            margin: 4px 0 0 0;
         }
 
         /* Form Controls */
@@ -107,149 +132,119 @@
 
         .form-label-custom {
             display: block;
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 12.5px;
+            font-weight: 700;
             color: #334155;
             margin-bottom: 6px;
+            letter-spacing: 0.01em;
         }
 
         .input-custom-wrapper {
             position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 15px;
+            pointer-events: none;
+            transition: color 0.2s ease;
         }
 
         .input-custom {
             width: 100%;
-            height: 46px;
-            border: 1px solid #cbd5e1;
-            border-radius: 9px;
-            padding: 0 14px;
+            height: 48px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 0 42px 0 38px;
             font-size: 14px;
             color: #0f172a;
             background: #ffffff;
             transition: all 0.2s ease;
             outline: none;
+            font-weight: 500;
         }
 
         .input-custom:focus {
-            border-color: #16a34a;
-            box-shadow: 0 0 0 3.5px rgba(22, 163, 74, 0.15);
+            border-color: #ea580c;
+            box-shadow: 0 0 0 3.5px rgba(234, 88, 12, 0.16);
+        }
+
+        .input-custom-wrapper:focus-within .input-icon {
+            color: #ea580c;
         }
 
         .password-toggle-btn {
             position: absolute;
             right: 12px;
-            top: 13px;
+            top: 50%;
+            transform: translateY(-50%);
             background: transparent;
             border: none;
             color: #94a3b8;
             cursor: pointer;
             font-size: 15px;
-            padding: 0;
+            padding: 6px;
             outline: none;
             transition: color 0.15s ease;
         }
 
         .password-toggle-btn:hover {
-            color: #334155;
+            color: #1e293b;
         }
 
-        /* Green Submit Button matching the reference screenshot */
-        .btn-green-submit {
+        /* Modern Gradient Submit Button */
+        .btn-login-submit {
             width: 100%;
             height: 48px;
-            background: #1b8a53 !important;
+            background: linear-gradient(135deg, #ea580c 0%, #f97316 100%) !important;
             color: #ffffff !important;
             border: none !important;
-            border-radius: 9px !important;
-            font-size: 16px !important;
+            border-radius: 10px !important;
+            font-size: 15.5px !important;
             font-weight: 700 !important;
+            letter-spacing: 0.01em;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 14px rgba(27, 138, 83, 0.35);
+            box-shadow: 0 6px 20px rgba(234, 88, 12, 0.35);
             transition: all 0.2s ease;
-            margin-top: 22px;
+            margin-top: 24px;
         }
 
-        .btn-green-submit:hover {
-            background: #157343 !important;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 18px rgba(27, 138, 83, 0.45);
+        .btn-login-submit:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 8px 24px rgba(234, 88, 12, 0.45);
             color: #ffffff !important;
         }
 
-        .btn-green-submit:active {
+        .btn-login-submit:active {
             transform: scale(0.99);
         }
 
-        /* Quick Demo Credentials Panel */
-        .quick-credentials-panel {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 14px 12px;
-            margin-top: 22px;
-        }
-
-        .quick-cred-heading {
-            font-size: 11.5px;
-            font-weight: 700;
-            color: #475569;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .quick-role-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-        }
-
-        .quick-role-chip {
-            background: #ffffff;
-            border: 1px solid #cbd5e1;
-            border-radius: 7px;
-            padding: 7px 8px;
-            font-size: 11.5px;
-            font-weight: 600;
-            color: #1e293b;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.15s ease;
-            user-select: none;
-        }
-
-        .quick-role-chip:hover {
-            border-color: #16a34a;
-            color: #16a34a;
-            background: #f0fdf4;
-            transform: translateY(-1px);
-        }
-
-        .quick-role-chip.active-chip {
-            border-color: #16a34a;
-            background: #dcfce7;
-            color: #15803d;
-            font-weight: 700;
-        }
-
-        .pwd-hint-banner {
-            font-size: 11px;
-            color: #64748b;
+        .login-footer-copy {
             text-align: center;
-            margin-top: 8px;
+            margin-top: 22px;
+            font-size: 11.5px;
+            color: #64748b;
+            font-weight: 600;
         }
     </style>
 </head>
 <body class="login-page">
     
+    <!-- Background Video with AutoPlay, Loop & Muted -->
+    <video autoplay muted loop playsinline preload="auto" class="bg-video-element">
+        <source src="{{ asset('bg.mp4') }}" type="video/mp4">
+    </video>
+
+    <!-- Ambient Dark Overlay -->
+    <div class="video-overlay"></div>
+
     @yield('login')
 
     <!-- jQuery 3 -->

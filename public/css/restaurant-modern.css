@@ -89,30 +89,129 @@ body .main-header .logo {
     color: var(--dark-900) !important;
     font-weight: 800 !important;
     letter-spacing: -0.02em;
-    font-size: 17px !important;
     border-right: 1px solid var(--gray-200) !important;
     border-bottom: 1px solid var(--gray-200) !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    height: 55px;
-    line-height: 55px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    height: 55px !important;
+    line-height: normal !important;
+    padding: 0 !important;
     transition: all 0.2s ease;
+    text-decoration: none !important;
+    overflow: hidden;
 }
 
 .main-header .logo:hover {
     background: #ffffff !important;
+    text-decoration: none !important;
 }
 
 .main-header .logo .logo-mini {
-    font-weight: 800;
-    color: var(--primary);
-    font-size: 18px;
+    display: none !important;
+    width: 50px;
+    height: 55px;
+    align-items: center;
+    justify-content: center;
 }
 
 .main-header .logo .logo-lg {
-    color: var(--dark-900);
+    display: flex !important;
+    align-items: center;
+    width: 230px;
+    height: 55px;
+    padding: 0 12px;
+}
+
+/* Header Brand Box Components */
+.header-brand-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.header-brand-logo-img {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    max-width: 38px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1.5px solid #e2e8f0;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.header-logo-mini-img {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    max-width: 36px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1.5px solid #e2e8f0;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.header-brand-icon-box {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: 8px;
+    background: #ffedd5;
+    color: #ea580c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.header-brand-icon-mini {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 8px;
+    background: #ffedd5;
+    color: #ea580c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+}
+
+.header-brand-text-wrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+    overflow: hidden;
+    line-height: 1.25;
+}
+
+.header-brand-title {
+    font-weight: 800;
+    color: #0f172a;
+    font-size: 14.5px;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    max-width: 155px;
+}
+
+.header-brand-subtitle {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #ea580c;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 1px;
+    line-height: 1;
 }
 
 .main-header .navbar,

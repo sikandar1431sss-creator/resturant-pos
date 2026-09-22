@@ -4,19 +4,28 @@
         <!-- mini logo for sidebar mini 50x50 pixels -->
         <span class="logo-mini">
             @if(!empty($setting->path_logo) && file_exists(public_path($setting->path_logo)))
-                <img src="{{ url($setting->path_logo) }}" alt="{{ $setting->nama_perusahaan ?? 'Logo' }}" style="max-height: 32px; max-width: 32px; object-fit: contain; vertical-align: middle; border-radius: 6px;">
+                <img src="{{ url($setting->path_logo) }}" alt="Logo" class="header-logo-mini-img">
             @else
-                <i class="fa fa-cutlery" style="color: #f97316; font-size: 18px;"></i>
+                <div class="header-brand-icon-mini">
+                    <i class="fa fa-cutlery"></i>
+                </div>
             @endif
         </span>
         <!-- logo for regular state and mobile devices -->
-        <span class="logo-lg" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 100%;">
-            @if(!empty($setting->path_logo) && file_exists(public_path($setting->path_logo)))
-                <img src="{{ url($setting->path_logo) }}" alt="{{ $setting->nama_perusahaan ?? 'Logo' }}" style="max-height: 38px; max-width: 150px; object-fit: contain; vertical-align: middle; border-radius: 6px;">
-            @else
-                <i class="fa fa-cutlery" style="color: #f97316; font-size: 18px;"></i>
-                <b style="font-weight: 800; color: #0f172a; font-size: 15.5px; letter-spacing: -0.02em;">{{ $setting->nama_perusahaan ?? 'Restaurant POS' }}</b>
-            @endif
+        <span class="logo-lg">
+            <div class="header-brand-box">
+                @if(!empty($setting->path_logo) && file_exists(public_path($setting->path_logo)))
+                    <img src="{{ url($setting->path_logo) }}" alt="{{ $setting->nama_perusahaan ?? 'Logo' }}" class="header-brand-logo-img">
+                @else
+                    <div class="header-brand-icon-box">
+                        <i class="fa fa-cutlery"></i>
+                    </div>
+                @endif
+                <div class="header-brand-text-wrap">
+                    <span class="header-brand-title" title="{{ $setting->nama_perusahaan ?? 'Restaurant POS' }}">{{ $setting->nama_perusahaan ?? 'Restaurant POS' }}</span>
+                    <span class="header-brand-subtitle">Point of Sale</span>
+                </div>
+            </div>
         </span>
     </a>
 

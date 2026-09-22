@@ -581,13 +581,10 @@
                 
                 $('title').text(response.nama_perusahaan + ' | Settings');
                 
-                let words = (response.nama_perusahaan || '').split(' ');
-                let word  = '';
-                words.forEach(w => {
-                    word += w.charAt(0);
-                });
-                $('.logo-mini').text(word);
-                $('.logo-lg').text(response.nama_perusahaan);
+                $('.header-brand-title').text(response.nama_perusahaan);
+                if (response.path_logo) {
+                    $('.header-brand-logo-img, .header-logo-mini-img').attr('src', `{{ url('/') }}${response.path_logo}`);
+                }
 
                 $('.tampil-logo').html(`<img src="{{ url('/') }}${response.path_logo}" style="max-height: 70px; max-width: 130px; object-fit: contain; border: 1px solid #e2e8f0; border-radius: 4px; padding: 4px; background: #fff;">`);
                 $('.tampil-kartu-member').html(`<img src="{{ url('/') }}${response.path_kartu_member}" style="max-height: 90px; max-width: 160px; object-fit: contain; border: 1px solid #e2e8f0; border-radius: 4px; padding: 4px; background: #fff;">`);

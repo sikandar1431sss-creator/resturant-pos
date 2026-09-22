@@ -1682,6 +1682,22 @@ Create New Invoice
             $('#catSelectFilter').val(cat);
             filterMenuGrid();
         });
+
+        // Note modal focus & keyboard shortcuts
+        $('#modal-item-notes').on('shown.bs.modal', function () {
+            $('#itemNoteInput').focus();
+        });
+
+        $('#itemNoteInput').on('input', function () {
+            updateQuickChipsState($(this).val());
+        });
+
+        $('#itemNoteInput').on('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                saveItemNote();
+            }
+        });
     });
 
     function setPaymentMethod(method) {
@@ -1898,16 +1914,16 @@ Create New Invoice
         let html = '';
         data.items.forEach(item => {
             let noteText = item.catatan || '';
-            let noteHtml = noteText ? `<div style="font-size: 11px; color: #ea580c; font-weight: 700; margin-top: 3px;"><i class="fa fa-tag"></i> ${noteText}</div>` : '';
+            let noteHtml = noteText ? `<div style="font-size: 11px; color: #ea580c; font-weight: 700; margin-top: 3px;"><i class="fa fa-tag"></i> ${escapeHtml(noteText)}</div>` : '';
 
             html += `
                 <div class="pos-food-card">
                     <div class="pos-food-info">
-                        <div class="pos-food-name" title="${item.nama_produk}">${item.nama_produk}</div>
+                        <div class="pos-food-name" title="${escapeHtml(item.nama_produk)}">${escapeHtml(item.nama_produk)}</div>
                         <div class="pos-food-price">${CURRENCY_SYMBOL} ${item.harga_jual}</div>
                         ${noteHtml}
                         <div>
-                            <button type="button" class="btn-food-note" onclick="addCookingNote(${item.id_detail}, '${escapeHtml(noteText)}')">
+                            <button type="button" class="btn-food-note" onclick="addCookingNote(${item.id_detail})">
                                 <i class="fa fa-pencil"></i> ${noteText ? 'Edit Note' : '+ Note / Add-ons'}
                             </button>
                         </div>
@@ -1946,7 +1962,7 @@ Create New Invoice
 
     function escapeHtml(str) {
         if (!str) return '';
-        return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        return $('<div>').text(str).html();
     }
 
     function addItemToCart(id_produk) {
@@ -1999,44 +2015,70 @@ Create New Invoice
     }
 
     // 1-Click Cooking Notes Modal
-    function addCookingNote(detailId, currentNote) {
+    function addCookingNote(detailId) {
+        let item = (currentCartData.items || []).find(x => x.id_detail == detailId);
+        let currentNote = item ? (item.catatan || '') : '';
         $('#noteDetailId').val(detailId);
-        $('#itemNoteInput').val(currentNote || '');
-        $('#modal-notes').modal('show');
+        $('#itemNoteInput').val(currentNote);
+        updateQuickChipsState(currentNote);
+        $('#modal-item-notes').modal('show');
+    }
+
+    function updateQuickChipsState(currentText) {
+        let text = (currentText || '').toLowerCase();
+        $('.btn-quick-chip').each(function () {
+            let chipTag = $(this).text().trim().toLowerCase();
+            if (chipTag && text.indexOf(chipTag) > -1) {
+                $(this).addClass('active');
+            } else {
+                $(this).removeClass('active');
+            }
+        });
     }
 
     function toggleQuickChip(tag) {
         let input = $('#itemNoteInput');
         let val = input.val().trim();
-        if (val.indexOf(tag) > -1) {
+        let regex = new RegExp('(?:^|,\\s*)' + tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?=,|$)', 'gi');
+
+        if (regex.test(val)) {
             // Remove tag
-            val = val.replace(tag, '').replace(/,\s*,/g, ',').replace(/^,\s*/, '').replace(/,\s*$/, '').trim();
+            val = val.replace(regex, '').replace(/^,\s*/, '').replace(/,\s*$/, '').replace(/,\s*,/g, ', ').trim();
         } else {
             // Append tag
             val = val ? (val + ', ' + tag) : tag;
         }
         input.val(val);
+        updateQuickChipsState(val);
     }
 
     function clearItemNote() {
         $('#itemNoteInput').val('');
+        $('.btn-quick-chip').removeClass('active');
+        $('#itemNoteInput').focus();
     }
 
     function saveItemNote() {
         let detailId = $('#noteDetailId').val();
         let note = $('#itemNoteInput').val().trim();
 
+        let btn = $('#modal-item-notes .modal-footer button.btn-primary');
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Saving...');
+
         $.post(`{{ url('/transaksi/item-note') }}/${detailId}`, {
             '_token': $('[name=csrf-token]').attr('content'),
             'catatan': note
         })
         .done(response => {
-            $('#modal-notes').modal('hide');
+            $('#modal-item-notes').modal('hide');
             loadCart();
             showSuccessToast('Kitchen instruction saved');
         })
         .fail(errors => {
             showErrorToast('Failed to save note');
+        })
+        .always(() => {
+            btn.prop('disabled', false).text('Save Note');
         });
     }
 
