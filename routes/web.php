@@ -55,6 +55,10 @@ Route::group(['middleware' => 'auth'], function () {
 
         // Products & Menu Items
         Route::get('/produk/data', [ProdukController::class, 'data'])->name('produk.data');
+        Route::get('/produk/sample-csv', [ProdukController::class, 'downloadSampleCsv'])->name('produk.sample_csv');
+        Route::post('/produk/import-direct', [ProdukController::class, 'autoImportCsv'])->name('produk.import_direct');
+        Route::post('/produk/import-parse', [ProdukController::class, 'parseCsv'])->name('produk.import_parse');
+        Route::post('/produk/import-process', [ProdukController::class, 'processCsv'])->name('produk.import_process');
         Route::post('/produk/delete-selected', [ProdukController::class, 'deleteSelected'])->name('produk.delete_selected');
         Route::post('/produk/cetak-barcode', [ProdukController::class, 'cetakBarcode'])->name('produk.cetak_barcode');
         Route::resource('/produk', ProdukController::class);

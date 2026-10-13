@@ -16,6 +16,8 @@
             <div class="box-header with-border">
                 <div class="box-header-actions" style="display: inline-flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                     <button onclick="addForm('{{ route('produk.store') }}')" class="btn btn-success btn-flat"><i class="fa fa-plus-circle"></i> Add New Product</button>
+                    <button onclick="openImportModal()" class="btn btn-primary btn-flat"><i class="fa fa-file-excel-o"></i> Import CSV Items</button>
+                    <a href="{{ route('produk.sample_csv') }}" class="btn btn-default btn-flat" title="Download sample template"><i class="fa fa-download"></i> Sample CSV</a>
                     <button onclick="deleteSelected('{{ route('produk.delete_selected') }}')" class="btn btn-danger btn-flat"><i class="fa fa-trash"></i> Delete</button>
                 </div>
             </div>
@@ -47,6 +49,7 @@
 </div>
 
 @includeIf('produk.form')
+@includeIf('produk.import_modal')
 @endsection
 
 @push('scripts')
@@ -192,6 +195,108 @@
                 .attr('action', url)
                 .submit();
         }
+    }
+
+    /* ========================================================
+     * 1-CLICK AUTOMATIC CSV IMPORT SCRIPT
+     * ======================================================== */
+    function openImportModal() {
+        $('#simple-selected-file-info').hide();
+        $('#simple-selected-filename').text('');
+        $('#simple_csv_file_input').val('');
+        $('#simple-import-loading').hide();
+        $('#btn-do-import').prop('disabled', false).html('<i class="fa fa-cloud-upload"></i> Upload & Import Items');
+        $('#simple-drop-zone').css({'border-color': '#3b82f6', 'background': '#ffffff'});
+        $('#modal-import-csv').modal('show');
+    }
+
+    function handleSimpleFileChosen(file) {
+        if (!file) return;
+        $('#simple-selected-filename').text(file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)');
+        $('#simple-selected-file-info').show();
+        $('#simple-drop-zone').css({'border-color': '#16a34a', 'background': '#f0fdf4'});
+    }
+
+    // HTML5 Drag and Drop events
+    $(function() {
+        let dropZone = document.getElementById('simple-drop-zone');
+        if (dropZone) {
+            ['dragenter', 'dragover'].forEach(function(eventName) {
+                dropZone.addEventListener(eventName, function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    $('#simple-drop-zone').css({'border-color': '#2563eb', 'background': '#eff6ff'});
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(function(eventName) {
+                dropZone.addEventListener(eventName, function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    $('#simple-drop-zone').css({'border-color': '#3b82f6', 'background': '#ffffff'});
+                }, false);
+            });
+
+            dropZone.addEventListener('drop', function(e) {
+                let dt = e.dataTransfer;
+                if (dt && dt.files && dt.files.length) {
+                    let file = dt.files[0];
+                    let input = document.getElementById('simple_csv_file_input');
+                    try {
+                        let transfer = new DataTransfer();
+                        transfer.items.add(file);
+                        input.files = transfer.files;
+                    } catch(err) {}
+                    handleSimpleFileChosen(file);
+                }
+            }, false);
+        }
+    });
+
+    function doDirectImport() {
+        let fileInput = document.getElementById('simple_csv_file_input');
+        if (!fileInput || !fileInput.files || !fileInput.files.length) {
+            showWarningToast('Please select a CSV file first.');
+            return;
+        }
+
+        let formData = new FormData($('#form-simple-csv-import')[0]);
+        let btn = $('#btn-do-import');
+        let originalText = btn.html();
+
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Importing...');
+        $('#simple-import-loading').show();
+
+        $.ajax({
+            url: '{{ route('produk.import_direct') }}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false
+        })
+        .done(function(res) {
+            btn.prop('disabled', false).html(originalText);
+            $('#simple-import-loading').hide();
+
+            if (res.status) {
+                $('#modal-import-csv').modal('hide');
+                showSuccessToast(res.message || 'Items imported successfully!');
+                if (typeof table !== 'undefined' && table.ajax) {
+                    table.ajax.reload();
+                }
+            } else {
+                showErrorToast(res.message || 'Import failed.');
+            }
+        })
+        .fail(function(xhr) {
+            btn.prop('disabled', false).html(originalText);
+            $('#simple-import-loading').hide();
+            let msg = 'Failed to import CSV file.';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                msg = xhr.responseJSON.message;
+            }
+            showErrorToast(msg);
+        });
     }
 </script>
 @endpush
