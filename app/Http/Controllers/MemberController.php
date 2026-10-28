@@ -85,17 +85,45 @@ class MemberController extends Controller
      */
     public function store(Request $request)
     {
-        $member = Member::latest()->first() ?? new Member();
-        $kode_member = (int) $member->kode_member +1;
+        $lastMember = Member::orderBy('id_member', 'desc')->first();
+        $kode_member = $lastMember ? ((int) $lastMember->kode_member + 1) : 1;
 
         $member = new Member();
         $member->kode_member = tambah_nol_didepan($kode_member, 5);
         $member->nama = $request->nama;
-        $member->telepon = $request->telepon;
-        $member->alamat = $request->alamat;
+        $member->telepon = $request->telepon ?? '';
+        $member->alamat = $request->alamat ?? '';
         $member->save();
 
-        return response()->json('Data saved successfully', 200);
+        return response()->json([
+            'message' => 'Data saved successfully',
+            'member' => $member
+        ], 200);
+    }
+
+    public function quickStore(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'telepon' => 'nullable|string|max:50',
+            'alamat' => 'nullable|string',
+        ]);
+
+        $lastMember = Member::orderBy('id_member', 'desc')->first();
+        $kode_member = $lastMember ? ((int) $lastMember->kode_member + 1) : 1;
+
+        $member = new Member();
+        $member->kode_member = tambah_nol_didepan($kode_member, 5);
+        $member->nama = $request->nama;
+        $member->telepon = $request->telepon ?? '';
+        $member->alamat = $request->alamat ?? '';
+        $member->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Customer registered successfully',
+            'member' => $member
+        ], 200);
     }
 
     /**

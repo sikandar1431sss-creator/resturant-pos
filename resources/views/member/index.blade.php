@@ -14,45 +14,72 @@
     .table-actions-group {
         display: inline-flex !important;
         align-items: center !important;
-        gap: 8px !important;
+        gap: 6px !important;
         flex-wrap: nowrap !important;
         vertical-align: middle !important;
     }
     .btn-table-action {
-        width: 34px !important;
-        height: 34px !important;
-        min-width: 34px !important;
-        border-radius: 8px !important;
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        border-radius: 6px !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        font-size: 13.5px !important;
+        font-size: 13px !important;
         border: 1px solid transparent !important;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        transition: background-color 0.15s ease, filter 0.15s ease !important;
         cursor: pointer !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+        box-shadow: none !important;
+        transform: none !important;
     }
     .btn-table-action:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.18) !important;
+        transform: none !important;
+        box-shadow: none !important;
+        filter: brightness(0.92) !important;
+    }
+    .btn-table-action i,
+    .btn-table-action .fa {
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        color: #ffffff !important;
     }
     .btn-table-action.btn-edit {
         background-color: #f59e0b !important;
+        background: #f59e0b !important;
         color: #ffffff !important;
         border-color: #f59e0b !important;
     }
-    .btn-table-action.btn-edit:hover {
+    .btn-table-action.btn-edit:hover,
+    .btn-table-action.btn-edit:focus {
         background-color: #d97706 !important;
+        background: #d97706 !important;
         color: #ffffff !important;
+        border-color: #d97706 !important;
     }
     .btn-table-action.btn-delete {
         background-color: #ef4444 !important;
+        background: #ef4444 !important;
         color: #ffffff !important;
         border-color: #ef4444 !important;
     }
-    .btn-table-action.btn-delete:hover {
+    .btn-table-action.btn-delete:hover,
+    .btn-table-action.btn-delete:focus {
         background-color: #dc2626 !important;
+        background: #dc2626 !important;
         color: #ffffff !important;
+        border-color: #dc2626 !important;
+    }
+    /* Prevent table responsive scrollbar jump/overflow on hover */
+    .box-body.table-responsive {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        padding-bottom: 8px !important;
+    }
+    .table > tbody > tr > td {
+        vertical-align: middle !important;
     }
 </style>
 @endpush

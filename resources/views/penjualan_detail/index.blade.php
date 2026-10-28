@@ -64,13 +64,14 @@ Create New Invoice
         align-items: center;
         gap: 6px;
         box-shadow: none !important;
-        transition: background-color 0.2s ease;
+        transition: none !important;
     }
 
     .btn-pos-pill-new:hover {
         background: #ea580c !important;
         color: #ffffff !important;
         box-shadow: none !important;
+        transition: none !important;
     }
 
     .btn-pos-pill-outline {
@@ -346,9 +347,9 @@ Create New Invoice
     }
 
     .btn-order-info-pill {
-        background: #ffffff;
-        color: #1e3a68;
-        border: none;
+        background: #ffffff !important;
+        color: #1e3a68 !important;
+        border: none !important;
         border-radius: 6px;
         padding: 5px 12px;
         font-size: 11.5px;
@@ -357,12 +358,13 @@ Create New Invoice
         align-items: center;
         gap: 5px;
         cursor: pointer;
-        transition: all 0.15s ease;
+        transition: none !important;
     }
 
     .btn-order-info-pill:hover {
-        background: #f1f5f9;
-        color: #0f172a;
+        background: #f1f5f9 !important;
+        color: #0f172a !important;
+        transition: none !important;
     }
 
     /* Main Content Body */
@@ -618,7 +620,7 @@ Create New Invoice
         justify-content: center;
         gap: 6px;
         cursor: pointer;
-        transition: all 0.15s ease;
+        transition: none !important;
         text-decoration: none !important;
     }
 
@@ -626,15 +628,17 @@ Create New Invoice
         background: #f1f5f9;
         border-color: #cbd5e1;
         color: #0f172a;
+        transition: none !important;
     }
 
     /* Big Bright Orange Place Order Button at the very bottom */
     .btn-place-order {
         width: 100%;
         height: 50px;
-        background: linear-gradient(180deg, #ff6b3d 0%, #ff521d 100%);
-        color: #ffffff;
-        border: none;
+        background: #ff521d !important;
+        background-color: #ff521d !important;
+        color: #ffffff !important;
+        border: none !important;
         border-radius: 10px;
         font-size: 16px;
         font-weight: 800;
@@ -645,18 +649,27 @@ Create New Invoice
         justify-content: center;
         gap: 8px;
         box-shadow: none !important;
-        transition: background 0.2s ease;
+        transition: none !important;
+        animation: none !important;
+        transform: none !important;
     }
 
     .btn-place-order:hover {
-        background: #ea580c;
+        background: #ea580c !important;
+        background-color: #ea580c !important;
         box-shadow: none !important;
-        color: #ffffff;
+        color: #ffffff !important;
+        transition: none !important;
+        animation: none !important;
+        transform: none !important;
     }
 
     .btn-place-order:active {
-        background: #c2410c;
+        background: #c2410c !important;
+        background-color: #c2410c !important;
         box-shadow: none !important;
+        transition: none !important;
+        transform: none !important;
     }
 
     /* Quick Cooking Notes Chips */
@@ -1497,10 +1510,10 @@ Create New Invoice
                 <div class="row">
                     <div class="col-sm-6">
                         <div class="form-group" style="margin-bottom: 0;">
-                            <label style="font-size: 11px; font-weight: 700; color: #334155;">Registered Member:</label>
+                            <label style="font-size: 11px; font-weight: 700; color: #334155;">Registered Member / Customer:</label>
                             <div style="display: flex; gap: 4px;">
                                 <input type="text" id="modalCustomerName" class="form-control" readonly value="{{ $memberSelected->nama ?? 'Walk In Customer' }}" style="border-radius: 6px; font-size: 12px; font-weight: 700;">
-                                <button type="button" class="btn btn-default" onclick="tampilMember()" style="border-radius: 6px; font-weight: 700; font-size: 12px; padding: 6px 12px;" title="Select Member">Select</button>
+                                <button type="button" class="btn btn-default" onclick="tampilMember()" style="border-radius: 6px; font-weight: 700; font-size: 12px; padding: 6px 12px;" title="Select Customer">Select</button>
                             </div>
                         </div>
                     </div>
@@ -2397,13 +2410,36 @@ Create New Invoice
         $('#modal-member').modal('show');
     }
 
-    function pilihMember(id, kode) {
-        $('#form_id_member').val(id);
-        $('#form_diskon').val('{{ $diskon }}');
-        $('#modalCustomerName').val(kode);
+    function quickAddCustomerOpen() {
+        $('#modal-member').modal('show');
+        if (typeof showQuickCustomerForm === 'function') {
+            showQuickCustomerForm();
+        }
+    }
+
+    function pilihMember(id, kode, nama, telepon, alamat) {
+        $('#form_id_member').val(id || '');
+        $('#form_diskon').val(id ? '{{ $diskon }}' : '0');
+        $('#modalCustomerName').val(nama || kode || 'Walk In Customer');
+        if (nama) {
+            $('#form_nama_pelanggan').val(nama);
+            $('#modalDeliveryName').val(nama);
+        }
+        if (telepon) {
+            $('#form_telepon_pelanggan').val(telepon);
+            $('#modalDeliveryPhone').val(telepon);
+        }
+        if (alamat) {
+            $('#form_alamat_pengiriman').val(alamat);
+            $('#modalDeliveryAddress').val(alamat);
+        }
         $('#modal-member').modal('hide');
         renderCartUI(currentCartData);
-        showSuccessToast('VIP Member applied: {{ $diskon }}% discount');
+        if (id) {
+            showSuccessToast('Customer applied: ' + (nama || kode) + ({{ $diskon }} > 0 ? ' ({{ $diskon }}% discount)' : ''));
+        } else {
+            showSuccessToast('Set to Walk-In Customer');
+        }
     }
 </script>
 @endpush
