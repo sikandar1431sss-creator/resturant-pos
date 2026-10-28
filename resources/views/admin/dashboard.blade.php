@@ -323,6 +323,16 @@
         align-items: center;
         gap: 8px;
     }
+    .btn-table-filter {
+        border-radius: 6px !important;
+        font-weight: 700;
+        font-size: 11px;
+        padding: 4px 12px;
+        transition: all 0.15s ease;
+    }
+    .btn-table-filter.active {
+        color: #ffffff !important;
+    }
     .table-stats-pills {
         display: inline-flex;
         align-items: center;
@@ -731,10 +741,10 @@
         </div>
     </div>
 
-    <!-- 6. ROW 4: DINING TABLES STATUS (COL 6) -->
+    <!-- 6. ROW 4: DINING TABLES STATUS (100% FULL WIDTH) -->
     <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-12">
-            <div class="table-floor-card">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="table-floor-card" style="width: 100%;">
                 <div class="table-floor-header">
                     <div>
                         <h3 class="table-floor-title">
@@ -746,10 +756,10 @@
                     </div>
                     
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-primary btn-flat btn-table-filter active" data-filter="all" onclick="filterDashboardTables('all', this)" style="border-radius: 6px 0 0 6px; font-weight: 700; font-size: 11px;">All</button>
-                            <button type="button" class="btn btn-default btn-flat btn-table-filter" data-filter="free" onclick="filterDashboardTables('free', this)" style="font-weight: 700; font-size: 11px; color: #15803d;">Free</button>
-                            <button type="button" class="btn btn-default btn-flat btn-table-filter" data-filter="occupied" onclick="filterDashboardTables('occupied', this)" style="border-radius: 0 6px 6px 0; font-weight: 700; font-size: 11px; color: #b91c1c;">Occupied</button>
+                        <div style="display: inline-flex; align-items: center; gap: 6px;">
+                            <button type="button" class="btn btn-sm btn-primary btn-flat btn-table-filter active" data-filter="all" onclick="filterDashboardTables('all', this)">All</button>
+                            <button type="button" class="btn btn-sm btn-default btn-flat btn-table-filter" data-filter="free" onclick="filterDashboardTables('free', this)" style="color: #15803d;">Free</button>
+                            <button type="button" class="btn btn-sm btn-default btn-flat btn-table-filter" data-filter="occupied" onclick="filterDashboardTables('occupied', this)" style="color: #b91c1c;">Occupied</button>
                         </div>
 
                         <button type="button" class="btn btn-default btn-sm btn-flat" onclick="refreshDashboardTables()" title="Refresh table status" style="border-radius: 6px; padding: 4px 8px;">
