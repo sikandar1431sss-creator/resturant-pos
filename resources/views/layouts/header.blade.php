@@ -4,7 +4,7 @@
         <!-- mini logo for sidebar mini 50x50 pixels -->
         <span class="logo-mini">
             @if(!empty($setting->path_logo) && file_exists(public_path($setting->path_logo)))
-                <img src="{{ url($setting->path_logo) }}" alt="Logo" class="header-logo-mini-img">
+                <img src="{{ url($setting->path_logo) }}" alt="Logo" class="header-logo-mini-img" style="width: 34px; height: 34px; margin: 0 auto !important; padding: 0 !important; object-fit: contain; border-radius: 6px; display: block;">
             @else
                 <div class="header-brand-icon-mini">
                     <i class="fa fa-cutlery"></i>
@@ -12,18 +12,18 @@
             @endif
         </span>
         <!-- logo for regular state and mobile devices -->
-        <span class="logo-lg">
-            <div class="header-brand-box">
+        <span class="logo-lg" style="display: flex; align-items: center; justify-content: flex-start; width: 230px; height: 55px; padding: 0 12px;">
+            <div class="header-brand-box" style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; width: 100%; overflow: hidden;">
                 @if(!empty($setting->path_logo) && file_exists(public_path($setting->path_logo)))
-                    <img src="{{ url($setting->path_logo) }}" alt="{{ $setting->nama_perusahaan ?? 'Logo' }}" class="header-brand-logo-img">
+                    <img src="{{ url($setting->path_logo) }}" alt="{{ $setting->nama_perusahaan ?? 'Logo' }}" class="header-brand-logo-img" style="width: 38px; height: 38px; min-width: 38px; max-width: 38px; margin: 0 !important; padding: 0 !important; object-fit: contain; border-radius: 8px; flex-shrink: 0; display: block;">
                 @else
-                    <div class="header-brand-icon-box">
+                    <div class="header-brand-icon-box" style="width: 38px; height: 38px; min-width: 38px; margin: 0 !important; flex-shrink: 0;">
                         <i class="fa fa-cutlery"></i>
                     </div>
                 @endif
-                <div class="header-brand-text-wrap">
-                    <span class="header-brand-title" title="{{ $setting->nama_perusahaan ?? 'Restaurant POS' }}">{{ $setting->nama_perusahaan ?? 'Restaurant POS' }}</span>
-                    <span class="header-brand-subtitle">Point of Sale</span>
+                <div class="header-brand-text-wrap" style="display: flex; flex-direction: column; justify-content: center; text-align: left; overflow: hidden; margin: 0 !important; flex-grow: 1;">
+                    <span class="header-brand-title" title="{{ $setting->nama_perusahaan ?? 'Restaurant POS' }}" style="font-weight: 800; color: #0f172a; font-size: 14.5px; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; max-width: 155px; margin: 0 !important; line-height: 1.2;">{{ $setting->nama_perusahaan ?? 'Restaurant POS' }}</span>
+                    <span class="header-brand-subtitle" style="font-size: 10.5px; font-weight: 700; color: #ea580c; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 1px !important; line-height: 1; white-space: nowrap; display: block;">Point of Sale</span>
                 </div>
             </div>
         </span>
@@ -81,8 +81,8 @@
                         @if(auth()->user()->can('settings.manage') || auth()->user()->hasRole('admin') || auth()->user()->level == 1)
                         <li style="padding: 2px 8px;">
                             <a href="{{ route('setting.index') }}" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; font-size: 14px; font-weight: 500; color: #334155; text-decoration: none; transition: all 0.15s ease;">
-                                <i class="fa fa-sliders" style="font-size: 15px; color: #94a3b8; width: 18px; text-align: center;"></i>
-                                <span>Settings</span>
+                                <i class="fa fa-cogs" style="font-size: 15px; color: #94a3b8; width: 18px; text-align: center;"></i>
+                                <span>Setting</span>
                             </a>
                         </li>
                         @endif

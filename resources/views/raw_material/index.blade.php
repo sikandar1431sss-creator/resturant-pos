@@ -194,6 +194,12 @@
             <a href="{{ route('pembelian.index') }}" class="btn-purchase-link">
                 <i class="fa fa-shopping-cart text-warning"></i> Purchases
             </a>
+            <button type="button" onclick="openImportModal()" class="btn-purchase-link" style="background: #eff6ff !important; color: #1d4ed8 !important; border-color: #bfdbfe !important;">
+                <i class="fa fa-file-excel-o text-primary"></i> Import CSV
+            </button>
+            <a href="{{ route('raw_material.export_csv') }}" class="btn-purchase-link" style="background: #f0fdf4 !important; color: #15803d !important; border-color: #bbf7d0 !important;" title="Export all raw materials to CSV">
+                <i class="fa fa-download text-success"></i> Export CSV
+            </a>
             <button onclick="addForm('{{ route('raw_material.store') }}')" class="btn-create-material">
                 <i class="fa fa-plus-circle"></i> Add Raw Material
             </button>
@@ -265,6 +271,7 @@
 </div>
 
 @includeIf('raw_material.form')
+@includeIf('raw_material.import_modal')
 @endsection
 
 @push('scripts')
@@ -369,6 +376,108 @@
                 .fail((errors) => {
                     showErrorToast('Unable to delete raw material');
                 });
+        });
+    }
+
+    /* ========================================================
+     * 1-CLICK AUTOMATIC CSV IMPORT SCRIPT FOR RAW MATERIALS
+     * ======================================================== */
+    function openImportModal() {
+        $('#raw-selected-file-info').hide();
+        $('#raw-selected-filename').text('');
+        $('#raw_csv_file_input').val('');
+        $('#raw-import-loading').hide();
+        $('#btn-do-raw-import').prop('disabled', false).html('<i class="fa fa-cloud-upload"></i> Upload &amp; Import Materials');
+        $('#raw-drop-zone').css({'border-color': '#ea580c', 'background': '#ffffff'});
+        $('#modal-import-raw-csv').modal('show');
+    }
+
+    function handleRawFileChosen(file) {
+        if (!file) return;
+        $('#raw-selected-filename').text(file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)');
+        $('#raw-selected-file-info').show();
+        $('#raw-drop-zone').css({'border-color': '#16a34a', 'background': '#f0fdf4'});
+    }
+
+    // HTML5 Drag and Drop events
+    $(function() {
+        let dropZone = document.getElementById('raw-drop-zone');
+        if (dropZone) {
+            ['dragenter', 'dragover'].forEach(function(eventName) {
+                dropZone.addEventListener(eventName, function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    $('#raw-drop-zone').css({'border-color': '#ea580c', 'background': '#fff7ed'});
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(function(eventName) {
+                dropZone.addEventListener(eventName, function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    $('#raw-drop-zone').css({'border-color': '#ea580c', 'background': '#ffffff'});
+                }, false);
+            });
+
+            dropZone.addEventListener('drop', function(e) {
+                let dt = e.dataTransfer;
+                if (dt && dt.files && dt.files.length) {
+                    let file = dt.files[0];
+                    let input = document.getElementById('raw_csv_file_input');
+                    try {
+                        let transfer = new DataTransfer();
+                        transfer.items.add(file);
+                        input.files = transfer.files;
+                    } catch(err) {}
+                    handleRawFileChosen(file);
+                }
+            }, false);
+        }
+    });
+
+    function doDirectRawImport() {
+        let fileInput = document.getElementById('raw_csv_file_input');
+        if (!fileInput || !fileInput.files || !fileInput.files.length) {
+            showWarningToast('Please select a CSV file first.');
+            return;
+        }
+
+        let formData = new FormData($('#form-raw-csv-import')[0]);
+        let btn = $('#btn-do-raw-import');
+        let originalText = btn.html();
+
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Importing...');
+        $('#raw-import-loading').show();
+
+        $.ajax({
+            url: '{{ route('raw_material.import_direct') }}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false
+        })
+        .done(function(res) {
+            btn.prop('disabled', false).html(originalText);
+            $('#raw-import-loading').hide();
+
+            if (res.status) {
+                $('#modal-import-raw-csv').modal('hide');
+                showSuccessToast(res.message || 'Raw materials imported successfully!');
+                if (typeof table !== 'undefined' && table.ajax) {
+                    table.ajax.reload();
+                }
+            } else {
+                showErrorToast(res.message || 'Import failed.');
+            }
+        })
+        .fail(function(xhr) {
+            btn.prop('disabled', false).html(originalText);
+            $('#raw-import-loading').hide();
+            let msg = 'Failed to import CSV file.';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                msg = xhr.responseJSON.message;
+            }
+            showErrorToast(msg);
         });
     }
 </script>

@@ -75,15 +75,22 @@
                 </div>
             </div>
             <div class="box-body" style="padding: 18px; background: #f8fafc;">
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 12px;">
                     @foreach($tables as $t)
                         @php $isOcc = ($t->status === 'occupied'); @endphp
-                        <div style="background: {{ $isOcc ? '#fff5f5' : '#f0fdf4' }}; border: 1.5px solid {{ $isOcc ? '#fca5a5' : '#86efac' }}; border-radius: 8px; padding: 10px 12px; text-align: center;">
-                            <div style="font-weight: 800; font-size: 13px; color: #0f172a;">{{ $t->nomor_meja }}</div>
-                            <div style="font-size: 10.5px; color: #64748b; margin: 2px 0 6px 0;">{{ $t->kapasitas }} Seats</div>
-                            <span class="badge" style="background: {{ $isOcc ? '#b91c1c' : '#15803d' }}; color: #ffffff; font-size: 9.5px; font-weight: 800; padding: 2px 6px;">
-                                {{ $isOcc ? 'Occupied' : 'Free' }}
-                            </span>
+                        <div style="background: {{ $isOcc ? '#fffafa' : '#ffffff' }}; border: 1.5px solid {{ $isOcc ? '#fca5a5' : '#e2e8f0' }}; border-radius: 10px; padding: 12px 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between; min-height: 96px;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                                <div>
+                                    <div style="font-weight: 800; font-size: 13.5px; color: #0f172a; line-height: 1.3;">{{ $t->nomor_meja }}</div>
+                                    <div style="font-size: 11px; color: #64748b; font-weight: 600; margin-top: 2px;"><i class="fa fa-users text-muted"></i> {{ $t->kapasitas }} Seats</div>
+                                </div>
+                                <span style="font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; background: {{ $isOcc ? '#fee2e2' : '#ecfdf5' }}; color: {{ $isOcc ? '#b91c1c' : '#059669' }}; border: 1px solid {{ $isOcc ? '#fca5a5' : '#a7f3d0' }}; white-space: nowrap;">
+                                    <i class="fa fa-circle" style="font-size: 6px;"></i> {{ $isOcc ? 'Occupied' : 'Free' }}
+                                </span>
+                            </div>
+                            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid {{ $isOcc ? '#fecaca' : '#f1f5f9' }}; font-size: 11px; color: {{ $isOcc ? '#b91c1c' : '#059669' }}; font-weight: 600;">
+                                <i class="fa {{ $isOcc ? 'fa-hourglass-half' : 'fa-check-circle' }}"></i> {{ $isOcc ? 'In Service' : 'Ready for Guests' }}
+                            </div>
                         </div>
                     @endforeach
                 </div>

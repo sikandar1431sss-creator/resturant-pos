@@ -503,6 +503,47 @@ class ProdukController extends Controller
     }
 
     /**
+     * Export all products to CSV file.
+     */
+    public function exportCsv()
+    {
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="products_' . date('Y-m-d_His') . '.csv"',
+        ];
+
+        $callback = function () {
+            $handle = fopen('php://output', 'w');
+            // Write UTF-8 BOM for Excel compatibility
+            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            fputcsv($handle, ['Barcode', 'Item Name', 'Category', 'Brand', 'Cost Price', 'Selling Price', 'Discount (%)', 'Stock']);
+
+            $products = Produk::leftJoin('kategori', 'kategori.id_kategori', '=', 'produk.id_kategori')
+                ->select('produk.*', 'kategori.nama_kategori')
+                ->orderBy('produk.id_produk', 'asc')
+                ->get();
+
+            foreach ($products as $p) {
+                fputcsv($handle, [
+                    $p->kode_produk,
+                    $p->nama_produk,
+                    $p->nama_kategori ?? '',
+                    $p->merk ?? '',
+                    $p->harga_beli,
+                    $p->harga_jual,
+                    $p->diskon ?? 0,
+                    $p->stok,
+                ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
      * Download sample CSV template.
      */
     public function downloadSampleCsv()

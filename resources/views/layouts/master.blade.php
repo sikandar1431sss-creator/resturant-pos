@@ -33,7 +33,7 @@
 
     @stack('css')
 </head>
-<body class="hold-transition skin-black fixed">
+<body class="hold-transition skin-black fixed sidebar-mini">
     <div class="wrapper">
 
         @includeIf('layouts.header')
@@ -91,24 +91,37 @@
         setInterval(updateLiveClock, 1000);
         updateLiveClock();
 
-        // Strict Button-Only Sidebar Toggle (No hover auto-open/close)
+        // Strict Button-Only Sidebar Toggle (NO hover auto-open/close)
+        // Disable AdminLTE hover expansion completely:
+        if (typeof $.fn.pushMenu !== 'undefined' && $.fn.pushMenu.Constructor) {
+            $.fn.pushMenu.Constructor.prototype.expandOnHover = function () {
+                // Completely disabled: Never expand on hover
+            };
+        }
+
         $(function() {
-            // Disable AdminLTE hover expansion plugin feature completely
-            if ($.AdminLTE && $.AdminLTE.pushMenu) {
-                $.AdminLTE.pushMenu.options = $.AdminLTE.pushMenu.options || {};
-                $.AdminLTE.pushMenu.options.expandOnHover = false;
-            }
+            // Unbind any mouseenter/mouseleave hover listeners from sidebar
+            $('.main-sidebar').off('mouseenter mouseleave');
+            $('body').removeClass('sidebar-expanded-on-hover sidebar-mini-expand-feature');
+
+            $(window).on('load', function() {
+                $('.main-sidebar').off('mouseenter mouseleave');
+                $('body').removeClass('sidebar-expanded-on-hover sidebar-mini-expand-feature');
+            });
 
             // Restore user's manual preference if explicitly toggled
             var savedSidebar = localStorage.getItem('app_sidebar_collapsed');
             if (savedSidebar === 'true') {
                 $('body').addClass('sidebar-collapse');
-            } else {
+            } else if (savedSidebar === 'false') {
                 $('body').removeClass('sidebar-collapse');
             }
 
+            // Clean toggle on 3-lines button click only
             $(document).on('click', '[data-toggle="push-menu"]', function(e) {
                 setTimeout(function() {
+                    $('.main-sidebar').off('mouseenter mouseleave');
+                    $('body').removeClass('sidebar-expanded-on-hover');
                     var isCollapsed = $('body').hasClass('sidebar-collapse');
                     localStorage.setItem('app_sidebar_collapsed', isCollapsed ? 'true' : 'false');
                 }, 150);

@@ -17,7 +17,7 @@
                 <div class="box-header-actions" style="display: inline-flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                     <button onclick="addForm('{{ route('produk.store') }}')" class="btn btn-success btn-flat"><i class="fa fa-plus-circle"></i> Add New Product</button>
                     <button onclick="openImportModal()" class="btn btn-primary btn-flat"><i class="fa fa-file-excel-o"></i> Import CSV Items</button>
-                    <a href="{{ route('produk.sample_csv') }}" class="btn btn-default btn-flat" title="Download sample template"><i class="fa fa-download"></i> Sample CSV</a>
+                    <a href="{{ route('produk.export_csv') }}" class="btn btn-info btn-flat" title="Export All Products to CSV"><i class="fa fa-file-excel-o"></i> Export CSV</a>
                     <button onclick="deleteSelected('{{ route('produk.delete_selected') }}')" class="btn btn-danger btn-flat"><i class="fa fa-trash"></i> Delete</button>
                 </div>
             </div>

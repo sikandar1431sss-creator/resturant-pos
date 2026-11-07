@@ -56,6 +56,7 @@ Route::group(['middleware' => 'auth'], function () {
         // Products & Menu Items
         Route::get('/produk/data', [ProdukController::class, 'data'])->name('produk.data');
         Route::get('/produk/sample-csv', [ProdukController::class, 'downloadSampleCsv'])->name('produk.sample_csv');
+        Route::get('/produk/export-csv', [ProdukController::class, 'exportCsv'])->name('produk.export_csv');
         Route::post('/produk/import-direct', [ProdukController::class, 'autoImportCsv'])->name('produk.import_direct');
         Route::post('/produk/import-parse', [ProdukController::class, 'parseCsv'])->name('produk.import_parse');
         Route::post('/produk/import-process', [ProdukController::class, 'processCsv'])->name('produk.import_process');
@@ -72,6 +73,9 @@ Route::group(['middleware' => 'auth'], function () {
 
         // Raw Materials & Ingredients Inventory
         Route::get('/raw_material/data', [RawMaterialController::class, 'data'])->name('raw_material.data');
+        Route::get('/raw_material/sample-csv', [RawMaterialController::class, 'downloadSampleCsv'])->name('raw_material.sample_csv');
+        Route::get('/raw_material/export-csv', [RawMaterialController::class, 'exportCsv'])->name('raw_material.export_csv');
+        Route::post('/raw_material/import-direct', [RawMaterialController::class, 'autoImportCsv'])->name('raw_material.import_direct');
         Route::post('/raw_material/{id}/adjust', [RawMaterialController::class, 'adjust'])->name('raw_material.adjust');
         Route::resource('/raw_material', RawMaterialController::class);
 

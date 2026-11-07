@@ -299,23 +299,23 @@
     .table-floor-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 18px 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        border-radius: 14px;
+        padding: 20px 22px;
+        margin-bottom: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
     .table-floor-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 12px;
         margin-bottom: 14px;
-        padding-bottom: 12px;
+        padding-bottom: 14px;
         border-bottom: 1px solid #f1f5f9;
     }
     .table-floor-title {
-        font-size: 14.5px;
+        font-size: 15.5px;
         font-weight: 800;
         color: #0f172a;
         margin: 0;
@@ -323,114 +323,154 @@
         align-items: center;
         gap: 8px;
     }
+    .table-filter-group {
+        display: inline-flex;
+        background: #f1f5f9;
+        border-radius: 8px;
+        padding: 3px;
+        gap: 3px;
+    }
     .btn-table-filter {
+        border: none !important;
+        background: transparent !important;
+        color: #64748b !important;
+        font-weight: 700 !important;
+        font-size: 11.5px !important;
+        padding: 5px 14px !important;
         border-radius: 6px !important;
-        font-weight: 700;
-        font-size: 11px;
-        padding: 4px 12px;
-        transition: all 0.15s ease;
+        transition: all 0.15s ease !important;
+        cursor: pointer !important;
+    }
+    .btn-table-filter:hover {
+        color: #0f172a !important;
     }
     .btn-table-filter.active {
-        color: #ffffff !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
     }
     .table-stats-pills {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
         flex-wrap: wrap;
     }
     .table-stat-pill {
         font-size: 11.5px;
         font-weight: 700;
-        padding: 4px 10px;
+        padding: 4px 12px;
         border-radius: 20px;
         display: inline-flex;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
     }
     .pill-free {
-        background: #dcfce7;
-        color: #15803d;
-        border: 1px solid #bbf7d0;
+        background: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
     }
     .pill-occupied {
-        background: #fee2e2;
-        color: #b91c1c;
+        background: #fef2f2;
+        color: #dc2626;
         border: 1px solid #fecaca;
     }
     .pill-total {
-        background: #f1f5f9;
+        background: #f8fafc;
         color: #475569;
         border: 1px solid #e2e8f0;
     }
-    .pill-rate {
-        background: #eff6ff;
-        color: #1d4ed8;
-        border: 1px solid #bfdbfe;
-    }
     .table-floor-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        gap: 10px;
+        grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+        gap: 12px;
     }
     .table-seat-card {
         background: #ffffff;
-        border-radius: 8px;
-        padding: 10px 12px;
+        border-radius: 10px;
+        padding: 12px 14px;
         border: 1.5px solid #e2e8f0;
-        transition: all 0.15s ease;
-        position: relative;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        transition: all 0.2s ease;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        min-height: 85px;
+        min-height: 96px;
+        position: relative;
+    }
+    .table-seat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
     }
     .table-seat-card.table-card-free {
+        background: #ffffff;
+        border-color: #e2e8f0;
+    }
+    .table-seat-card.table-card-free:hover {
         border-color: #86efac;
-        background: #f0fdf4;
     }
     .table-seat-card.table-card-occupied {
+        background: #fffafa;
         border-color: #fca5a5;
-        background: #fff5f5;
     }
-    .table-card-top {
+    .table-seat-card.table-card-occupied:hover {
+        border-color: #ef4444;
+    }
+    .table-card-head {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 6px;
+        gap: 8px;
+        margin-bottom: 8px;
     }
     .table-name-text {
-        font-size: 13px;
+        font-size: 13.5px;
         font-weight: 800;
         color: #0f172a;
         margin: 0;
+        line-height: 1.3;
     }
     .table-capacity-tag {
-        font-size: 10.5px;
+        font-size: 11px;
         color: #64748b;
         font-weight: 600;
-        margin-top: 1px;
+        margin-top: 2px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
     }
-    .table-status-indicator {
-        font-size: 9.5px;
-        font-weight: 800;
-        padding: 2px 6px;
+    .table-status-pill {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 7px;
         border-radius: 4px;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.03em;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
-    .status-badge-free {
-        background: #15803d;
-        color: #ffffff;
+    .table-status-pill i {
+        font-size: 6px;
     }
-    .status-badge-occupied {
-        background: #b91c1c;
-        color: #ffffff;
+    .status-pill-free {
+        background: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+    }
+    .status-pill-occupied {
+        background: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fca5a5;
     }
     .table-card-body {
         margin-top: auto;
-        padding-top: 6px;
-        border-top: 1px dashed rgba(0,0,0,0.06);
+        padding-top: 8px;
+        border-top: 1px solid #f1f5f9;
+    }
+    .table-card-occupied .table-card-body {
+        border-top-color: #fecaca;
     }
     .table-order-info {
         font-size: 11.5px;
@@ -440,10 +480,30 @@
         justify-content: space-between;
         align-items: center;
     }
+    .order-bill {
+        color: #475569;
+        font-size: 11px;
+    }
+    .order-price {
+        color: #b91c1c;
+        font-weight: 800;
+        font-size: 12px;
+    }
     .table-order-sub {
         font-size: 10.5px;
         color: #64748b;
         margin-top: 2px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .table-free-msg {
+        font-size: 11px;
+        color: #059669;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 5px;
     }
 </style>
 @endpush
@@ -755,20 +815,20 @@
                         </div>
                     </div>
                     
-                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <div style="display: inline-flex; align-items: center; gap: 6px;">
-                            <button type="button" class="btn btn-sm btn-primary btn-flat btn-table-filter active" data-filter="all" onclick="filterDashboardTables('all', this)">All</button>
-                            <button type="button" class="btn btn-sm btn-default btn-flat btn-table-filter" data-filter="free" onclick="filterDashboardTables('free', this)" style="color: #15803d;">Free</button>
-                            <button type="button" class="btn btn-sm btn-default btn-flat btn-table-filter" data-filter="occupied" onclick="filterDashboardTables('occupied', this)" style="color: #b91c1c;">Occupied</button>
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <div class="table-filter-group">
+                            <button type="button" class="btn-table-filter active" data-filter="all" onclick="filterDashboardTables('all', this)">All</button>
+                            <button type="button" class="btn-table-filter" data-filter="free" onclick="filterDashboardTables('free', this)">Free</button>
+                            <button type="button" class="btn-table-filter" data-filter="occupied" onclick="filterDashboardTables('occupied', this)">Occupied</button>
                         </div>
 
-                        <button type="button" class="btn btn-default btn-sm btn-flat" onclick="refreshDashboardTables()" title="Refresh table status" style="border-radius: 6px; padding: 4px 8px;">
-                            <i class="fa fa-refresh" id="iconRefreshTable"></i>
+                        <button type="button" class="btn btn-default btn-sm btn-flat" onclick="refreshDashboardTables()" title="Refresh table status" style="border-radius: 8px; padding: 6px 10px; border-color: #cbd5e1; background: #ffffff;">
+                            <i class="fa fa-refresh" id="iconRefreshTable" style="color: #475569;"></i>
                         </button>
                     </div>
                 </div>
 
-                <div class="table-stats-pills" style="margin-bottom: 12px;">
+                <div class="table-stats-pills" style="margin-bottom: 16px;">
                     <span class="table-stat-pill pill-free" id="badgeFreeCount">
                         <i class="fa fa-circle" style="font-size: 8px;"></i> <strong id="lblFreeCount">{{ $free_tables }}</strong> Free
                     </span>
@@ -777,9 +837,6 @@
                     </span>
                     <span class="table-stat-pill pill-total">
                         <strong id="lblTotalCount">{{ $total_tables }}</strong> Total
-                    </span>
-                    <span class="table-stat-pill pill-rate">
-                        <strong id="lblOccupancyRate">{{ $occupancy_rate }}%</strong> Occupancy
                     </span>
                 </div>
 
@@ -791,34 +848,38 @@
                             $activeOrder = $t->penjualanAktif;
                         @endphp
                         <div class="table-seat-card {{ $isOccupied ? 'table-card-occupied' : 'table-card-free' }}" data-status="{{ $isOccupied ? 'occupied' : 'free' }}">
-                            <div class="table-card-top">
+                            <div class="table-card-head">
                                 <div>
-                                    <h4 class="table-name-text">{{ $t->nomor_meja }}</h4>
-                                    <div class="table-capacity-tag"><i class="fa fa-users text-muted"></i> {{ $t->kapasitas }} Seats</div>
+                                    <div class="table-name-text">{{ $t->nomor_meja }}</div>
+                                    <div class="table-capacity-tag">
+                                        <i class="fa fa-users text-muted"></i> {{ $t->kapasitas }} Seats
+                                    </div>
                                 </div>
-                                <span class="table-status-indicator {{ $isOccupied ? 'status-badge-occupied' : 'status-badge-free' }}">
-                                    {{ $isOccupied ? 'Occupied' : 'Free' }}
+                                <span class="table-status-pill {{ $isOccupied ? 'status-pill-occupied' : 'status-pill-free' }}">
+                                    <i class="fa fa-circle"></i> {{ $isOccupied ? 'Occupied' : 'Free' }}
                                 </span>
                             </div>
 
                             <div class="table-card-body">
                                 @if($isOccupied && $activeOrder)
                                     <div class="table-order-info">
-                                        <span>Bill #{{ $activeOrder->id_penjualan }}</span>
-                                        <span style="color: #b91c1c;">{{ format_currency($activeOrder->bayar) }}</span>
+                                        <span class="order-bill"><i class="fa fa-file-text-o text-muted"></i> Bill #{{ $activeOrder->id_penjualan }}</span>
+                                        <span class="order-price">{{ format_currency($activeOrder->bayar) }}</span>
                                     </div>
                                     <div class="table-order-sub">
-                                        <span>{{ $activeOrder->total_item }} items &bull; {{ $activeOrder->created_at ? $activeOrder->created_at->diffForHumans() : '' }}</span>
+                                        <span>{{ $activeOrder->total_item }} items</span>
+                                        <span>&bull;</span>
+                                        <span>{{ $activeOrder->created_at ? $activeOrder->created_at->diffForHumans() : '' }}</span>
                                     </div>
                                 @else
-                                    <div class="table-order-sub" style="color: #15803d; font-weight: 600;">
-                                        <i class="fa fa-check-circle"></i> Available
+                                    <div class="table-free-msg">
+                                        <i class="fa fa-check-circle"></i> Ready for Guests
                                     </div>
                                 @endif
                             </div>
                         </div>
                     @empty
-                        <div style="grid-column: 1 / -1; padding: 20px; text-align: center; color: #94a3b8;">
+                        <div style="grid-column: 1 / -1; padding: 30px; text-align: center; color: #94a3b8;">
                             No dining tables registered yet.
                         </div>
                     @endforelse
@@ -1148,7 +1209,6 @@
                 $('#lblFreeCount').text(data.free);
                 $('#lblOccupiedCount').text(data.occupied);
                 $('#lblTotalCount').text(data.total);
-                $('#lblOccupancyRate').text(data.occupancy_rate + '%');
 
                 let grid = $('#dashboardTablesGrid');
                 grid.empty();
@@ -1157,37 +1217,39 @@
                     data.tables.forEach(function(t) {
                         let isOccupied = t.is_occupied;
                         let cardClass = isOccupied ? 'table-card-occupied' : 'table-card-free';
-                        let badgeClass = isOccupied ? 'status-badge-occupied' : 'status-badge-free';
+                        let badgeClass = isOccupied ? 'status-pill-occupied' : 'status-pill-free';
                         let statusText = isOccupied ? 'Occupied' : 'Free';
                         let bodyHtml = '';
 
                         if (isOccupied && t.order) {
                             bodyHtml = `
                                 <div class="table-order-info">
-                                    <span>Bill #${t.order.id_penjualan}</span>
-                                    <span style="color: #b91c1c;">${t.order.formatted_amount}</span>
+                                    <span class="order-bill"><i class="fa fa-file-text-o text-muted"></i> Bill #${t.order.id_penjualan}</span>
+                                    <span class="order-price">${t.order.formatted_amount}</span>
                                 </div>
                                 <div class="table-order-sub">
-                                    <span>${t.order.total_item} items &bull; ${t.order.time_ago}</span>
+                                    <span>${t.order.total_item} items</span>
+                                    <span>&bull;</span>
+                                    <span>${t.order.time_ago}</span>
                                 </div>
                             `;
                         } else {
                             bodyHtml = `
-                                <div class="table-order-sub" style="color: #15803d; font-weight: 600;">
-                                    <i class="fa fa-check-circle"></i> Available
+                                <div class="table-free-msg">
+                                    <i class="fa fa-check-circle"></i> Ready for Guests
                                 </div>
                             `;
                         }
 
                         let html = `
                             <div class="table-seat-card ${cardClass}" data-status="${isOccupied ? 'occupied' : 'free'}">
-                                <div class="table-card-top">
+                                <div class="table-card-head">
                                     <div>
-                                        <h4 class="table-name-text">${t.nomor_meja}</h4>
+                                        <div class="table-name-text">${t.nomor_meja}</div>
                                         <div class="table-capacity-tag"><i class="fa fa-users text-muted"></i> ${t.kapasitas} Seats</div>
                                     </div>
-                                    <span class="table-status-indicator ${badgeClass}">
-                                        ${statusText}
+                                    <span class="table-status-pill ${badgeClass}">
+                                        <i class="fa fa-circle"></i> ${statusText}
                                     </span>
                                 </div>
                                 <div class="table-card-body">
